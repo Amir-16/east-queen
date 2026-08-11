@@ -1,0 +1,30 @@
+{
+  "rewrites": [
+    { "source": "/((?!images|videos|fonts|favicon).*)", "destination": "/index.html" }
+  ],
+  "redirects": [
+    { "source": "/about",         "destination": "/about-east-queen",  "permanent": true  },
+    { "source": "/contact",       "destination": "/contact-us",         "permanent": true  },
+    { "source": "/import-gabbro", "destination": "/import-aggregate",   "permanent": true  },
+    { "source": "/companies",     "destination": "/about-east-queen",   "permanent": false },
+    { "source": "/associates",    "destination": "/about-east-queen",   "permanent": false }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options",        "value": "SAMEORIGIN"                       },
+        { "key": "X-Content-Type-Options", "value": "nosniff"                           },
+        { "key": "Referrer-Policy",         "value": "strict-origin-when-cross-origin"  }
+      ]
+    },
+    {
+      "source": "/videos/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/images/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000" }]
+    }
+  ]
+}

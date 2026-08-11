@@ -1,0 +1,157 @@
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
+import { pageTransition, stagger, fadeUp } from '@/lib/motion'
+import PageHero from '@/components/ui/PageHero'
+import SectionHeader from '@/components/ui/SectionHeader'
+import { exportProducts, exportProcessSteps } from '@/data'
+
+export default function Export() {
+  const [activeProduct, setActiveProduct] = useState(exportProducts[0])
+
+  return (
+    <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+      <PageHero
+        title="Export Products"
+        subtitle="Premium Bangladeshi goods exported to global markets — from industrial commodities to fresh agricultural produce."
+        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Export' }]}
+        image="https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=1200&q=80"
+      />
+
+      <section className="section-padding bg-white">
+        <div className="section-container">
+          <SectionHeader
+            eyebrow="What We Export"
+            title="Our Export Products"
+            subtitle="Six core product categories exported with full documentation, third-party inspection, and logistics support."
+            className="mb-12"
+          />
+
+          <div className="grid lg:grid-cols-4 gap-8">
+            {/* Tab sidebar */}
+            <div className="space-y-2">
+              {exportProducts.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setActiveProduct(p)}
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left transition-all duration-200 group ${
+                    activeProduct.id === p.id
+                      ? 'bg-navy-900 text-white shadow-card'
+                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-navy-900'
+                  }`}
+                >
+                  <span className="text-xl shrink-0">{p.icon}</span>
+                  <span className="text-sm font-medium leading-tight">{p.name}</span>
+                  {activeProduct.id === p.id && (
+                    <ArrowRight size={13} className="ml-auto text-gold-400 shrink-0" />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Product detail */}
+            <div className="lg:col-span-3">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeProduct.id}
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="bg-white border border-slate-100 rounded-2xl shadow-card overflow-hidden"
+                >
+                  {/* Product header */}
+                  <div className="bg-gradient-to-r from-navy-900 to-navy-800 p-8">
+                    <div className="flex items-start gap-4">
+                      <span className="text-5xl">{activeProduct.icon}</span>
+                      <div>
+                        <span className="inline-block px-2.5 py-0.5 rounded-full bg-gold-500/20 text-gold-400 text-[10px] font-semibold uppercase tracking-wider mb-2">
+                          {activeProduct.category}
+                        </span>
+                        <h2 className="font-playfair font-bold text-white text-h3">{activeProduct.name}</h2>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-8">
+                    <p className="text-slate-600 leading-relaxed mb-8">{activeProduct.description}</p>
+
+                    {/* Specs table */}
+                    {activeProduct.specs && (
+                      <div className="mb-8">
+                        <h4 className="font-semibold text-navy-900 text-sm uppercase tracking-wider mb-4">Key Specifications</h4>
+                        <div className="border border-slate-100 rounded-xl overflow-hidden">
+                          {Object.entries(activeProduct.specs).map(([key, val], i) => (
+                            <div key={key} className={`grid grid-cols-2 px-5 py-3 text-sm ${i % 2 === 0 ? 'bg-slate-50' : 'bg-white'}`}>
+                              <span className="text-slate-500 font-medium">{key}</span>
+                              <span className="text-navy-900 font-semibold">{val}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tags */}
+                    {activeProduct.tags && (
+                      <div className="flex flex-wrap gap-2 mb-8">
+                        {activeProduct.tags.map((tag) => (
+                          <span key={tag} className="px-3 py-1 bg-gold-100 text-gold-700 text-xs font-semibold rounded-full border border-gold-200">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <Link
+                      to={`/contact?subject=export&product=${activeProduct.id}`}
+                      className="group inline-flex items-center gap-2 px-7 py-3.5 bg-gold-500 hover:bg-gold-400 text-navy-900 font-bold rounded-xl transition-all duration-200 text-sm hover:shadow-gold-glow"
+                    >
+                      Send Export Inquiry
+                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
+                    </Link>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Process section */}
+      <section className="section-padding bg-navy-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern" />
+        <div className="relative section-container">
+          <SectionHeader
+            eyebrow="How It Works"
+            title="Our Export Process"
+            subtitle="From your first inquiry to delivery at the destination port — we handle every step."
+            align="center"
+            theme="dark"
+            className="mb-14"
+          />
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6 relative"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            {exportProcessSteps.map((step) => (
+              <motion.div key={step.step} variants={fadeUp} className="flex flex-col items-center text-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gold-500/15 border border-gold-500/30 flex items-center justify-center text-3xl">
+                  {step.icon}
+                </div>
+                <div>
+                  <p className="font-mono font-bold text-gold-500 text-sm mb-1">Step 0{step.step}</p>
+                  <p className="font-semibold text-white text-sm mb-1.5">{step.title}</p>
+                  <p className="text-white/45 text-xs leading-relaxed">{step.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+    </motion.div>
+  )
+}
