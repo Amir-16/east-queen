@@ -23,6 +23,10 @@ const CompanyDetail = lazy(() => import('@/pages/CompanyDetail'))
 // Product detail pages (shared template)
 const ProductDetail = lazy(() => import('@/pages/ProductDetail'))
 
+// About sub-pages
+const MissionVision = lazy(() => import('@/pages/MissionVision'))
+const CoreValues    = lazy(() => import('@/pages/CoreValues'))
+
 // Legal & utility
 const PrivacyPolicy   = lazy(() => import('@/pages/PrivacyPolicy'))
 const TermsConditions = lazy(() => import('@/pages/TermsConditions'))
@@ -42,7 +46,9 @@ export default function App() {
 
               {/* ── Core pages ────────────────────────────────────── */}
               <Route path="/"                  element={<Home />} />
-              <Route path="/about-east-queen"  element={<About />} />
+              <Route path="/about-east-queen"        element={<About />} />
+              <Route path="/mission-vision-purpose"  element={<MissionVision />} />
+              <Route path="/our-core-values"         element={<CoreValues />} />
               <Route path="/export"            element={<Export />} />
               <Route path="/import"            element={<Import />} />
               <Route path="/gallery"           element={<Gallery />} />
