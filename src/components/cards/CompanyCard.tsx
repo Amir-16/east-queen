@@ -22,19 +22,18 @@ export default function CompanyCard({ company, className }: CompanyCardProps) {
         className,
       )}
     >
-      {/* Top gradient bar */}
-      <div className={cn('h-1.5 w-full bg-gradient-to-r', company.color)} />
-
-      {/* Cover — white logo panel */}
-      <div className="relative h-36 bg-white border-b border-slate-100">
-        <img
-          src={company.logo}
-          alt={company.name}
-          className="w-full h-full object-contain p-5"
-        />
+      {/* Logo area — brand gradient frame + white inset card */}
+      <div className={cn('relative h-40 bg-gradient-to-br p-3', company.color)}>
+        <div className="w-full h-full bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center">
+          <img
+            src={company.logo}
+            alt={company.name}
+            className="w-full h-full object-contain p-4"
+          />
+        </div>
         <span
           className={cn(
-            'absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider',
+            'absolute top-4 right-4 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider backdrop-blur-sm',
             INDUSTRY_COLORS[company.industry],
           )}
         >
