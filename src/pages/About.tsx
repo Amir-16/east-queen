@@ -2,8 +2,8 @@ import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 import CountUp from 'react-countup'
-import { ArrowRight } from 'lucide-react'
-import { pageTransition, fadeLeft, staggerSlow, fadeDown, scaleIn } from '@/lib/motion'
+import { ArrowRight, Eye, Target, Flame } from 'lucide-react'
+import { pageTransition, fadeLeft, fadeRight, staggerSlow, fadeDown, scaleIn } from '@/lib/motion'
 import PageHero from '@/components/ui/PageHero'
 import SectionHeader from '@/components/ui/SectionHeader'
 import { timelineEvents } from '@/data'
@@ -112,7 +112,7 @@ function MobileCard({
 const differentiators = [
   {
     title: '40+ Years Proven Track Record',
-    body: 'Founded in 1982, East Queen Group has weathered decades of market cycles, political shifts, and global trade disruptions — emerging stronger each time. Our longevity is our most compelling credential.',
+    body: 'Founded in 1968, East Queen Group has weathered decades of market cycles, political shifts, and global trade disruptions — emerging stronger each time. Our longevity is our most compelling credential.',
     img: '/images/shipping/bbg-master-night.jpeg',
   },
   {
@@ -128,8 +128,8 @@ const differentiators = [
 ]
 
 const glanceStats = [
-  { end: 1982, start: 1975, suffix: '',  label: 'Year Founded'        },
-  { end: 40,   start: 0,    suffix: '+', label: 'Years of Excellence' },
+  { end: 1968, start: 1960, suffix: '',  label: 'Year Founded'        },
+  { end: 55,   start: 0,    suffix: '+', label: 'Years of Excellence' },
   { end: 6,    start: 0,    suffix: '',  label: 'Group Companies'     },
   { end: 4,    start: 0,    suffix: '',  label: 'Continents Served'   },
 ]
@@ -159,10 +159,158 @@ export default function About() {
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
       <PageHero
         title="About East Queen Group"
-        subtitle="Four decades of industrial excellence, ethical trade, and sustainable growth in Bangladesh and beyond."
+        subtitle="Over five decades of industrial excellence, ethical trade, and sustainable growth — proudly rooted in Chattogram since 1968."
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'About Us' }]}
         image="/images/shipping/tristar-prosperity.jpeg"
       />
+
+      {/* ── Company Overview ─────────────────────────────────────────────── */}
+      <section className="section-padding bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-light-grid pointer-events-none opacity-50" />
+        <div className="section-container relative">
+
+          {/* Header + description — slide in from top */}
+          <motion.div
+            variants={staggerSlow}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+            className="max-w-3xl mb-14"
+          >
+            <motion.div variants={fadeDown} className="flex items-center gap-3 mb-5">
+              <div className="gold-rule" />
+              <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">
+                Established 1968 · Chattogram, Bangladesh
+              </span>
+            </motion.div>
+
+            <motion.h2
+              variants={fadeDown}
+              className="font-playfair font-bold text-h1 text-slate-900 leading-tight mb-6"
+            >
+              One of Bangladesh's Oldest &<br />
+              <span className="text-gradient-gold">Most Respected Conglomerates</span>
+            </motion.h2>
+
+            <motion.p variants={fadeDown} className="text-slate-600 text-lg leading-relaxed mb-4">
+              East Queen Group is one of Bangladesh's oldest and most respected industrial
+              conglomerates, proudly rooted in Chattogram since 1968. With over five decades of
+              experience, we have established ourselves as pioneers in multiple sectors — including
+              ship recycling, civil construction, steel trading, international trade, logistics,
+              manufacturing, agriculture, and infrastructure development.
+            </motion.p>
+
+            <motion.p variants={fadeDown} className="text-slate-600 leading-relaxed">
+              Founded by visionary entrepreneur M. A. Taher, East Queen Group has grown through
+              resilience, integrity, and strategic foresight. Today, we are known not only for
+              being the 4th largest and oldest ship recycler in Bangladesh but also for our dynamic
+              expansion into new industries and markets — both locally and globally.
+            </motion.p>
+          </motion.div>
+
+          {/* Vision & Mission — cards from left and right */}
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+
+            {/* Vision — slides from left */}
+            <motion.div
+              initial={{ opacity: 0, x: -80 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(17,24,39,0.12)' }}
+              className="group bg-white rounded-2xl border border-slate-100 shadow-card
+                         overflow-hidden cursor-default"
+            >
+              <div className="h-[3px] bg-gradient-to-r from-gold-500 to-gold-400" />
+              <div className="p-8">
+                <div className="w-12 h-12 rounded-xl bg-gold-50 flex items-center justify-center
+                               mb-5 group-hover:bg-gold-100 transition-colors duration-300">
+                  <Eye className="text-gold-500" size={22} />
+                </div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold-500 mb-2">
+                  Our Vision
+                </p>
+                <h3 className="font-playfair font-bold text-slate-900 text-xl leading-snug mb-4">
+                  Leading Bangladesh's Industrial Transformation
+                </h3>
+                <p className="text-slate-600 leading-relaxed">
+                  To lead Bangladesh's industrial transformation by delivering excellence,
+                  fostering innovation, and building global partnerships that create value
+                  for generations.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Mission — slides from right */}
+            <motion.div
+              initial={{ opacity: 0, x: 80 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+              whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(17,24,39,0.12)' }}
+              className="group bg-white rounded-2xl border border-slate-100 shadow-card
+                         overflow-hidden cursor-default"
+            >
+              <div className="h-[3px] bg-gradient-to-r from-gold-500 to-gold-400" />
+              <div className="p-8">
+                <div className="w-12 h-12 rounded-xl bg-gold-50 flex items-center justify-center
+                               mb-5 group-hover:bg-gold-100 transition-colors duration-300">
+                  <Target className="text-gold-500" size={22} />
+                </div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold-500 mb-2">
+                  Our Mission
+                </p>
+                <h3 className="font-playfair font-bold text-slate-900 text-xl leading-snug mb-4">
+                  A National & International Benchmark
+                </h3>
+                <p className="text-slate-600 leading-relaxed">
+                  To be recognized as a national and international benchmark in exporting,
+                  importing, manufacturing, and infrastructure development — through consistent
+                  performance, transparency, and customer satisfaction.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Spirit — wide dark card, slides from left */}
+          <motion.div
+            initial={{ opacity: 0, x: -80 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
+            className="relative bg-navy-900 rounded-2xl overflow-hidden shadow-deep"
+          >
+            {/* Decorative red glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-gold-500/10 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-gold-500 to-gold-400" />
+
+            <div className="relative flex flex-col sm:flex-row items-center sm:items-center gap-6 p-8 md:p-10">
+              {/* Icon */}
+              <div className="shrink-0 w-16 h-16 rounded-2xl bg-gold-500/15 border border-gold-500/25
+                              flex items-center justify-center">
+                <Flame className="text-gold-400" size={28} />
+              </div>
+
+              {/* Text */}
+              <div className="flex-1 text-center sm:text-left">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-gold-400 mb-2">
+                  Our Spirit
+                </p>
+                <p className="font-playfair font-bold text-white text-2xl md:text-3xl leading-snug">
+                  Enterprise is our spirit.
+                </p>
+              </div>
+
+              {/* Decorative large quote */}
+              <span className="hidden lg:block absolute right-10 top-1/2 -translate-y-1/2
+                               font-playfair text-[8rem] leading-none text-white/[0.04]
+                               select-none pointer-events-none">
+                "
+              </span>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
       {/* ── Chairman's Message ──────────────────────────────────────────── */}
       <section id="chairman_message" className="section-padding bg-slate-50 relative overflow-hidden">
@@ -232,14 +380,15 @@ export default function About() {
                 </span>
                 <p className="font-playfair italic text-slate-700 text-xl leading-relaxed
                               pl-5 border-l-4 border-gold-500 relative">
-                  Dear Friends & Partners,
+                  Welcome to East Queen Group.
                 </p>
               </motion.div>
 
               {[
                 'As Chairman, it gives me great pleasure to witness how far we have come in our journey — from humble beginnings to a diversified conglomerate with strong foundations in global trading, steel recycling, infrastructure development, energy, and more.',
-                'Our mission has always been to deliver quality, reliability, and integrity across every sector we operate in. Through ARIKO International, we export mill scale, zinc ash, and PET flakes, while importing heavy melting scrap and aggregates to meet the needs of our growing industrial base.',
+                'At East Queen Group, our mission is clear: to deliver quality, reliability, and integrity across every sector we operate in. Through companies like ARIKO International, we have established a significant presence in the export of mill scale, zinc ash, PET flakes, and ready-made garments, as well as the import of heavy melting scrap, aggregates, coal, and industrial raw materials.',
                 'Our long-standing business relations across Asia, the Middle East, Europe, and North America reflect our global outlook and trustworthy reputation. Our success is driven by the trust of our partners, the hard work of our people, and our unwavering values — honesty, innovation, and sustainability.',
+                'As industries evolve, we remain committed to adapting through modern logistics, digital advancement, and environmentally conscious practices that ensure long-term growth.',
                 'This website is more than a business portal — it is a gateway to our values, our capabilities, and our vision. I invite you to explore our services, connect with our team, and join us as we continue building a legacy of strength and excellence through East Queen Group.',
                 'Thank you for your continued support and confidence in our group.',
               ].map((para, i) => (
@@ -300,7 +449,7 @@ export default function About() {
               <motion.p variants={fadeDown} className="text-slate-600 text-lg leading-relaxed">
                 East Queen Group is one of Bangladesh's leading diversified conglomerates,
                 spanning ship-breaking, international commodity trading, energy distribution,
-                agri-business, and more. Since 1982, we have connected Bangladesh's industrial
+                agri-business, and more. Since 1968, we have connected Bangladesh's industrial
                 strength with global demand across four continents.
               </motion.p>
 
@@ -358,8 +507,8 @@ export default function About() {
                   viewport={{ once: true }}
                   className="absolute bottom-4 left-4 bg-white rounded-xl p-4 shadow-hover"
                 >
-                  <p className="font-mono font-black text-gold-500 text-2xl leading-none">1982</p>
-                  <p className="text-slate-700 text-xs font-semibold mt-1">Founded in Chittagong</p>
+                  <p className="font-mono font-black text-gold-500 text-2xl leading-none">1968</p>
+                  <p className="text-slate-700 text-xs font-semibold mt-1">Founded in Chattogram</p>
                   <p className="text-slate-400 text-[10px]">Bangladesh</p>
                 </motion.div>
 
@@ -370,7 +519,7 @@ export default function About() {
                   viewport={{ once: true }}
                   className="absolute top-4 right-4 bg-gold-500 rounded-xl px-4 py-3 shadow-gold-glow"
                 >
-                  <p className="font-mono font-black text-white text-2xl leading-none">40+</p>
+                  <p className="font-mono font-black text-white text-2xl leading-none">55+</p>
                   <p className="text-white/80 text-[10px] font-semibold uppercase tracking-wider mt-0.5">
                     Years
                   </p>
@@ -471,7 +620,7 @@ export default function About() {
         <div className="section-container relative">
           <SectionHeader
             eyebrow="Our Journey"
-            title="Four Decades of Growth"
+            title="Five Decades of Growth"
             subtitle="From a single ship-breaking yard to a six-company conglomerate — every chapter built on the last."
             align="center"
             className="mb-14"
