@@ -10,6 +10,55 @@ import { timelineEvents } from '@/data'
 import type { TimelineEvent } from '@/types'
 
 /*
+ * Spring-based rain: high stiffness = fast snap, damping = minimal bounce.
+ * No blur/duration — spring physics handles the feel of impact.
+ * Words drop 72px from above and snap into position like actual raindrops.
+ */
+const rainWord = {
+  hidden: { opacity: 0, y: -72 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 500, damping: 28, mass: 0.75 },
+  },
+}
+
+function RainText({
+  text,
+  className,
+  delay = 0,
+  stagger = 0.018,
+}: {
+  text: string
+  className?: string
+  delay?: number
+  stagger?: number
+}) {
+  const ref = useRef<HTMLParagraphElement>(null)
+  // Trigger when element is 40px inside the viewport — feels responsive, not laggy
+  const inView = useInView(ref, { once: true, margin: '0px 0px -40px 0px' })
+
+  return (
+    <motion.p
+      ref={ref}
+      initial="hidden"
+      animate={inView ? 'visible' : 'hidden'}
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: stagger, delayChildren: delay } },
+      }}
+      className={className}
+    >
+      {text.split(' ').map((word, i) => (
+        <motion.span key={i} variants={rainWord} className="inline-block mr-[0.28em] last:mr-0">
+          {word}
+        </motion.span>
+      ))}
+    </motion.p>
+  )
+}
+
+/*
  * Entry direction per card index:
  *  0 → from TOP    1 → from RIGHT
  *  2 → from LEFT   3 → from BOTTOM
@@ -166,16 +215,20 @@ export default function About() {
 
       {/* ── Company Overview ─────────────────────────────────────────────── */}
       <section className="section-padding bg-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-light-grid pointer-events-none opacity-50" />
+        <div className="absolute inset-0 bg-light-grid pointer-events-none opacity-40" />
+        {/* Decorative radial blob top-right */}
+        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full
+                        bg-gold-500/[0.04] pointer-events-none" />
+
         <div className="section-container relative">
 
-          {/* Header + description — slide in from top */}
+          {/* ── Header: eyebrow + title fall from top ── */}
           <motion.div
             variants={staggerSlow}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-80px' }}
-            className="max-w-3xl mb-14"
+            className="max-w-3xl mb-6"
           >
             <motion.div variants={fadeDown} className="flex items-center gap-3 mb-5">
               <div className="gold-rule" />
@@ -186,129 +239,218 @@ export default function About() {
 
             <motion.h2
               variants={fadeDown}
-              className="font-playfair font-bold text-h1 text-slate-900 leading-tight mb-6"
+              className="font-playfair font-bold text-h1 text-slate-900 leading-tight"
             >
               One of Bangladesh's Oldest &<br />
               <span className="text-gradient-gold">Most Respected Conglomerates</span>
             </motion.h2>
-
-            <motion.p variants={fadeDown} className="text-slate-600 text-lg leading-relaxed mb-4">
-              East Queen Group is one of Bangladesh's oldest and most respected industrial
-              conglomerates, proudly rooted in Chattogram since 1968. With over five decades of
-              experience, we have established ourselves as pioneers in multiple sectors — including
-              ship recycling, civil construction, steel trading, international trade, logistics,
-              manufacturing, agriculture, and infrastructure development.
-            </motion.p>
-
-            <motion.p variants={fadeDown} className="text-slate-600 leading-relaxed">
-              Founded by visionary entrepreneur M. A. Taher, East Queen Group has grown through
-              resilience, integrity, and strategic foresight. Today, we are known not only for
-              being the 4th largest and oldest ship recycler in Bangladesh but also for our dynamic
-              expansion into new industries and markets — both locally and globally.
-            </motion.p>
           </motion.div>
 
-          {/* Vision & Mission — cards from left and right */}
+          {/* ── Body paragraphs: word-by-word rain from above ── */}
+          <div className="max-w-3xl mb-16 space-y-4">
+            <RainText
+              text="East Queen Group is one of Bangladesh's oldest and most respected industrial conglomerates, proudly rooted in Chattogram since 1968. With over five decades of experience, we have established ourselves as pioneers in multiple sectors — including ship recycling, civil construction, steel trading, international trade, logistics, manufacturing, agriculture, and infrastructure development."
+              className="text-slate-600 text-lg leading-relaxed"
+            />
+            <RainText
+              text="Founded by visionary entrepreneur M. A. Taher, East Queen Group has grown through resilience, integrity, and strategic foresight. Today, we are known not only for being the 4th largest and oldest ship recycler in Bangladesh but also for our dynamic expansion into new industries and markets — both locally and globally."
+              className="text-slate-600 leading-relaxed"
+            />
+          </div>
+
+          {/* ── Vision & Mission: equal 2-col cards ── */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">
 
-            {/* Vision — slides from left */}
+            {/* Vision — slides from LEFT */}
             <motion.div
-              initial={{ opacity: 0, x: -80 }}
+              initial={{ opacity: 0, x: -110 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(17,24,39,0.12)' }}
-              className="group bg-white rounded-2xl border border-slate-100 shadow-card
-                         overflow-hidden cursor-default"
+              transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -6 }}
+              className="group relative bg-white rounded-2xl overflow-hidden border border-slate-100
+                         shadow-card hover:shadow-hover transition-all duration-300 cursor-default"
             >
-              <div className="h-[3px] bg-gradient-to-r from-gold-500 to-gold-400" />
-              <div className="p-8">
-                <div className="w-12 h-12 rounded-xl bg-gold-50 flex items-center justify-center
-                               mb-5 group-hover:bg-gold-100 transition-colors duration-300">
-                  <Eye className="text-gold-500" size={22} />
+              {/* Red top bar */}
+              <div className="h-[3px] bg-gradient-to-r from-gold-500 via-gold-400 to-gold-300" />
+
+              {/* Ghost number */}
+              <span className="absolute -top-2 right-3 font-mono font-black text-[7rem]
+                               leading-none text-slate-100 select-none pointer-events-none">
+                01
+              </span>
+
+              {/* Bottom reveal line on hover */}
+              <div className="absolute bottom-0 left-0 h-[3px] w-full bg-gold-500
+                              scale-x-0 group-hover:scale-x-100 origin-left
+                              transition-transform duration-500" />
+
+              <div className="relative p-8">
+                {/* Icon + label row */}
+                <div className="flex items-center gap-4 mb-7">
+                  <div className="relative w-14 h-14 rounded-2xl bg-gold-50 border border-gold-100
+                                  flex items-center justify-center overflow-hidden
+                                  group-hover:bg-gold-500 group-hover:border-gold-500
+                                  transition-all duration-300">
+                    <Eye
+                      size={22}
+                      className="text-gold-500 group-hover:text-white
+                                 group-hover:scale-110 transition-all duration-300"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gold-500">
+                      Our Vision
+                    </p>
+                    <div className="mt-1.5 h-[1.5px] w-6 bg-gold-300 rounded-full
+                                    group-hover:w-14 transition-all duration-500" />
+                  </div>
                 </div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold-500 mb-2">
-                  Our Vision
-                </p>
-                <h3 className="font-playfair font-bold text-slate-900 text-xl leading-snug mb-4">
-                  Leading Bangladesh's Industrial Transformation
-                </h3>
-                <p className="text-slate-600 leading-relaxed">
-                  To lead Bangladesh's industrial transformation by delivering excellence,
-                  fostering innovation, and building global partnerships that create value
-                  for generations.
-                </p>
+
+                {/* Title — snaps from above */}
+                <motion.h3
+                  initial={{ opacity: 0, y: -48 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '0px 0px -30px 0px' }}
+                  transition={{ type: 'spring', stiffness: 460, damping: 26 }}
+                  className="font-playfair font-bold text-slate-900 text-[1.3rem] leading-snug mb-4"
+                >
+                  Leading Bangladesh's<br />Industrial Transformation
+                </motion.h3>
+
+                {/* Body — rain effect */}
+                <RainText
+                  text="To lead Bangladesh's industrial transformation by delivering excellence, fostering innovation, and building global partnerships that create value for generations."
+                  className="text-slate-500 leading-relaxed text-[0.9rem]"
+                />
               </div>
             </motion.div>
 
-            {/* Mission — slides from right */}
+            {/* Mission — slides from RIGHT */}
             <motion.div
-              initial={{ opacity: 0, x: 80 }}
+              initial={{ opacity: 0, x: 110 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-              whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(17,24,39,0.12)' }}
-              className="group bg-white rounded-2xl border border-slate-100 shadow-card
-                         overflow-hidden cursor-default"
+              transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
+              whileHover={{ y: -6 }}
+              className="group relative bg-white rounded-2xl overflow-hidden border border-slate-100
+                         shadow-card hover:shadow-hover transition-all duration-300 cursor-default"
             >
-              <div className="h-[3px] bg-gradient-to-r from-gold-500 to-gold-400" />
-              <div className="p-8">
-                <div className="w-12 h-12 rounded-xl bg-gold-50 flex items-center justify-center
-                               mb-5 group-hover:bg-gold-100 transition-colors duration-300">
-                  <Target className="text-gold-500" size={22} />
+              {/* Red top bar */}
+              <div className="h-[3px] bg-gradient-to-r from-gold-500 via-gold-400 to-gold-300" />
+
+              {/* Ghost number */}
+              <span className="absolute -top-2 right-3 font-mono font-black text-[7rem]
+                               leading-none text-slate-100 select-none pointer-events-none">
+                02
+              </span>
+
+              {/* Bottom reveal line on hover */}
+              <div className="absolute bottom-0 left-0 h-[3px] w-full bg-gold-500
+                              scale-x-0 group-hover:scale-x-100 origin-left
+                              transition-transform duration-500" />
+
+              <div className="relative p-8">
+                {/* Icon + label row */}
+                <div className="flex items-center gap-4 mb-7">
+                  <div className="relative w-14 h-14 rounded-2xl bg-gold-50 border border-gold-100
+                                  flex items-center justify-center overflow-hidden
+                                  group-hover:bg-gold-500 group-hover:border-gold-500
+                                  transition-all duration-300">
+                    <Target
+                      size={22}
+                      className="text-gold-500 group-hover:text-white
+                                 group-hover:scale-110 transition-all duration-300"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gold-500">
+                      Our Mission
+                    </p>
+                    <div className="mt-1.5 h-[1.5px] w-6 bg-gold-300 rounded-full
+                                    group-hover:w-14 transition-all duration-500" />
+                  </div>
                 </div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold-500 mb-2">
-                  Our Mission
-                </p>
-                <h3 className="font-playfair font-bold text-slate-900 text-xl leading-snug mb-4">
-                  A National & International Benchmark
-                </h3>
-                <p className="text-slate-600 leading-relaxed">
-                  To be recognized as a national and international benchmark in exporting,
-                  importing, manufacturing, and infrastructure development — through consistent
-                  performance, transparency, and customer satisfaction.
-                </p>
+
+                {/* Title — snaps from above */}
+                <motion.h3
+                  initial={{ opacity: 0, y: -48 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '0px 0px -30px 0px' }}
+                  transition={{ type: 'spring', stiffness: 460, damping: 26 }}
+                  className="font-playfair font-bold text-slate-900 text-[1.3rem] leading-snug mb-4"
+                >
+                  A National &<br />International Benchmark
+                </motion.h3>
+
+                {/* Body — rain effect */}
+                <RainText
+                  text="To be recognized as a national and international benchmark in exporting, importing, manufacturing, and infrastructure development — through consistent performance, transparency, and customer satisfaction."
+                  className="text-slate-500 leading-relaxed text-[0.9rem]"
+                />
               </div>
             </motion.div>
           </div>
 
-          {/* Spirit — wide dark card, slides from left */}
+          {/* ── Spirit — full-width dark banner, slides from LEFT ── */}
           <motion.div
-            initial={{ opacity: 0, x: -80 }}
+            initial={{ opacity: 0, x: -110 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
-            className="relative bg-navy-900 rounded-2xl overflow-hidden shadow-deep"
+            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.14 }}
+            className="relative bg-navy-900 rounded-2xl overflow-hidden shadow-deep group cursor-default"
           >
-            {/* Decorative red glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-gold-500/10 via-transparent to-transparent pointer-events-none" />
-            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-gold-500 to-gold-400" />
+            {/* Top red bar */}
+            <div className="absolute top-0 left-0 right-0 h-[3px]
+                            bg-gradient-to-r from-gold-500 via-gold-400 to-transparent" />
 
-            <div className="relative flex flex-col sm:flex-row items-center sm:items-center gap-6 p-8 md:p-10">
-              {/* Icon */}
-              <div className="shrink-0 w-16 h-16 rounded-2xl bg-gold-500/15 border border-gold-500/25
-                              flex items-center justify-center">
-                <Flame className="text-gold-400" size={28} />
+            {/* Ambient glow top-left */}
+            <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full
+                            bg-gold-500/10 blur-3xl pointer-events-none" />
+            {/* Decorative circle bottom-right */}
+            <div className="absolute -bottom-12 -right-12 w-48 h-48 rounded-full
+                            border border-gold-500/10 pointer-events-none" />
+            <div className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full
+                            border border-gold-500/5 pointer-events-none" />
+
+            {/* Ghost "03" */}
+            <span className="absolute right-6 top-1/2 -translate-y-1/2 font-mono font-black
+                             text-[7rem] leading-none text-white/[0.04] select-none pointer-events-none
+                             hidden lg:block">
+              03
+            </span>
+
+            <div className="relative flex flex-col sm:flex-row items-center gap-8 p-8 md:p-12">
+              {/* Animated icon ring */}
+              <div className="shrink-0 relative">
+                <div className="w-20 h-20 rounded-2xl bg-gold-500/10 border border-gold-500/20
+                               flex items-center justify-center
+                               group-hover:bg-gold-500/20 group-hover:border-gold-500/40
+                               transition-all duration-300">
+                  <Flame size={34} className="text-gold-400" />
+                </div>
+                {/* Pulse ring */}
+                <motion.div
+                  animate={{ scale: [1, 1.5, 1], opacity: [0.35, 0, 0.35] }}
+                  transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute inset-0 rounded-2xl border-2 border-gold-400 pointer-events-none"
+                />
               </div>
 
               {/* Text */}
-              <div className="flex-1 text-center sm:text-left">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-gold-400 mb-2">
+              <div className="text-center sm:text-left">
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-gold-400/60 mb-3">
                   Our Spirit
                 </p>
-                <p className="font-playfair font-bold text-white text-2xl md:text-3xl leading-snug">
-                  Enterprise is our spirit.
-                </p>
+                <RainText
+                  text="Enterprise is our spirit."
+                  className="font-playfair font-bold text-white text-3xl md:text-4xl leading-tight"
+                  stagger={0.07}
+                />
               </div>
-
-              {/* Decorative large quote */}
-              <span className="hidden lg:block absolute right-10 top-1/2 -translate-y-1/2
-                               font-playfair text-[8rem] leading-none text-white/[0.04]
-                               select-none pointer-events-none">
-                "
-              </span>
             </div>
           </motion.div>
+
         </div>
       </section>
 
@@ -352,56 +494,68 @@ export default function About() {
               </div>
             </motion.div>
 
-            {/* Message — every element falls from above */}
-            <motion.div
-              variants={staggerSlow}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-80px' }}
-            >
-              <motion.div variants={fadeDown} className="flex items-center gap-3 mb-4">
-                <div className="gold-rule" />
-                <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">
-                  Chairman's Message
-                </span>
-              </motion.div>
-
-              <motion.h2
-                variants={fadeDown}
-                className="font-playfair font-bold text-h2 text-slate-900 mb-8"
+            {/* Message column */}
+            <div>
+              {/* Eyebrow + title + quote — stagger-drop from top as a group */}
+              <motion.div
+                variants={staggerSlow}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-80px' }}
               >
-                A Word From Our Chairman
-              </motion.h2>
+                <motion.div variants={fadeDown} className="flex items-center gap-3 mb-4">
+                  <div className="gold-rule" />
+                  <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">
+                    Chairman's Message
+                  </span>
+                </motion.div>
 
-              <motion.div variants={fadeDown} className="relative mb-8">
-                <span className="absolute -top-6 -left-2 text-[7rem] leading-none text-gold-500/10
-                                 font-playfair font-bold select-none pointer-events-none">
-                  "
-                </span>
-                <p className="font-playfair italic text-slate-700 text-xl leading-relaxed
-                              pl-5 border-l-4 border-gold-500 relative">
-                  Welcome to East Queen Group.
-                </p>
+                <motion.h2
+                  variants={fadeDown}
+                  className="font-playfair font-bold text-h2 text-slate-900 mb-8"
+                >
+                  A Word From Our Chairman
+                </motion.h2>
+
+                <motion.div variants={fadeDown} className="relative mb-8">
+                  <span className="absolute -top-6 -left-2 text-[7rem] leading-none text-gold-500/10
+                                   font-playfair font-bold select-none pointer-events-none">
+                    "
+                  </span>
+                  <p className="font-playfair italic text-slate-700 text-xl leading-relaxed
+                                pl-5 border-l-4 border-gold-500 relative">
+                    Welcome to East Queen Group.
+                  </p>
+                </motion.div>
               </motion.div>
 
-              {[
-                'As Chairman, it gives me great pleasure to witness how far we have come in our journey — from humble beginnings to a diversified conglomerate with strong foundations in global trading, steel recycling, infrastructure development, energy, and more.',
-                'At East Queen Group, our mission is clear: to deliver quality, reliability, and integrity across every sector we operate in. Through companies like ARIKO International, we have established a significant presence in the export of mill scale, zinc ash, PET flakes, and ready-made garments, as well as the import of heavy melting scrap, aggregates, coal, and industrial raw materials.',
-                'Our long-standing business relations across Asia, the Middle East, Europe, and North America reflect our global outlook and trustworthy reputation. Our success is driven by the trust of our partners, the hard work of our people, and our unwavering values — honesty, innovation, and sustainability.',
-                'As industries evolve, we remain committed to adapting through modern logistics, digital advancement, and environmentally conscious practices that ensure long-term growth.',
-                'This website is more than a business portal — it is a gateway to our values, our capabilities, and our vision. I invite you to explore our services, connect with our team, and join us as we continue building a legacy of strength and excellence through East Queen Group.',
-                'Thank you for your continued support and confidence in our group.',
-              ].map((para, i) => (
-                <motion.p
-                  key={i}
-                  variants={fadeDown}
-                  className="text-slate-600 leading-loose mb-5 last:mb-0"
-                >
-                  {para}
-                </motion.p>
-              ))}
+              {/* Body paragraphs — each word rains in as you scroll */}
+              <div className="space-y-5">
+                {[
+                  'As Chairman, it gives me great pleasure to witness how far we have come in our journey — from humble beginnings to a diversified conglomerate with strong foundations in global trading, steel recycling, infrastructure development, energy, and more.',
+                  'At East Queen Group, our mission is clear: to deliver quality, reliability, and integrity across every sector we operate in. Through companies like ARIKO International, we have established a significant presence in the export of mill scale, zinc ash, PET flakes, and ready-made garments, as well as the import of heavy melting scrap, aggregates, coal, and industrial raw materials.',
+                  'Our long-standing business relations across Asia, the Middle East, Europe, and North America reflect our global outlook and trustworthy reputation. Our success is driven by the trust of our partners, the hard work of our people, and our unwavering values — honesty, innovation, and sustainability.',
+                  'As industries evolve, we remain committed to adapting through modern logistics, digital advancement, and environmentally conscious practices that ensure long-term growth.',
+                  'This website is more than a business portal — it is a gateway to our values, our capabilities, and our vision. I invite you to explore our services, connect with our team, and join us as we continue building a legacy of strength and excellence through East Queen Group.',
+                  'Thank you for your continued support and confidence in our group.',
+                ].map((para, i) => (
+                  <RainText
+                    key={i}
+                    text={para}
+                    className="text-slate-600 leading-loose"
+                    stagger={0.032}
+                  />
+                ))}
+              </div>
 
-              <motion.div variants={fadeDown} className="mt-10 pt-7 border-t border-slate-200">
+              {/* Signature — fades in from top after paragraphs */}
+              <motion.div
+                initial={{ opacity: 0, y: -16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="mt-10 pt-7 border-t border-slate-200"
+              >
                 <p className="text-slate-500 text-sm mb-1">Warm regards,</p>
                 <p className="font-playfair font-bold text-slate-900 text-xl leading-tight">
                   A K M ABU TAHER BSc.
@@ -413,7 +567,7 @@ export default function About() {
                   </p>
                 </div>
               </motion.div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -446,12 +600,11 @@ export default function About() {
                 <span className="text-gradient-gold">Trust & Trade</span>
               </motion.h2>
 
-              <motion.p variants={fadeDown} className="text-slate-600 text-lg leading-relaxed">
-                East Queen Group is one of Bangladesh's leading diversified conglomerates,
-                spanning ship-breaking, international commodity trading, energy distribution,
-                agri-business, and more. Since 1968, we have connected Bangladesh's industrial
-                strength with global demand across four continents.
-              </motion.p>
+              <RainText
+                text="East Queen Group is one of Bangladesh's leading diversified conglomerates, spanning ship-breaking, international commodity trading, energy distribution, agri-business, and more. Since 1968, we have connected Bangladesh's industrial strength with global demand across four continents."
+                className="text-slate-600 text-lg leading-relaxed"
+                stagger={0.036}
+              />
 
               {/* Stat cards — from above */}
               <div ref={statsRef} className="grid grid-cols-2 gap-4 mt-10">
