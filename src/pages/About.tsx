@@ -8,6 +8,28 @@ import PageHero from '@/components/ui/PageHero'
 import SectionHeader from '@/components/ui/SectionHeader'
 import { timelineEvents } from '@/data'
 
+/* Per-card entry directions: top → right → left → bottom */
+const CARD_DIRS = [
+  { x: 0,   y: -88 },
+  { x: 88,  y: 0   },
+  { x: -88, y: 0   },
+  { x: 0,   y: 88  },
+] as const
+
+const cardVariants = {
+  hidden: (dir: { x: number; y: number }) => ({
+    opacity: 0,
+    x: dir.x,
+    y: dir.y,
+  }),
+  visible: {
+    opacity: 1,
+    x: 0,
+    y: 0,
+    transition: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+  },
+}
+
 const differentiators = [
   {
     title: '40+ Years Proven Track Record',
@@ -362,12 +384,10 @@ export default function About() {
       </section>
 
       {/* ── Our Journey ─────────────────────────────────────────────────── */}
-      <section id="timeline" className="section-padding bg-navy-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-60 pointer-events-none" />
+      <section id="timeline" className="section-padding bg-slate-50 relative overflow-hidden">
+        <div className="absolute inset-0 bg-dots-pattern pointer-events-none" />
         <div className="absolute top-0 left-0 right-0 h-[3px]
                         bg-gradient-to-r from-transparent via-gold-500 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px
-                        bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
 
         <div className="section-container relative">
           <SectionHeader
@@ -375,57 +395,223 @@ export default function About() {
             title="Four Decades of Growth"
             subtitle="From a single ship-breaking yard to a six-company conglomerate — every chapter built on the last."
             align="center"
-            theme="dark"
-            className="mb-16"
+            className="mb-14"
           />
 
-          <div className="relative max-w-2xl mx-auto">
-            {/* Animated vertical line */}
+          {/* ── Desktop alternating timeline ── */}
+          <div className="relative hidden lg:block">
+            {/* Center spine */}
             <motion.div
-              initial={{ scaleY: 0, originY: 0 }}
+              initial={{ scaleY: 0 }}
               whileInView={{ scaleY: 1 }}
-              transition={{ duration: 1.6, ease: [0.25, 0.1, 0.25, 1] }}
               viewport={{ once: true }}
-              className="absolute left-6 top-0 bottom-0 w-px
-                         bg-gradient-to-b from-gold-500 via-gold-500/40 to-transparent"
+              transition={{ duration: 1.8, ease: [0.25, 0.1, 0.25, 1] }}
+              style={{ originY: 0 }}
+              className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-[2px]
+                         bg-gradient-to-b from-gold-500/0 via-gold-500 to-gold-500/10"
             />
 
-            <div className="space-y-8 pl-16">
+            {timelineEvents.map((event, i) => {
+              const isLeft = i % 2 === 0
+              return (
+                <div
+                  key={event.year}
+                  className="relative grid grid-cols-2 items-center mb-10 last:mb-0"
+                >
+                  {/* LEFT column */}
+                  <div className="pr-12 flex justify-end">
+                    {isLeft ? (
+                      /* Card — custom variant drives direction from CARD_DIRS[i] */
+                      <motion.div
+                        custom={CARD_DIRS[i]}
+                        variants={cardVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.25 }}
+                        whileHover={{ scale: 1.025, boxShadow: '0 18px 44px rgba(17,24,39,0.12)' }}
+                        className="w-full max-w-[400px] bg-white rounded-2xl border border-slate-200
+                                   shadow-card cursor-default overflow-hidden"
+                      >
+                        <div className="h-1 w-full bg-gradient-to-r from-gold-500 to-gold-400" />
+                        <div className="p-6">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="font-mono font-black text-gold-500 text-3xl leading-none">
+                              {event.year}
+                            </span>
+                            {event.milestone && (
+                              <span className="text-[10px] font-bold uppercase tracking-widest
+                                               text-gold-500 border border-gold-200 bg-gold-50
+                                               rounded-full px-2 py-0.5">
+                                Milestone
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="font-playfair font-bold text-slate-900 text-lg leading-snug mb-2">
+                            {event.title}
+                          </h4>
+                          <p className="text-slate-500 text-sm leading-relaxed">{event.description}</p>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      /* Ghost year label opposite the card */
+                      <motion.div
+                        initial={{ opacity: 0, x: -28 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, amount: 0.4 }}
+                        transition={{ duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}
+                        className="flex flex-col items-end gap-1 text-right"
+                      >
+                        <span className="font-mono font-black text-slate-200 text-5xl leading-none select-none">
+                          {event.year}
+                        </span>
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          {event.title}
+                        </span>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Center dot */}
+                  <div className="absolute left-1/2 -translate-x-1/2 z-10 flex items-center justify-center">
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      whileInView={{ scale: 1, opacity: 1 }}
+                      viewport={{ once: true, amount: 0.5 }}
+                      transition={{ delay: 0.18, type: 'spring', stiffness: 340, damping: 22 }}
+                      className="relative flex items-center justify-center"
+                    >
+                      <motion.span
+                        animate={{ scale: [1, 2.2, 1], opacity: [0.4, 0, 0.4] }}
+                        transition={{ duration: 2.8, repeat: Infinity, delay: i * 0.55 }}
+                        className="absolute w-5 h-5 rounded-full bg-gold-400 pointer-events-none"
+                      />
+                      <div className="relative w-4 h-4 rounded-full bg-gold-500 border-[3px] border-white shadow-gold-glow" />
+                    </motion.div>
+                  </div>
+
+                  {/* RIGHT column */}
+                  <div className="pl-12 flex justify-start">
+                    {!isLeft ? (
+                      /* Card — custom variant drives direction from CARD_DIRS[i] */
+                      <motion.div
+                        custom={CARD_DIRS[i]}
+                        variants={cardVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.25 }}
+                        whileHover={{ scale: 1.025, boxShadow: '0 18px 44px rgba(17,24,39,0.12)' }}
+                        className="w-full max-w-[400px] bg-white rounded-2xl border border-slate-200
+                                   shadow-card cursor-default overflow-hidden"
+                      >
+                        <div className="h-1 w-full bg-gradient-to-r from-gold-500 to-gold-400" />
+                        <div className="p-6">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="font-mono font-black text-gold-500 text-3xl leading-none">
+                              {event.year}
+                            </span>
+                            {event.milestone && (
+                              <span className="text-[10px] font-bold uppercase tracking-widest
+                                               text-gold-500 border border-gold-200 bg-gold-50
+                                               rounded-full px-2 py-0.5">
+                                Milestone
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="font-playfair font-bold text-slate-900 text-lg leading-snug mb-2">
+                            {event.title}
+                          </h4>
+                          <p className="text-slate-500 text-sm leading-relaxed">{event.description}</p>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      /* Ghost year label */
+                      <motion.div
+                        initial={{ opacity: 0, x: 28 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, amount: 0.4 }}
+                        transition={{ duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}
+                        className="flex flex-col items-start gap-1"
+                      >
+                        <span className="font-mono font-black text-slate-200 text-5xl leading-none select-none">
+                          {event.year}
+                        </span>
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          {event.title}
+                        </span>
+                      </motion.div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* ── Mobile stacked timeline ── */}
+          <div className="lg:hidden relative">
+            <motion.div
+              initial={{ scaleY: 0 }}
+              whileInView={{ scaleY: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.6, ease: [0.25, 0.1, 0.25, 1] }}
+              style={{ originY: 0 }}
+              className="absolute left-5 top-0 bottom-0 w-[2px]
+                         bg-gradient-to-b from-gold-500/0 via-gold-500 to-gold-500/0"
+            />
+
+            <div className="space-y-5 pl-14">
               {timelineEvents.map((event, i) => (
                 <motion.div
                   key={event.year}
-                  variants={fadeDown}
+                  custom={CARD_DIRS[i]}
+                  variants={cardVariants}
                   initial="hidden"
                   whileInView="visible"
-                  viewport={{ once: true, margin: '-60px' }}
-                  transition={{ delay: i * 0.1 }}
+                  viewport={{ once: true, amount: 0.2 }}
                   className="relative"
                 >
                   {/* Dot */}
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    transition={{ delay: 0.15 + i * 0.1, type: 'spring', stiffness: 300 }}
-                    viewport={{ once: true }}
-                    className="absolute -left-[44px] top-5 w-5 h-5 rounded-full
-                               bg-gold-500 border-4 border-navy-900 shadow-gold-glow"
-                  />
+                  <div className="absolute -left-[38px] top-5 z-10">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.15 + i * 0.07, type: 'spring', stiffness: 300 }}
+                      className="relative flex items-center justify-center"
+                    >
+                      <motion.span
+                        animate={{ scale: [1, 2.0, 1], opacity: [0.4, 0, 0.4] }}
+                        transition={{ duration: 2.8, repeat: Infinity, delay: i * 0.55 }}
+                        className="absolute w-4 h-4 rounded-full bg-gold-400"
+                      />
+                      <div className="w-3 h-3 rounded-full bg-gold-500 border-2 border-slate-50 shadow-gold-glow" />
+                    </motion.div>
+                  </div>
 
-                  {/* Card — nudges right on hover */}
-                  <motion.div
-                    whileHover={{ x: 6 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    className="bg-white/5 hover:bg-white/[0.08] border border-white/10
-                               hover:border-gold-500/40 rounded-2xl p-6 transition-colors duration-300"
-                  >
-                    <span className="font-mono font-black text-gold-500 text-2xl block mb-2">
-                      {event.year}
-                    </span>
-                    <h4 className="font-bold text-white text-lg mb-2">{event.title}</h4>
-                    <p className="text-white/55 text-sm leading-relaxed">{event.description}</p>
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden
+                                  hover:border-gold-200 hover:shadow-hover transition-all duration-300">
+                    <div className="h-[3px] w-full bg-gradient-to-r from-gold-500 to-gold-400" />
+                    <div className="p-5">
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <span className="font-mono font-black text-gold-500 text-2xl leading-none">
+                          {event.year}
+                        </span>
+                        {event.milestone && (
+                          <span className="text-[9px] font-bold uppercase tracking-widest
+                                           text-gold-500 border border-gold-200 bg-gold-50
+                                           rounded-full px-1.5 py-0.5">
+                            Milestone
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="font-playfair font-bold text-slate-900 text-base leading-snug mb-1.5">
+                        {event.title}
+                      </h4>
+                      <p className="text-slate-500 text-sm leading-relaxed">{event.description}</p>
+                    </div>
+                  </div>
                   </motion.div>
-                </motion.div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>
