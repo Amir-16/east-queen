@@ -129,9 +129,10 @@ function VideoCard({
   )
 }
 
-// ─── ImageCard ───────────────────────────────────────────────────────────────
+// ─── ImageCircle ─────────────────────────────────────────────────────────────
+// Circular thumbnail — opens lightbox on click.
 
-function ImageCard({
+function ImageCircle({
   item,
   idx,
   onClick,
@@ -141,53 +142,63 @@ function ImageCard({
   onClick: () => void
 }) {
   return (
-    <motion.div
+    <motion.button
       layout
-      initial={{ opacity: 0, scale: 0.92 }}
+      initial={{ opacity: 0, scale: 0.65 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.88 }}
-      transition={{ duration: 0.35, delay: Math.min(idx * 0.04, 0.5) }}
+      exit={{ opacity: 0, scale: 0.65 }}
+      transition={{
+        type: 'spring', stiffness: 280, damping: 22,
+        delay: Math.min(idx * 0.025, 0.45),
+      }}
       onClick={onClick}
-      className="group relative overflow-hidden rounded-2xl cursor-pointer
-                 break-inside-avoid mb-4 shadow-card hover:shadow-hover
-                 transition-shadow duration-300"
+      className="group relative flex flex-col items-center gap-2 w-full focus:outline-none"
     >
-      <img
-        src={item.src}
-        alt={item.alt}
-        loading="lazy"
-        className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
-      />
+      {/* Circle */}
+      <div
+        className="relative w-full aspect-square rounded-full overflow-hidden
+                   ring-[3px] ring-white group-hover:ring-gold-500
+                   shadow-card group-hover:shadow-gold-glow
+                   transition-all duration-300"
+      >
+        <img
+          src={item.src}
+          alt={item.alt}
+          loading="lazy"
+          className="w-full h-full object-cover object-center
+                     transition-transform duration-500 group-hover:scale-110"
+        />
 
-      {/* Hover overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t
-                      from-navy-950/85 via-navy-900/20 to-transparent
-                      opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {/* Gradient overlay */}
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-navy-950/70
+                     opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        />
 
-      {/* Bottom content */}
-      <div className="absolute bottom-0 left-0 right-0 p-4
-                      translate-y-2 opacity-0
-                      group-hover:translate-y-0 group-hover:opacity-100
-                      transition-all duration-300">
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 mb-2
-                         bg-gold-500 rounded-lg text-white text-[10px] font-bold uppercase tracking-widest">
-          <ImageIcon size={9} />
-          {item.category}
-        </span>
-        {item.caption && (
-          <p className="text-white/90 text-xs leading-snug line-clamp-2">{item.caption}</p>
-        )}
-      </div>
-
-      {/* Expand icon — top-right on hover */}
-      <div className="absolute top-3 right-3
-                      opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <div className="w-8 h-8 rounded-lg bg-black/40 backdrop-blur-sm
-                        flex items-center justify-center text-white/80">
-          <Maximize2 size={12} />
+        {/* Expand icon */}
+        <div
+          className="absolute inset-0 flex items-center justify-center
+                     opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+          <div
+            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm
+                       flex items-center justify-center border border-white/40"
+          >
+            <Maximize2 size={14} className="text-white" />
+          </div>
         </div>
       </div>
-    </motion.div>
+
+      {/* Caption below — fades in on hover */}
+      {item.caption && (
+        <p
+          className="text-center text-[10px] text-slate-500 leading-snug line-clamp-2
+                     opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-1 w-full"
+        >
+          {item.caption}
+        </p>
+      )}
+    </motion.button>
   )
 }
 
@@ -365,7 +376,6 @@ const CATEGORIES: { label: string; value: CategoryFilter }[] = [
   { label: 'All Categories', value: 'all'        },
   { label: 'Operations',     value: 'operations' },
   { label: 'Facilities',     value: 'facilities' },
-  { label: 'Team',           value: 'team'       },
   { label: 'Products',       value: 'products'   },
 ]
 
@@ -532,11 +542,11 @@ export default function Gallery() {
                 </div>
               )}
 
-              {/* ── Images section ── */}
+              {/* ── Images section — circular grid ── */}
               {showImages && (
                 <div>
                   {/* Section label */}
-                  <div className="flex items-center gap-3 mb-6">
+                  <div className="flex items-center gap-3 mb-8">
                     <div className="flex items-center gap-2">
                       <ImageIcon size={16} className="text-slate-500" />
                       <h2 className="font-playfair font-bold text-slate-900 text-lg">Photos</h2>
@@ -547,11 +557,11 @@ export default function Gallery() {
                     <div className="flex-1 h-[1px] bg-slate-100" />
                   </div>
 
-                  {/* Masonry */}
-                  <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
+                  {/* Circle grid — responsive columns */}
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-5 sm:gap-6">
                     <AnimatePresence>
                       {filteredImages.map((item, idx) => (
-                        <ImageCard
+                        <ImageCircle
                           key={item.id}
                           item={item}
                           idx={idx}

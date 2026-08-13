@@ -29,7 +29,6 @@ export const galleryItems: GalleryItem[] = [
   { id: '21', src: '/images/products/exports/leather/leather-3.jpeg',       alt: 'Leather accessories', category: 'products', caption: 'Full-grain leather accessories — export to Europe & USA' },
   { id: '22', src: '/images/products/exports/zinc-ash/drums-closeup.jpeg',  alt: 'Zinc ash drums', category: 'products', caption: 'Zinc ash in drums — 70% Zn content, ready for export' },
   { id: '23', src: '/images/products/imports/steel-scrap/scrap-1.jpeg',     alt: 'HMS steel scrap', category: 'products', caption: 'HMS 1&2 steel scrap — imported for re-rolling mills' },
-  { id: '24', src: '/images/team/chairman.jpeg',                            alt: 'Chairman East Queen Group', category: 'team', caption: 'Chairman — East Queen Group, leading since 1968' },
 
   // ── VIDEOS — On-site Footage (WhatsApp originals, deduplicated) ─────────
 
