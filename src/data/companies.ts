@@ -24,7 +24,7 @@ export const companies: Company[] = [
       'Heavy Equipment Import',
     ],
     color: 'from-navy-900 to-navy-700',
-    logo: '/images/brand/logo.png',
+    logo: '/images/brand/concerns/con-7.png',
     coverImage: '/images/products/exports/mill-scale/mill-1.jpeg',
     galleryImages: [
       '/images/products/exports/mill-scale/mill-3.jpeg',
@@ -79,7 +79,7 @@ export const companies: Company[] = [
       'Maritime Consulting',
     ],
     color: 'from-navy-800 to-navy-950',
-    logo: '/images/brand/logo.png',
+    logo: '/images/brand/concerns/con-6.png',
     coverImage: '/images/shipping/bbg-master-night.jpeg',
     galleryImages: [
       '/images/shipping/tristar-prosperity.jpeg',
@@ -113,7 +113,7 @@ export const companies: Company[] = [
       'Bulk LPG Supply',
     ],
     color: 'from-gold-600 to-gold-700',
-    logo: '/images/brand/logo.png',
+    logo: '/images/brand/concerns/con-1.png',
     coverImage: '/images/hero/old-services-03.jpg',
     galleryImages: [],
     founded: 2003,
@@ -142,7 +142,7 @@ export const companies: Company[] = [
       'Agri Outgrower Programme',
     ],
     color: 'from-teal-600 to-teal-500',
-    logo: '/images/brand/logo.png',
+    logo: '/images/brand/concerns/con-3.png',
     coverImage: '/images/companies/syedpur/farm-1.jpeg',
     galleryImages: [
       '/images/companies/syedpur/pond-1.jpeg',
@@ -176,7 +176,7 @@ export const companies: Company[] = [
       'Covered Storage & Yard Management',
     ],
     color: 'from-slate-700 to-slate-900',
-    logo: '/images/brand/logo.png',
+    logo: '/images/brand/concerns/con-4.png',
     coverImage: '/images/products/imports/aggregate/aggregate-1.png',
     galleryImages: [
       '/images/products/imports/aggregate/aggregate-golden-1.jpeg',
@@ -209,7 +209,7 @@ export const companies: Company[] = [
       'International Procurement & Distribution',
     ],
     color: 'from-gold-500 to-gold-600',
-    logo: '/images/brand/logo.png',
+    logo: '/images/brand/concerns/con-2.png',
     coverImage: '/images/products/exports/vegetables/cabbage-field.jpeg',
     galleryImages: [
       '/images/companies/syedpur/frozen-frozen-1.jpeg',

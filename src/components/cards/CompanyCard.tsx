@@ -25,12 +25,13 @@ export default function CompanyCard({ company, className }: CompanyCardProps) {
       {/* Top gradient bar */}
       <div className={cn('h-1.5 w-full bg-gradient-to-r', company.color)} />
 
-      {/* Cover area */}
-      <div className={cn('relative h-28 bg-gradient-to-br flex items-center justify-center', company.color)}>
-        <span className="font-playfair font-bold text-4xl text-white/20 select-none">
-          {company.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}
-        </span>
-        {/* Industry badge */}
+      {/* Cover — white logo panel */}
+      <div className="relative h-36 bg-white border-b border-slate-100">
+        <img
+          src={company.logo}
+          alt={company.name}
+          className="w-full h-full object-contain p-5"
+        />
         <span
           className={cn(
             'absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider',

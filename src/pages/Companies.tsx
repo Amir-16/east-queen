@@ -84,11 +84,13 @@ export default function Companies() {
                   {/* Top bar */}
                   <div className={`h-2 w-full bg-gradient-to-r ${company.color}`} />
 
-                  {/* Cover */}
-                  <div className={`relative h-32 bg-gradient-to-br flex items-center justify-center ${company.color}`}>
-                    <span className="font-playfair font-black text-5xl text-white/15 select-none">
-                      {company.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}
-                    </span>
+                  {/* Cover — white logo panel */}
+                  <div className="relative h-44 bg-white border-b border-slate-100">
+                    <img
+                      src={company.logo}
+                      alt={company.name}
+                      className="w-full h-full object-contain p-6"
+                    />
                     <span className={`absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${INDUSTRY_COLORS[company.industry]}`}>
                       {company.industry}
                     </span>
