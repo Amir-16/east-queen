@@ -81,15 +81,17 @@ export default function Companies() {
                   transition={{ duration: 0.3 }}
                   className="bg-white rounded-2xl border border-slate-100 shadow-card overflow-hidden hover:shadow-hover hover:border-gold-300/40 transition-all duration-300 group"
                 >
-                  {/* Top bar */}
-                  <div className={`h-2 w-full bg-gradient-to-r ${company.color}`} />
-
-                  {/* Cover */}
-                  <div className={`relative h-32 bg-gradient-to-br flex items-center justify-center ${company.color}`}>
-                    <span className="font-playfair font-black text-5xl text-white/15 select-none">
-                      {company.name.split(' ').map((w) => w[0]).join('').slice(0, 3)}
-                    </span>
-                    <span className={`absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${INDUSTRY_COLORS[company.industry]}`}>
+                  {/* Logo area — brand gradient frame + white inset card */}
+                  <div className={`relative h-48 bg-gradient-to-br ${company.color} p-3`}>
+                    {/* White inset card — logo renders cleanly regardless of shape */}
+                    <div className="w-full h-full bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center">
+                      <img
+                        src={company.logo}
+                        alt={company.name}
+                        className="w-full h-full object-contain p-5"
+                      />
+                    </div>
+                    <span className={`absolute top-4 right-4 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider backdrop-blur-sm ${INDUSTRY_COLORS[company.industry]}`}>
                       {company.industry}
                     </span>
                   </div>
