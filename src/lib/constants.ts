@@ -21,10 +21,6 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    label: 'Associates',
-    href: '/about-east-queen',
-  },
-  {
     label: 'Export',
     href: '/export',
     children: [
