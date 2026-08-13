@@ -7,27 +7,106 @@ import { pageTransition, fadeLeft, staggerSlow, fadeDown, scaleIn } from '@/lib/
 import PageHero from '@/components/ui/PageHero'
 import SectionHeader from '@/components/ui/SectionHeader'
 import { timelineEvents } from '@/data'
+import type { TimelineEvent } from '@/types'
 
-/* Per-card entry directions: top → right → left → bottom */
-const CARD_DIRS = [
-  { x: 0,   y: -88 },
-  { x: 88,  y: 0   },
-  { x: -88, y: 0   },
-  { x: 0,   y: 88  },
-] as const
+/*
+ * Entry direction per card index:
+ *  0 → from TOP    1 → from RIGHT
+ *  2 → from LEFT   3 → from BOTTOM
+ */
+const CARD_DIRS: { x: number; y: number }[] = [
+  { x: 0,    y: -100 },
+  { x: 100,  y: 0    },
+  { x: -100, y: 0    },
+  { x: 0,    y: 100  },
+]
 
-const cardVariants = {
-  hidden: (dir: { x: number; y: number }) => ({
-    opacity: 0,
-    x: dir.x,
-    y: dir.y,
-  }),
-  visible: {
-    opacity: 1,
-    x: 0,
-    y: 0,
-    transition: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
-  },
+/* Reusable card content — shared by desktop & mobile */
+function CardContent({ event }: { event: TimelineEvent }) {
+  return (
+    <>
+      <div className="h-1 w-full bg-gradient-to-r from-gold-500 to-gold-400" />
+      <div className="p-6">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="font-mono font-black text-gold-500 text-3xl leading-none">
+            {event.year}
+          </span>
+          {event.milestone && (
+            <span className="text-[10px] font-bold uppercase tracking-widest
+                             text-gold-500 border border-gold-200 bg-gold-50
+                             rounded-full px-2 py-0.5">
+              Milestone
+            </span>
+          )}
+        </div>
+        <h4 className="font-playfair font-bold text-slate-900 text-lg leading-snug mb-2">
+          {event.title}
+        </h4>
+        <p className="text-slate-500 text-sm leading-relaxed">{event.description}</p>
+      </div>
+    </>
+  )
+}
+
+/* Desktop card — useInView drives animate so it ALWAYS fires on scroll */
+function DesktopCard({
+  event,
+  dir,
+  delay = 0,
+}: {
+  event: TimelineEvent
+  dir: { x: number; y: number }
+  delay?: number
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: '0px 0px -60px 0px' })
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: dir.x, y: dir.y }}
+      animate={
+        inView
+          ? { opacity: 1, x: 0, y: 0 }
+          : { opacity: 0, x: dir.x, y: dir.y }
+      }
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay }}
+      whileHover={{ scale: 1.02, boxShadow: '0 18px 44px rgba(17,24,39,0.11)' }}
+      className="w-full max-w-[400px] bg-white rounded-2xl border border-slate-200
+                 shadow-card cursor-default overflow-hidden"
+    >
+      <CardContent event={event} />
+    </motion.div>
+  )
+}
+
+/* Mobile card — same useInView pattern */
+function MobileCard({
+  event,
+  dir,
+}: {
+  event: TimelineEvent
+  dir: { x: number; y: number }
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: '0px 0px -40px 0px' })
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: dir.x, y: dir.y }}
+      animate={
+        inView
+          ? { opacity: 1, x: 0, y: 0 }
+          : { opacity: 0, x: dir.x, y: dir.y }
+      }
+      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden
+                 hover:border-gold-200 hover:shadow-hover transition-colors duration-300"
+    >
+      <CardContent event={event} />
+    </motion.div>
+  )
 }
 
 const differentiators = [
@@ -413,6 +492,7 @@ export default function About() {
 
             {timelineEvents.map((event, i) => {
               const isLeft = i % 2 === 0
+              const dir    = CARD_DIRS[i] ?? { x: 0, y: 0 }
               return (
                 <div
                   key={event.year}
@@ -421,13 +501,11 @@ export default function About() {
                   {/* LEFT column */}
                   <div className="pr-12 flex justify-end">
                     {isLeft ? (
-                      /* Card — custom variant drives direction from CARD_DIRS[i] */
                       <motion.div
-                        custom={CARD_DIRS[i]}
-                        variants={cardVariants}
-                        initial="hidden"
-                        whileInView="visible"
+                        initial={{ opacity: 0, x: dir.x, y: dir.y }}
+                        whileInView={CARD_VISIBLE}
                         viewport={{ once: true, amount: 0.25 }}
+                        transition={CARD_TRANS}
                         whileHover={{ scale: 1.025, boxShadow: '0 18px 44px rgba(17,24,39,0.12)' }}
                         className="w-full max-w-[400px] bg-white rounded-2xl border border-slate-200
                                    shadow-card cursor-default overflow-hidden"
@@ -453,12 +531,11 @@ export default function About() {
                         </div>
                       </motion.div>
                     ) : (
-                      /* Ghost year label opposite the card */
                       <motion.div
                         initial={{ opacity: 0, x: -28 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true, amount: 0.4 }}
-                        transition={{ duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}
+                        transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as [number,number,number,number] }}
                         className="flex flex-col items-end gap-1 text-right"
                       >
                         <span className="font-mono font-black text-slate-200 text-5xl leading-none select-none">
@@ -492,13 +569,11 @@ export default function About() {
                   {/* RIGHT column */}
                   <div className="pl-12 flex justify-start">
                     {!isLeft ? (
-                      /* Card — custom variant drives direction from CARD_DIRS[i] */
                       <motion.div
-                        custom={CARD_DIRS[i]}
-                        variants={cardVariants}
-                        initial="hidden"
-                        whileInView="visible"
+                        initial={{ opacity: 0, x: dir.x, y: dir.y }}
+                        whileInView={CARD_VISIBLE}
                         viewport={{ once: true, amount: 0.25 }}
+                        transition={CARD_TRANS}
                         whileHover={{ scale: 1.025, boxShadow: '0 18px 44px rgba(17,24,39,0.12)' }}
                         className="w-full max-w-[400px] bg-white rounded-2xl border border-slate-200
                                    shadow-card cursor-default overflow-hidden"
@@ -524,12 +599,11 @@ export default function About() {
                         </div>
                       </motion.div>
                     ) : (
-                      /* Ghost year label */
                       <motion.div
                         initial={{ opacity: 0, x: 28 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true, amount: 0.4 }}
-                        transition={{ duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}
+                        transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as [number,number,number,number] }}
                         className="flex flex-col items-start gap-1"
                       >
                         <span className="font-mono font-black text-slate-200 text-5xl leading-none select-none">
@@ -559,14 +633,15 @@ export default function About() {
             />
 
             <div className="space-y-5 pl-14">
-              {timelineEvents.map((event, i) => (
+              {timelineEvents.map((event, i) => {
+                const dir = CARD_DIRS[i] ?? { x: 0, y: 0 }
+                return (
                 <motion.div
                   key={event.year}
-                  custom={CARD_DIRS[i]}
-                  variants={cardVariants}
-                  initial="hidden"
-                  whileInView="visible"
+                  initial={{ opacity: 0, x: dir.x, y: dir.y }}
+                  whileInView={CARD_VISIBLE}
                   viewport={{ once: true, amount: 0.2 }}
+                  transition={CARD_TRANS}
                   className="relative"
                 >
                   {/* Dot */}

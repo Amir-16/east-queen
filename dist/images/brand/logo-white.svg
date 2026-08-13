@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 300" fill="none">
+  <!-- Flagpole -->
+  <line x1="70" y1="8" x2="70" y2="188" stroke="white" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- Ball on top -->
+  <circle cx="70" cy="8" r="7" fill="white"/>
+
+  <!-- Flag body -->
+  <path d="M70,30 L224,40 C230,55 232,68 224,80 C232,92 230,105 224,120 L70,130 Z"
+        fill="rgba(255,255,255,0.12)" stroke="white" stroke-width="3.5" stroke-linejoin="round"/>
+
+  <!-- Bracket -->
+  <line x1="58" y1="80" x2="82" y2="80" stroke="white" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Red Q circle -->
+  <circle cx="152" cy="80" r="40" fill="#E21F2F"/>
+
+  <!-- Q tail -->
+  <rect x="175" y="101" width="24" height="13" rx="2" fill="white" transform="rotate(-25 175 101)"/>
+
+  <!-- EAST QUEEN -->
+  <text
+    x="140" y="238"
+    text-anchor="middle"
+    font-family="'Arial Black','Arial',sans-serif"
+    font-weight="900"
+    font-size="40"
+    fill="white"
+    letter-spacing="0.5"
+  >EAST QUEEN</text>
+
+  <!-- GROUP -->
+  <text
+    x="140" y="272"
+    text-anchor="middle"
+    font-family="'Arial','Helvetica',sans-serif"
+    font-weight="700"
+    font-size="19"
+    fill="rgba(255,255,255,0.75)"
+    letter-spacing="11"
+  >GROUP</text>
+</svg>
