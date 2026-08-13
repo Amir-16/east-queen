@@ -48,6 +48,7 @@ export interface Associate {
 
 export interface GalleryItem {
   id: string
+  type?: 'image' | 'video'   // defaults to 'image'
   src: string
   thumbnail?: string
   alt: string

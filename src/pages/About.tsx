@@ -261,51 +261,49 @@ export default function About() {
           {/* ── Vision & Mission: equal 2-col cards ── */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">
 
-            {/* Vision — slides from LEFT */}
+            {/* ── VISION — slides from LEFT ── */}
             <motion.div
               initial={{ opacity: 0, x: -110 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ y: -6 }}
-              className="group relative bg-white rounded-2xl overflow-hidden border border-slate-100
-                         shadow-card hover:shadow-hover transition-all duration-300 cursor-default"
+              whileHover={{ y: -8 }}
+              className="group relative bg-white rounded-2xl overflow-hidden
+                         border border-slate-100 shadow-card hover:shadow-hover
+                         transition-all duration-300 cursor-default"
             >
-              {/* Red top bar */}
-              <div className="h-[3px] bg-gradient-to-r from-gold-500 via-gold-400 to-gold-300" />
+              {/* Solid top accent */}
+              <div className="h-1 bg-gold-500" />
 
-              {/* Ghost number */}
-              <span className="absolute -top-2 right-3 font-mono font-black text-[7rem]
-                               leading-none text-slate-100 select-none pointer-events-none">
-                01
-              </span>
+              {/* Left border — sweeps down from top on hover */}
+              <div className="absolute left-0 top-1 bottom-0 w-[3px] bg-gold-500
+                              scale-y-0 group-hover:scale-y-100 origin-top
+                              transition-transform duration-500 rounded-b-full" />
 
-              {/* Bottom reveal line on hover */}
-              <div className="absolute bottom-0 left-0 h-[3px] w-full bg-gold-500
-                              scale-x-0 group-hover:scale-x-100 origin-left
-                              transition-transform duration-500" />
+              {/* Subtle radial glow — top-right corner */}
+              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full
+                              bg-gold-500/[0.05] blur-2xl pointer-events-none
+                              opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
               <div className="relative p-8">
-                {/* Icon + label row */}
-                <div className="flex items-center gap-4 mb-7">
-                  <div className="relative w-14 h-14 rounded-2xl bg-gold-50 border border-gold-100
-                                  flex items-center justify-center overflow-hidden
-                                  group-hover:bg-gold-500 group-hover:border-gold-500
-                                  transition-all duration-300">
-                    <Eye
-                      size={22}
-                      className="text-gold-500 group-hover:text-white
-                                 group-hover:scale-110 transition-all duration-300"
-                    />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gold-500">
-                      Our Vision
-                    </p>
-                    <div className="mt-1.5 h-[1.5px] w-6 bg-gold-300 rounded-full
-                                    group-hover:w-14 transition-all duration-500" />
-                  </div>
+                {/* Icon */}
+                <div className="w-14 h-14 rounded-2xl
+                               bg-gradient-to-br from-gold-50 to-white border border-gold-100
+                               flex items-center justify-center mb-6
+                               group-hover:bg-gold-500 group-hover:border-gold-500
+                               transition-all duration-300 shadow-sm">
+                  <Eye size={22}
+                    className="text-gold-500 group-hover:text-white
+                               group-hover:scale-110 transition-all duration-300" />
                 </div>
+
+                {/* Label + animated rule */}
+                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gold-500 mb-2">
+                  Our Vision
+                </p>
+                <div className="h-[1.5px] w-7 bg-gold-300 rounded-full mb-6
+                                group-hover:w-16 group-hover:bg-gold-500
+                                transition-all duration-500" />
 
                 {/* Title — snaps from above */}
                 <motion.h3
@@ -313,12 +311,11 @@ export default function About() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '0px 0px -30px 0px' }}
                   transition={{ type: 'spring', stiffness: 460, damping: 26 }}
-                  className="font-playfair font-bold text-slate-900 text-[1.3rem] leading-snug mb-4"
+                  className="font-playfair font-bold text-slate-900 text-[1.35rem] leading-snug mb-5"
                 >
                   Leading Bangladesh's<br />Industrial Transformation
                 </motion.h3>
 
-                {/* Body — rain effect */}
                 <RainText
                   text="To lead Bangladesh's industrial transformation by delivering excellence, fostering innovation, and building global partnerships that create value for generations."
                   className="text-slate-500 leading-relaxed text-[0.9rem]"
@@ -326,51 +323,49 @@ export default function About() {
               </div>
             </motion.div>
 
-            {/* Mission — slides from RIGHT */}
+            {/* ── MISSION — slides from RIGHT ── */}
             <motion.div
               initial={{ opacity: 0, x: 110 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
-              whileHover={{ y: -6 }}
-              className="group relative bg-white rounded-2xl overflow-hidden border border-slate-100
-                         shadow-card hover:shadow-hover transition-all duration-300 cursor-default"
+              whileHover={{ y: -8 }}
+              className="group relative bg-white rounded-2xl overflow-hidden
+                         border border-slate-100 shadow-card hover:shadow-hover
+                         transition-all duration-300 cursor-default"
             >
-              {/* Red top bar */}
-              <div className="h-[3px] bg-gradient-to-r from-gold-500 via-gold-400 to-gold-300" />
+              {/* Solid top accent */}
+              <div className="h-1 bg-gold-500" />
 
-              {/* Ghost number */}
-              <span className="absolute -top-2 right-3 font-mono font-black text-[7rem]
-                               leading-none text-slate-100 select-none pointer-events-none">
-                02
-              </span>
+              {/* Left border sweep */}
+              <div className="absolute left-0 top-1 bottom-0 w-[3px] bg-gold-500
+                              scale-y-0 group-hover:scale-y-100 origin-top
+                              transition-transform duration-500 rounded-b-full" />
 
-              {/* Bottom reveal line on hover */}
-              <div className="absolute bottom-0 left-0 h-[3px] w-full bg-gold-500
-                              scale-x-0 group-hover:scale-x-100 origin-left
-                              transition-transform duration-500" />
+              {/* Subtle radial glow */}
+              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full
+                              bg-gold-500/[0.05] blur-2xl pointer-events-none
+                              opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
               <div className="relative p-8">
-                {/* Icon + label row */}
-                <div className="flex items-center gap-4 mb-7">
-                  <div className="relative w-14 h-14 rounded-2xl bg-gold-50 border border-gold-100
-                                  flex items-center justify-center overflow-hidden
-                                  group-hover:bg-gold-500 group-hover:border-gold-500
-                                  transition-all duration-300">
-                    <Target
-                      size={22}
-                      className="text-gold-500 group-hover:text-white
-                                 group-hover:scale-110 transition-all duration-300"
-                    />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gold-500">
-                      Our Mission
-                    </p>
-                    <div className="mt-1.5 h-[1.5px] w-6 bg-gold-300 rounded-full
-                                    group-hover:w-14 transition-all duration-500" />
-                  </div>
+                {/* Icon */}
+                <div className="w-14 h-14 rounded-2xl
+                               bg-gradient-to-br from-gold-50 to-white border border-gold-100
+                               flex items-center justify-center mb-6
+                               group-hover:bg-gold-500 group-hover:border-gold-500
+                               transition-all duration-300 shadow-sm">
+                  <Target size={22}
+                    className="text-gold-500 group-hover:text-white
+                               group-hover:scale-110 transition-all duration-300" />
                 </div>
+
+                {/* Label + animated rule */}
+                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gold-500 mb-2">
+                  Our Mission
+                </p>
+                <div className="h-[1.5px] w-7 bg-gold-300 rounded-full mb-6
+                                group-hover:w-16 group-hover:bg-gold-500
+                                transition-all duration-500" />
 
                 {/* Title — snaps from above */}
                 <motion.h3
@@ -378,12 +373,11 @@ export default function About() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '0px 0px -30px 0px' }}
                   transition={{ type: 'spring', stiffness: 460, damping: 26 }}
-                  className="font-playfair font-bold text-slate-900 text-[1.3rem] leading-snug mb-4"
+                  className="font-playfair font-bold text-slate-900 text-[1.35rem] leading-snug mb-5"
                 >
                   A National &<br />International Benchmark
                 </motion.h3>
 
-                {/* Body — rain effect */}
                 <RainText
                   text="To be recognized as a national and international benchmark in exporting, importing, manufacturing, and infrastructure development — through consistent performance, transparency, and customer satisfaction."
                   className="text-slate-500 leading-relaxed text-[0.9rem]"
@@ -392,7 +386,7 @@ export default function About() {
             </motion.div>
           </div>
 
-          {/* ── Spirit — full-width dark banner, slides from LEFT ── */}
+          {/* ── SPIRIT — full-width dark card, slides from LEFT ── */}
           <motion.div
             initial={{ opacity: 0, x: -110 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -400,46 +394,51 @@ export default function About() {
             transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.14 }}
             className="relative bg-navy-900 rounded-2xl overflow-hidden shadow-deep group cursor-default"
           >
-            {/* Top red bar */}
-            <div className="absolute top-0 left-0 right-0 h-[3px]
-                            bg-gradient-to-r from-gold-500 via-gold-400 to-transparent" />
+            {/* Solid red top bar */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gold-500" />
 
-            {/* Ambient glow top-left */}
-            <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full
+            {/* Left accent bar — always visible */}
+            <div className="absolute left-0 top-1 bottom-0 w-[3px] bg-gold-500/40
+                            group-hover:bg-gold-500 transition-colors duration-500" />
+
+            {/* Diagonal highlight sweep on hover */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gold-500/[0.06] via-transparent to-transparent
+                            opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+            {/* Ambient glow */}
+            <div className="absolute -top-16 -left-16 w-56 h-56 rounded-full
                             bg-gold-500/10 blur-3xl pointer-events-none" />
-            {/* Decorative circle bottom-right */}
-            <div className="absolute -bottom-12 -right-12 w-48 h-48 rounded-full
-                            border border-gold-500/10 pointer-events-none" />
-            <div className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full
-                            border border-gold-500/5 pointer-events-none" />
 
-            {/* Ghost "03" */}
-            <span className="absolute right-6 top-1/2 -translate-y-1/2 font-mono font-black
-                             text-[7rem] leading-none text-white/[0.04] select-none pointer-events-none
-                             hidden lg:block">
-              03
-            </span>
+            {/* Decorative rings bottom-right */}
+            <div className="absolute -bottom-10 -right-10 w-44 h-44 rounded-full
+                            border border-white/[0.04] pointer-events-none" />
+            <div className="absolute -bottom-18 -right-18 w-64 h-64 rounded-full
+                            border border-white/[0.025] pointer-events-none" />
 
             <div className="relative flex flex-col sm:flex-row items-center gap-8 p-8 md:p-12">
-              {/* Animated icon ring */}
+
+              {/* Icon with continuous pulse */}
               <div className="shrink-0 relative">
-                <div className="w-20 h-20 rounded-2xl bg-gold-500/10 border border-gold-500/20
-                               flex items-center justify-center
-                               group-hover:bg-gold-500/20 group-hover:border-gold-500/40
-                               transition-all duration-300">
-                  <Flame size={34} className="text-gold-400" />
-                </div>
-                {/* Pulse ring */}
                 <motion.div
-                  animate={{ scale: [1, 1.5, 1], opacity: [0.35, 0, 0.35] }}
-                  transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+                  whileHover={{ rotate: [0, -8, 8, 0] }}
+                  transition={{ duration: 0.5 }}
+                  className="w-20 h-20 rounded-2xl bg-gold-500/10 border border-gold-500/20
+                             flex items-center justify-center
+                             group-hover:bg-gold-500/20 group-hover:border-gold-500/40
+                             transition-all duration-300"
+                >
+                  <Flame size={34} className="text-gold-400 group-hover:text-gold-300 transition-colors duration-300" />
+                </motion.div>
+                <motion.div
+                  animate={{ scale: [1, 1.55, 1], opacity: [0.4, 0, 0.4] }}
+                  transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
                   className="absolute inset-0 rounded-2xl border-2 border-gold-400 pointer-events-none"
                 />
               </div>
 
               {/* Text */}
               <div className="text-center sm:text-left">
-                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-gold-400/60 mb-3">
+                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gold-400/60 mb-3">
                   Our Spirit
                 </p>
                 <RainText
