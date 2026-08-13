@@ -11,7 +11,7 @@ import { CONTACT } from '@/lib/constants'
 
 const slides = [
   {
-    video:   '/videos/hero/hero-yard.mp4',
+    image:   '/images/hero/slides/service-1.png',
     eyebrow: 'Est. 1982 · Chittagong, Bangladesh',
     line1:   'Empowering Trade,',
     line2:   'Connecting the World',
@@ -19,7 +19,7 @@ const slides = [
     cta:     { label: 'Our Portfolio', to: '/companies' },
   },
   {
-    video:   '/videos/hero/hero-exports.mp4',
+    image:   '/images/hero/slides/service-4.png',
     eyebrow: 'International Export',
     line1:   "Bangladesh's Finest,",
     line2:   'Shipped Worldwide',
@@ -27,7 +27,7 @@ const slides = [
     cta:     { label: 'Our Exports', to: '/export' },
   },
   {
-    video:   '/videos/hero/hero-shipping.mp4',
+    image:   '/images/hero/slides/service-7.png',
     eyebrow: 'Maritime Excellence',
     line1:   'Where Ships',
     line2:   'Find New Purpose',
@@ -35,7 +35,7 @@ const slides = [
     cta:     { label: 'Ship Breaking', to: '/ship-breaking' },
   },
   {
-    video:   '/videos/hero/hero-operations.mp4',
+    image:   '/images/hero/slides/service-10.png',
     eyebrow: 'Six Companies. One Vision.',
     line1:   'Strength in',
     line2:   'Every Operation',
@@ -106,7 +106,7 @@ function SlideContent({ slide, slideKey }: { slide: typeof slides[number]; slide
         </motion.h1>
 
         {/* Subtitle */}
-        <motion.p variants={fadeUp} className="text-white/60 text-lg leading-relaxed mb-10 max-w-[520px]">
+        <motion.p variants={fadeUp} className="text-white/75 text-lg leading-relaxed mb-10 max-w-[520px]">
           {slide.sub}
         </motion.p>
 
@@ -125,8 +125,8 @@ function SlideContent({ slide, slideKey }: { slide: typeof slides[number]; slide
           <a
             href={`tel:${CONTACT.phones[0].replace(/\s/g, '')}`}
             className="inline-flex items-center gap-2 px-7 py-3.5
-                       bg-white/10 hover:bg-white/18 border border-white/20
-                       hover:border-gold-400/50 text-white font-semibold
+                       bg-white/10 hover:bg-white/18 border border-white/30
+                       hover:border-gold-400/60 text-white font-semibold
                        rounded-lg text-sm tracking-wide transition-all duration-200"
           >
             <Phone size={14} />
@@ -145,29 +145,35 @@ export default function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
 
-      {/* Swiper video backgrounds */}
+      {/* Swiper image backgrounds */}
       <Swiper
         modules={[Autoplay, EffectFade]}
         effect="fade"
-        autoplay={{ delay: 6000, disableOnInteraction: false }}
+        autoplay={{ delay: 5500, disableOnInteraction: false }}
         loop
-        speed={1200}
+        speed={1400}
         className="!absolute inset-0 w-full h-full"
         onSwiper={(swiper) => { swiperRef.current = swiper }}
         onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
       >
-        {slides.map((slide) => (
-          <SwiperSlide key={slide.video} className="relative w-full h-full">
-            <video
-              src={slide.video}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover object-center"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/88 via-black/65 to-black/25" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+        {slides.map((slide, idx) => (
+          <SwiperSlide key={idx} className="relative w-full h-full overflow-hidden">
+            <motion.div
+              className="absolute inset-0"
+              initial={{ scale: 1.08 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 6.5, ease: 'linear' }}
+            >
+              <img
+                src={slide.image}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover object-center"
+                loading={idx === 0 ? 'eager' : 'lazy'}
+              />
+            </motion.div>
+            {/* Layered overlays for depth */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
           </SwiperSlide>
         ))}
       </Swiper>
@@ -191,7 +197,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8 }}
-          className="flex flex-wrap items-center gap-8 mt-12 pt-8 border-t border-white/10"
+          className="flex flex-wrap items-center gap-8 mt-12 pt-8 border-t border-white/15"
         >
           {[
             { n: '42+',  l: 'Years' },
@@ -201,7 +207,7 @@ export default function HeroSection() {
           ].map((s) => (
             <div key={s.l} className="text-center">
               <p className="font-mono font-bold text-gold-400 text-2xl leading-none">{s.n}</p>
-              <p className="text-white/40 text-[10px] uppercase tracking-[0.2em] mt-1">{s.l}</p>
+              <p className="text-white/60 text-[10px] uppercase tracking-[0.2em] mt-1">{s.l}</p>
             </div>
           ))}
 
@@ -214,7 +220,7 @@ export default function HeroSection() {
                 className={`rounded-full transition-all duration-300 ${
                   i === activeIndex
                     ? 'w-6 h-2 bg-gold-500'
-                    : 'w-2 h-2 bg-white/30 hover:bg-white/60'
+                    : 'w-2 h-2 bg-white/40 hover:bg-white/70'
                 }`}
                 aria-label={`Slide ${i + 1}`}
               />
@@ -229,7 +235,7 @@ export default function HeroSection() {
         animate={{ opacity: 1 }}
         transition={{ delay: 2.2 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2
-                   flex flex-col items-center gap-1.5 text-white/30 z-10"
+                   flex flex-col items-center gap-1.5 text-white/50 z-10"
       >
         <span className="text-[9px] uppercase tracking-[0.3em]">Scroll</span>
         <motion.div

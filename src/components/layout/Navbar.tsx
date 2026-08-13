@@ -229,16 +229,24 @@ export default function Navbar() {
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-[70px]">
+          <div className="flex items-center justify-between h-[80px]">
 
             {/* ── Logo ── */}
-            <Link to="/" className="shrink-0 group">
-              <img
-                src="/images/brand/logo.svg"
-                alt="East Queen Group"
-                className="h-10 w-auto object-contain
-                           group-hover:opacity-80 transition-opacity duration-200"
-              />
+            <Link to="/" className="shrink-0">
+              <motion.div
+                initial={{ opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+                className="origin-left"
+              >
+                <img
+                  src="/images/brand/logo.svg"
+                  alt="East Queen Group"
+                  className="h-14 w-auto object-contain"
+                />
+              </motion.div>
             </Link>
 
             {/* ── Desktop nav ── */}
@@ -344,7 +352,7 @@ export default function Navbar() {
             >
               {/* Drawer header */}
               <div className="flex items-center justify-between px-5 h-[70px] border-b border-slate-100">
-                <img src="/images/brand/logo.svg" alt="East Queen Group" className="h-10 w-auto object-contain" />
+                <img src="/images/brand/logo.svg" alt="East Queen Group" className="h-14 w-auto object-contain" />
                 <button onClick={() => setMenuOpen(false)} className="text-slate-400 hover:text-slate-700 p-1">
                   <X size={20} />
                 </button>

@@ -1,16 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60" fill="none">
-  <!-- Flag pole -->
-  <line x1="18" y1="4" x2="18" y2="56" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 300" fill="none">
+  <!-- Flagpole -->
+  <line x1="70" y1="8" x2="70" y2="188" stroke="white" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- Ball on top -->
+  <circle cx="70" cy="8" r="7" fill="white"/>
 
-  <!-- Flag pennant (triangle) -->
-  <polygon points="18,6 54,16 18,28" fill="#ffffff"/>
+  <!-- Flag body -->
+  <path d="M70,30 L224,40 C230,55 232,68 224,80 C232,92 230,105 224,120 L70,130 Z"
+        fill="rgba(255,255,255,0.12)" stroke="white" stroke-width="3.5" stroke-linejoin="round"/>
 
-  <!-- Red circle on flag -->
-  <circle cx="33" cy="17" r="6.5" fill="#E21F2F"/>
+  <!-- Bracket -->
+  <line x1="58" y1="80" x2="82" y2="80" stroke="white" stroke-width="4" stroke-linecap="round"/>
 
-  <!-- EAST QUEEN text -->
-  <text x="62" y="28" font-family="'Arial Black', 'Arial', sans-serif" font-weight="900" font-size="20" fill="#ffffff" letter-spacing="0.5">EAST QUEEN</text>
+  <!-- Red Q circle -->
+  <circle cx="152" cy="80" r="40" fill="#E21F2F"/>
 
-  <!-- GROUP text (spaced) -->
-  <text x="64" y="46" font-family="'Arial', sans-serif" font-weight="700" font-size="13" fill="#ffffff" letter-spacing="5">GROUP</text>
+  <!-- Q tail -->
+  <rect x="175" y="101" width="24" height="13" rx="2" fill="white" transform="rotate(-25 175 101)"/>
+
+  <!-- EAST QUEEN -->
+  <text
+    x="140" y="238"
+    text-anchor="middle"
+    font-family="'Arial Black','Arial',sans-serif"
+    font-weight="900"
+    font-size="40"
+    fill="white"
+    letter-spacing="0.5"
+  >EAST QUEEN</text>
+
+  <!-- GROUP -->
+  <text
+    x="140" y="272"
+    text-anchor="middle"
+    font-family="'Arial','Helvetica',sans-serif"
+    font-weight="700"
+    font-size="19"
+    fill="rgba(255,255,255,0.75)"
+    letter-spacing="11"
+  >GROUP</text>
 </svg>
