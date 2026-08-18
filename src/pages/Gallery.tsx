@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react'
+import { motion, AnimatePresence, useInView, useReducedMotion } from 'framer-motion'
 import {
   Play, X, ChevronLeft, ChevronRight, ChevronDown,
   Film, ImageIcon, Grid2x2, ZoomIn, Layers,
@@ -57,26 +57,42 @@ const slideVariants = {
 
 /* ─── VideoThumbnail ─────────────────────────────────────────────────────── */
 function VideoThumbnail({ src }: { src: string }) {
-  const ref    = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '400px' })
-  /* encode path segments so spaces / parens in WhatsApp filenames work in URLs */
+  const ref     = useRef<HTMLDivElement>(null)
+  const inView  = useInView(ref, { once: true, margin: '400px' })
+  const [ready, setReady] = useState(false)
   const encoded = encodeVideoSrc(src)
+
   return (
     <div ref={ref} className="absolute inset-0 bg-navy-950">
+      {/* dark skeleton pulses until the video poster frame is decoded */}
+      <div className={`absolute inset-0 bg-navy-800 animate-pulse transition-opacity duration-300
+                       ${ready ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} />
       {inView && (
-        <video src={`${encoded}#t=2`} preload="metadata" muted playsInline
-          className="w-full h-full object-cover" />
+        <video
+          src={`${encoded}#t=2`}
+          preload="metadata"
+          muted
+          playsInline
+          onLoadedMetadata={() => setReady(true)}
+          className={`w-full h-full object-cover transition-opacity duration-500
+                      ${ready ? 'opacity-100' : 'opacity-0'}`}
+        />
       )}
     </div>
   )
 }
 
 /* ─── ImageCard ──────────────────────────────────────────────────────────── */
-function ImageCard({
+const ImageCard = memo(function ImageCard({
   item, idx, floatDelay, onClick,
 }: {
   item: GalleryItem; idx: number; floatDelay: number; onClick: () => void
 }) {
+  const [loaded, setLoaded] = useState(false)
+  const reduced = useReducedMotion()
+  /* first 4 images are likely above-fold — load eagerly with high priority */
+  const isEager = idx < 4
+
   return (
     /* break-inside-avoid keeps the card in one CSS column */
     <div className="break-inside-avoid mb-3">
@@ -86,26 +102,29 @@ function ImageCard({
         viewport={{ once: true, margin: '-30px' }}
         transition={{ delay: Math.min(idx * 0.055, 0.45), duration: 0.52, ease: ease.smooth }}
       >
-        {/* float wrapper */}
+        {/* float wrapper — skipped when user prefers reduced motion */}
         <motion.div
-          animate={{ y: [0, -7, 0] }}
-          transition={{
-            repeat: Infinity,
-            duration: 3.2 + floatDelay,
-            ease: 'easeInOut',
-            delay: floatDelay,
-          }}
+          animate={reduced ? undefined : { y: [0, -7, 0] }}
+          transition={{ repeat: Infinity, duration: 3.2 + floatDelay, ease: 'easeInOut', delay: floatDelay }}
           whileHover={{ scale: 1.025, y: -6, transition: { duration: 0.22, ease: ease.smooth } }}
           whileTap={{ scale: 0.97 }}
           onClick={onClick}
           className="group relative overflow-hidden rounded-2xl cursor-pointer
                      shadow-card hover:shadow-hover transition-shadow duration-300"
         >
+          {/* pulse skeleton — fades out once the image is decoded */}
+          <div className={`absolute inset-0 bg-slate-100 animate-pulse transition-opacity duration-500
+                           ${loaded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} />
+
           <img
             src={item.src}
             alt={item.alt}
-            loading="lazy"
-            className="w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            loading={isEager ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchPriority={isEager ? 'high' : 'auto'}
+            onLoad={() => setLoaded(true)}
+            className={`w-full object-cover transition-all duration-700 group-hover:scale-110
+                        ${loaded ? 'opacity-100' : 'opacity-0'}`}
           />
 
           {/* dark gradient */}
@@ -147,14 +166,16 @@ function ImageCard({
       </motion.div>
     </div>
   )
-}
+})
 
 /* ─── VideoCard ──────────────────────────────────────────────────────────── */
-function VideoCard({
+const VideoCard = memo(function VideoCard({
   item, idx, floatDelay, onClick,
 }: {
   item: GalleryItem; idx: number; floatDelay: number; onClick: () => void
 }) {
+  const reduced = useReducedMotion()
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 44, scale: 0.9 }}
@@ -163,13 +184,8 @@ function VideoCard({
       transition={{ delay: Math.min(idx * 0.06, 0.48), duration: 0.55, ease: ease.smooth }}
     >
       <motion.div
-        animate={{ y: [0, -5, 0] }}
-        transition={{
-          repeat: Infinity,
-          duration: 4 + floatDelay,
-          ease: 'easeInOut',
-          delay: floatDelay,
-        }}
+        animate={reduced ? undefined : { y: [0, -5, 0] }}
+        transition={{ repeat: Infinity, duration: 4 + floatDelay, ease: 'easeInOut', delay: floatDelay }}
         whileHover={{ y: -8, scale: 1.015, transition: { duration: 0.24 } }}
         whileTap={{ scale: 0.97 }}
         onClick={onClick}
@@ -233,7 +249,7 @@ function VideoCard({
       </motion.div>
     </motion.div>
   )
-}
+})
 
 /* ─── ImageLightbox ──────────────────────────────────────────────────────── */
 function ImageLightbox({
@@ -634,7 +650,7 @@ export default function Gallery() {
     }))
   }, [filteredImages.length])
 
-  const reset = () => { setLb(s => ({ ...s, open: false })); setVideoIdx(-1) }
+  const reset = useCallback(() => { setLb(s => ({ ...s, open: false })); setVideoIdx(-1) }, [])
 
   const noContent = imageGroups.length === 0 && videoGroups.length === 0
 
