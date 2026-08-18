@@ -126,7 +126,7 @@ export default function ProductsHighlight() {
                 animate="visible"
               >
                 <Link
-                  to={`/${activeTab}/${product.urlSlug}`}
+                  to={`/${activeTab}-${product.urlSlug}`}
                   className="group relative flex flex-col overflow-hidden rounded-xl
                              border border-slate-200 bg-white
                              hover:border-gold-500/50 hover:-translate-y-1.5
@@ -139,6 +139,7 @@ export default function ProductsHighlight() {
                       src={product.image}
                       alt={product.name}
                       loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover object-center
                                  group-hover:scale-[1.07] transition-transform duration-700 ease-out"
                     />

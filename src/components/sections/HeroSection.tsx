@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { ArrowRight, ChevronDown, Phone } from 'lucide-react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, EffectFade } from 'swiper/modules'
@@ -141,6 +141,7 @@ function SlideContent({ slide, slideKey }: { slide: typeof slides[number]; slide
 export default function HeroSection() {
   const [activeIndex, setActiveIndex] = useState(0)
   const swiperRef = useRef<SwiperType | null>(null)
+  const reduced = useReducedMotion()
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
@@ -169,6 +170,8 @@ export default function HeroSection() {
                 alt=""
                 className="absolute inset-0 w-full h-full object-cover object-center"
                 loading={idx === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                fetchPriority={idx === 0 ? 'high' : 'auto'}
               />
             </motion.div>
             {/* Layered overlays for depth */}
@@ -239,7 +242,7 @@ export default function HeroSection() {
       >
         <span className="text-[9px] uppercase tracking-[0.3em]">Scroll</span>
         <motion.div
-          animate={{ y: [0, 5, 0] }}
+          animate={reduced ? undefined : { y: [0, 5, 0] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
         >
           <ChevronDown size={16} />

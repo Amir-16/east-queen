@@ -71,6 +71,7 @@ export default function GalleryMosaic() {
                 src={src}
                 alt={alt}
                 loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover object-center
                            group-hover:scale-108 transition-transform duration-600 ease-out"
                 style={{ transition: 'transform 0.6s ease-out' }}

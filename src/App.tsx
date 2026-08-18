@@ -66,17 +66,17 @@ export default function App() {
               <Route path="/export-mill-scale"                    element={<ProductDetail slug="mill-scale"              type="export" />} />
               <Route path="/export-zinc-oxide"                    element={<ProductDetail slug="zinc-oxide"               type="export" />} />
               <Route path="/export-pet-flakes"                    element={<ProductDetail slug="pet-flakes"               type="export" />} />
-              <Route path="/export-fresh-vegetables-and-fruits"   element={<ProductDetail slug="vegetables-fruits"        type="export" />} />
-              <Route path="/export-leather-goods"                 element={<ProductDetail slug="leather-goods"            type="export" />} />
-              <Route path="/export-jute-made-products"            element={<ProductDetail slug="jute-products"            type="export" />} />
+              <Route path="/export-fresh-vegetables-and-fruits"   element={<ProductDetail slug="fresh-vegetables-and-fruits" type="export" />} />
+              <Route path="/export-leather-goods"                 element={<ProductDetail slug="leather-goods"               type="export" />} />
+              <Route path="/export-jute-made-products"            element={<ProductDetail slug="jute-made-products"          type="export" />} />
 
               {/* ── Import product detail (5 + 1 redirect) ──────────── */}
               <Route path="/import-aggregate"                     element={<ProductDetail slug="aggregate"                type="import" />} />
               <Route path="/import-gabbro"                        element={<Navigate to="/import-aggregate" replace />} />
-              <Route path="/import-lime-stone"                    element={<ProductDetail slug="limestone"                type="import" />} />
+              <Route path="/import-lime-stone"                    element={<ProductDetail slug="lime-stone"               type="import" />} />
               <Route path="/import-coal"                          element={<ProductDetail slug="coal"                     type="import" />} />
               <Route path="/import-steel-scraps"                  element={<ProductDetail slug="steel-scraps"             type="import" />} />
-              <Route path="/import-automobile-spare-parts"        element={<ProductDetail slug="auto-spare-parts"         type="import" />} />
+              <Route path="/import-automobile-spare-parts"        element={<ProductDetail slug="automobile-spare-parts"   type="import" />} />
 
               {/* ── Soft redirects from old/wrong internal URLs ──────── */}
               <Route path="/about"       element={<Navigate to="/about-east-queen" replace />} />

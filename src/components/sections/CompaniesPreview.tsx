@@ -53,6 +53,8 @@ export default function CompaniesPreview() {
               <img
                 src={companies[0].coverImage}
                 alt={companies[0].name}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover object-center
                            scale-100 group-hover:scale-105 transition-transform duration-700 ease-out"
               />
@@ -109,6 +111,8 @@ export default function CompaniesPreview() {
               <img
                 src={companies[1].coverImage}
                 alt={companies[1].name}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover object-center
                            scale-100 group-hover:scale-105 transition-transform duration-700 ease-out"
               />
@@ -154,6 +158,8 @@ export default function CompaniesPreview() {
               <img
                 src={company.coverImage}
                 alt={company.name}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover object-center
                            scale-100 group-hover:scale-110 transition-transform duration-700 ease-out"
               />

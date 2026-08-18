@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Play, ArrowRight } from 'lucide-react'
 
 const reels = [
@@ -36,6 +36,8 @@ const reels = [
 ]
 
 export default function VideoReel() {
+  const reduced = useReducedMotion()
+
   return (
     <section className="bg-black relative overflow-hidden">
       {/* Header */}
@@ -81,7 +83,7 @@ export default function VideoReel() {
             <video
               src={video}
               poster={poster}
-              autoPlay
+              autoPlay={!reduced}
               muted
               loop
               playsInline
