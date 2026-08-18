@@ -349,32 +349,53 @@ function Lightbox({
       className="fixed inset-0 z-[200] flex flex-col bg-black/96 backdrop-blur-2xl"
       onClick={onClose}
     >
-      {/* ── Top bar ── */}
-      <div className="relative z-10 flex items-center justify-between px-6 py-4 shrink-0">
-        <motion.p
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-white/40 text-xs tracking-widest uppercase font-semibold"
-        >
-          Sitakunda Yard &nbsp;·&nbsp;
-          <span className="text-gold-400">{index + 1}</span>
-          <span className="text-white/25"> / {images.length}</span>
-        </motion.p>
+      {/* ── Counter — top left ── */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.15, duration: 0.35 }}
+        className="absolute top-5 left-5 z-20 flex items-center gap-2.5 pointer-events-none select-none"
+      >
+        <span className="text-white/30 text-[10px] tracking-[0.25em] uppercase font-semibold">
+          Sitakunda Yard
+        </span>
+        <span className="w-px h-3 bg-white/20" />
+        <span className="font-mono text-sm">
+          <span className="text-gold-400 font-bold">{index + 1}</span>
+          <span className="text-white/30"> / {images.length}</span>
+        </span>
+      </motion.div>
 
-        <motion.button
-          initial={{ opacity: 0, scale: 0.7, rotate: -45 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 24 }}
-          whileHover={{ scale: 1.12, rotate: 90, transition: { duration: 0.2 } }}
-          whileTap={{ scale: 0.9 }}
-          onClick={e => { e.stopPropagation(); onClose() }}
-          aria-label="Close lightbox"
-          className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center
-                     text-white/60 hover:text-white hover:border-white/40 transition-colors"
+      {/* ── Close button — prominent floating top-right ── */}
+      <motion.div
+        className="absolute top-4 right-4 z-20 flex items-center gap-3"
+        onClick={e => e.stopPropagation()}
+      >
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="hidden sm:block text-white/30 text-[10px] font-mono tracking-[0.25em] uppercase select-none"
         >
-          <X size={16} strokeWidth={2} />
+          esc
+        </motion.span>
+        <motion.button
+          initial={{ scale: 0, rotate: -90 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 360, damping: 22, delay: 0.18 }}
+          whileHover={{ scale: 1.12, rotate: 90, transition: { type: 'spring', stiffness: 500, damping: 18 } }}
+          whileTap={{ scale: 0.85 }}
+          onClick={onClose}
+          aria-label="Close (Escape)"
+          className="w-13 h-13 w-[52px] h-[52px] rounded-full
+                     bg-black/60 border-2 border-white/20 backdrop-blur-md
+                     flex items-center justify-center text-white
+                     hover:bg-gold-500 hover:border-gold-500/60
+                     transition-colors duration-200 shadow-2xl shadow-black/50"
+        >
+          <X size={22} strokeWidth={2.5} />
         </motion.button>
-      </div>
+      </motion.div>
 
       {/* ── Main image area ── */}
       <div

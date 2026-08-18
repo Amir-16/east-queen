@@ -253,10 +253,10 @@ const VideoCard = memo(function VideoCard({
 
 /* ─── ImageLightbox ──────────────────────────────────────────────────────── */
 function ImageLightbox({
-  images, index, dir, onNav, onClose,
+  images, index, dir, onNav, onJump, onClose,
 }: {
   images: GalleryItem[]; index: number; dir: number
-  onNav: (d: 1 | -1) => void; onClose: () => void
+  onNav: (d: 1 | -1) => void; onJump: (i: number) => void; onClose: () => void
 }) {
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
@@ -284,37 +284,54 @@ function ImageLightbox({
       className="fixed inset-0 z-[200] flex flex-col bg-black/96 backdrop-blur-2xl"
       onClick={onClose}
     >
-      {/* top bar */}
-      <div className="flex items-center justify-between px-6 py-4 shrink-0"
-           onClick={e => e.stopPropagation()}>
-        <motion.div
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.08 }}
-          className="flex items-center gap-3"
-        >
-          <span className="px-3 py-1 bg-gold-500/15 border border-gold-500/30 rounded-full
-                           text-gold-400 text-[10px] font-semibold uppercase tracking-widest">
-            {CATEGORY_META[img.category]?.label ?? img.category}
-          </span>
-          <span className="text-white/35 text-xs font-mono">
-            <span className="text-white/70">{index + 1}</span> / {images.length}
-          </span>
-        </motion.div>
+      {/* ── Counter — top left ── */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.12, duration: 0.35 }}
+        className="absolute top-5 left-5 z-20 flex items-center gap-2.5 pointer-events-none select-none"
+      >
+        <span className="px-2.5 py-1 bg-gold-500/15 border border-gold-500/30 rounded-full
+                         text-gold-400 text-[10px] font-semibold uppercase tracking-widest">
+          {CATEGORY_META[img.category]?.label ?? img.category}
+        </span>
+        <span className="w-px h-3 bg-white/20" />
+        <span className="font-mono text-sm">
+          <span className="text-white/75 font-bold">{index + 1}</span>
+          <span className="text-white/30"> / {images.length}</span>
+        </span>
+      </motion.div>
 
-        <motion.button
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileHover={{ scale: 1.12, rotate: 90, transition: { duration: 0.18 } }}
-          whileTap={{ scale: 0.88 }}
-          onClick={onClose}
-          className="w-10 h-10 rounded-full border border-white/15
-                     flex items-center justify-center text-white/55
-                     hover:text-white hover:border-white/40 transition-colors"
+      {/* ── Close button — prominent floating top-right ── */}
+      <motion.div
+        className="absolute top-4 right-4 z-20 flex items-center gap-3"
+        onClick={e => e.stopPropagation()}
+      >
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="hidden sm:block text-white/30 text-[10px] font-mono tracking-[0.25em] uppercase select-none"
         >
-          <X size={16} strokeWidth={2} />
+          esc
+        </motion.span>
+        <motion.button
+          initial={{ scale: 0, rotate: -90 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 360, damping: 22, delay: 0.18 }}
+          whileHover={{ scale: 1.12, rotate: 90, transition: { type: 'spring', stiffness: 500, damping: 18 } }}
+          whileTap={{ scale: 0.85 }}
+          onClick={onClose}
+          aria-label="Close (Escape)"
+          className="w-[52px] h-[52px] rounded-full
+                     bg-black/60 border-2 border-white/20 backdrop-blur-md
+                     flex items-center justify-center text-white
+                     hover:bg-gold-500 hover:border-gold-500/60
+                     transition-colors duration-200 shadow-2xl shadow-black/50"
+        >
+          <X size={22} strokeWidth={2.5} />
         </motion.button>
-      </div>
+      </motion.div>
 
       {/* image + nav */}
       <div className="flex-1 flex items-center justify-center overflow-hidden px-16 md:px-24 relative"
@@ -395,12 +412,10 @@ function ImageLightbox({
         {images.map((im, i) => (
           <motion.button
             key={im.id}
-            onClick={() => {
-              const d = i > index ? 1 : -1
-              onNav(d)
-            }}
+            onClick={() => i !== index && onJump(i)}
             whileHover={{ scale: 1.1, y: -3 }}
             whileTap={{ scale: 0.95 }}
+            aria-label={`View photo ${i + 1}`}
             className={[
               'shrink-0 w-14 h-10 rounded-lg overflow-hidden border-2 transition-all duration-200',
               i === index
@@ -408,7 +423,14 @@ function ImageLightbox({
                 : 'border-transparent opacity-30 hover:opacity-65',
             ].join(' ')}
           >
-            <img src={im.src} alt="" className="w-full h-full object-cover" draggable={false} />
+            <img
+              src={im.src}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover"
+              draggable={false}
+            />
           </motion.button>
         ))}
       </motion.div>
@@ -456,35 +478,54 @@ function VideoModal({
       className="fixed inset-0 z-[300] flex flex-col bg-black/97 backdrop-blur-xl"
       onClick={onClose}
     >
-      {/* top bar */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4">
-        <motion.div
-          initial={{ opacity: 0, x: -14 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-3"
-        >
-          <span className="flex items-center gap-1.5 px-3 py-1 bg-gold-500 rounded-lg
-                           text-white text-[10px] font-bold uppercase tracking-widest">
-            <Film size={9} /> Video
-          </span>
-          <span className="text-white/40 text-sm font-mono">
-            <span className="text-white/70">{index + 1}</span>
-            <span className="text-white/20"> / </span>
-            {videos.length}
-          </span>
-        </motion.div>
+      {/* ── Counter — top left ── */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.12, duration: 0.35 }}
+        className="absolute top-5 left-5 z-20 flex items-center gap-2.5 pointer-events-none select-none"
+      >
+        <span className="flex items-center gap-1.5 px-3 py-1 bg-gold-500 rounded-lg
+                         text-white text-[10px] font-bold uppercase tracking-widest">
+          <Film size={9} /> Video
+        </span>
+        <span className="w-px h-3 bg-white/20" />
+        <span className="font-mono text-sm">
+          <span className="text-white/75 font-bold">{index + 1}</span>
+          <span className="text-white/30"> / {videos.length}</span>
+        </span>
+      </motion.div>
 
-        <motion.button
-          whileHover={{ scale: 1.1, rotate: 90, transition: { duration: 0.18 } }}
-          whileTap={{ scale: 0.88 }}
-          onClick={onClose}
-          className="w-10 h-10 rounded-full border border-white/20
-                     flex items-center justify-center text-white/55
-                     hover:text-white hover:border-white/40 transition-colors"
+      {/* ── Close button — prominent floating top-right ── */}
+      <motion.div
+        className="absolute top-4 right-4 z-20 flex items-center gap-3"
+        onClick={e => e.stopPropagation()}
+      >
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="hidden sm:block text-white/30 text-[10px] font-mono tracking-[0.25em] uppercase select-none"
         >
-          <X size={16} />
+          esc
+        </motion.span>
+        <motion.button
+          initial={{ scale: 0, rotate: -90 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 360, damping: 22, delay: 0.18 }}
+          whileHover={{ scale: 1.12, rotate: 90, transition: { type: 'spring', stiffness: 500, damping: 18 } }}
+          whileTap={{ scale: 0.85 }}
+          onClick={onClose}
+          aria-label="Close (Escape)"
+          className="w-[52px] h-[52px] rounded-full
+                     bg-black/60 border-2 border-white/20 backdrop-blur-md
+                     flex items-center justify-center text-white
+                     hover:bg-gold-500 hover:border-gold-500/60
+                     transition-colors duration-200 shadow-2xl shadow-black/50"
+        >
+          <X size={22} strokeWidth={2.5} />
         </motion.button>
-      </div>
+      </motion.div>
 
       {/* player + nav */}
       <div className="flex-1 flex items-center justify-center px-4 py-2 min-h-0">
@@ -649,6 +690,10 @@ export default function Gallery() {
       index: (s.index + d + filteredImages.length) % filteredImages.length,
     }))
   }, [filteredImages.length])
+
+  const jumpLb = useCallback((i: number) => {
+    setLb(s => ({ open: true, index: i, dir: i > s.index ? 1 : -1 }))
+  }, [])
 
   const reset = useCallback(() => { setLb(s => ({ ...s, open: false })); setVideoIdx(-1) }, [])
 
@@ -967,6 +1012,7 @@ export default function Gallery() {
             index={lb.index}
             dir={lb.dir}
             onNav={navLb}
+            onJump={jumpLb}
             onClose={closeLb}
           />
         )}
