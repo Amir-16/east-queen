@@ -551,7 +551,7 @@ function VideoModal({
                   : 'border-transparent opacity-30 hover:opacity-65',
               ].join(' ')}
             >
-              <video src={`${v.src}#t=2`} preload="metadata" muted playsInline
+              <video src={`${encodeVideoSrc(v.src)}#t=2`} preload="metadata" muted playsInline
                 className="w-full h-full object-cover" />
               {i === index && <div className="absolute inset-0 bg-gold-500/20" />}
             </motion.button>
@@ -568,6 +568,7 @@ export default function Gallery() {
   const [activeCat,  setActiveCat]  = useState<'all' | Category>('all')
   const [lb,         setLb]         = useState({ open: false, index: 0, dir: 0 })
   const [videoIdx,   setVideoIdx]   = useState(-1)
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
 
   const allImages = useMemo(() => galleryItems.filter(i => i.type !== 'video'), [])
   const allVideos = useMemo(() => galleryItems.filter(i => i.type === 'video'), [])
@@ -865,21 +866,58 @@ export default function Gallery() {
                       <div className="flex-1 h-px bg-white/10" />
                     </motion.div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {items.map((item, idx) => {
-                        const globalIdx = filteredVideos.indexOf(item)
-                        const floatDelay = (idx * 0.45) % 3
-                        return (
-                          <VideoCard
-                            key={item.id}
-                            item={item}
-                            idx={idx}
-                            floatDelay={floatDelay}
-                            onClick={() => setVideoIdx(globalIdx)}
-                          />
-                        )
-                      })}
-                    </div>
+                    {(() => {
+                      const isExpanded = !!expandedGroups[cat]
+                      const visible = isExpanded ? items : items.slice(0, INITIAL_VIDEO_COUNT)
+                      const remaining = items.length - INITIAL_VIDEO_COUNT
+                      return (
+                        <>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {visible.map((item, idx) => {
+                              const globalIdx = filteredVideos.indexOf(item)
+                              const floatDelay = (idx * 0.45) % 3
+                              return (
+                                <VideoCard
+                                  key={item.id}
+                                  item={item}
+                                  idx={idx}
+                                  floatDelay={floatDelay}
+                                  onClick={() => setVideoIdx(globalIdx)}
+                                />
+                              )
+                            })}
+                          </div>
+                          {remaining > 0 && !isExpanded && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 8 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ delay: 0.15 }}
+                              className="flex justify-center mt-6"
+                            >
+                              <motion.button
+                                whileHover={{ scale: 1.04, y: -2, boxShadow: '0 8px 24px rgba(245,158,11,0.25)' }}
+                                whileTap={{ scale: 0.96 }}
+                                transition={{ type: 'spring', stiffness: 420, damping: 22 }}
+                                onClick={() => setExpandedGroups(p => ({ ...p, [cat]: true }))}
+                                className="flex items-center gap-2 px-6 py-2.5 rounded-full
+                                           border border-gold-500/40 bg-gold-500/10 text-gold-400
+                                           text-sm font-semibold hover:bg-gold-500/20 transition-colors"
+                              >
+                                <motion.span
+                                  animate={{ y: [0, 2, 0] }}
+                                  transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
+                                  className="flex"
+                                >
+                                  <ChevronDown size={15} strokeWidth={2.5} />
+                                </motion.span>
+                                Show {remaining} more
+                              </motion.button>
+                            </motion.div>
+                          )}
+                        </>
+                      )
+                    })()}
                   </div>
                 ))}
               </div>
