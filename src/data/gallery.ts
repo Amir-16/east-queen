@@ -45,7 +45,6 @@ export const galleryItems: GalleryItem[] = [
   // ── VIDEOS — Operations ──────────────────────────────────────────────────────
 
   { id: 'op01', type: V, src: '/videos/operations/ops-1.mp4',    alt: 'Cargo operations',             category: 'operations', caption: 'East Queen Group — cargo handling and logistics operations' },
-  { id: 'op02', type: V, src: '/videos/operations/ops-2.mp4',    alt: 'Industrial operations',        category: 'operations', caption: 'Industrial operations — bulk material handling at Chittagong' },
   { id: 'op03', type: V, src: '/videos/operations/ops-3.mp4',    alt: 'Operations site',              category: 'operations', caption: 'On-site operations — East Queen Group, August 2026' },
   { id: 'op04', type: V, src: '/videos/operations/ops-4.mp4',    alt: 'Yard crew at work',            category: 'operations', caption: 'Yard crew — precision operations and quality control' },
   { id: 'op05', type: V, src: '/videos/operations/coal-ops.mp4', alt: 'Coal handling operations',     category: 'operations', caption: 'Thermal coal operations — Ariko International import handling' },
@@ -54,9 +53,7 @@ export const galleryItems: GalleryItem[] = [
 
   { id: 'ex01', type: V, src: '/videos/exports/export-ops-1.mp4', alt: 'Export cargo operations',    category: 'operations', caption: 'Export operations — container loading and documentation, Chittagong' },
   { id: 'ex02', type: V, src: '/videos/exports/export-ops-2.mp4', alt: 'Export loading footage',     category: 'operations', caption: 'Export loading — mill scale and PET flakes containerisation' },
-  { id: 'ex03', type: V, src: '/videos/exports/export-ops-3.mp4', alt: 'Export yard operations',     category: 'operations', caption: 'Yard operations — export cargo preparation and staging' },
   { id: 'ex04', type: V, src: '/videos/exports/export-ops-4.mp4', alt: 'Container operations',       category: 'operations', caption: 'Container stuffing — export grade materials, CFS Chittagong' },
-  { id: 'ex05', type: V, src: '/videos/exports/export-ops-5.mp4', alt: 'Export documentation',       category: 'operations', caption: 'Export documentation and quality inspection — East Queen Group' },
 
   // ── VIDEOS — Shipping / Vessel ───────────────────────────────────────────────
 
@@ -74,35 +71,4 @@ export const galleryItems: GalleryItem[] = [
   { id: 'fi01', type: V, src: '/videos/fisheries/fisheries-1.mp4', alt: 'Fisheries operations',     category: 'facilities', caption: 'Syedpur Fisheries — freshwater aquaculture pond operations' },
   { id: 'fi02', type: V, src: '/videos/fisheries/fisheries-2.mp4', alt: 'Fish farm footage',         category: 'facilities', caption: 'Integrated fish farming — Syedpur Fisheries & Farms, Chittagong' },
 
-  // ── VIDEOS — On-site WhatsApp Footage ───────────────────────────────────────
-
-  { id: 'wa01', type: V, src: '/WhatsApp Video 2026-08-06 at 8.56.07 PM.mp4',       alt: 'On-site operations',    category: 'operations', caption: 'On-site operations — East Queen yard raw footage' },
-  { id: 'wa02', type: V, src: '/WhatsApp Video 2026-08-06 at 8.56.07 PM (1).mp4',   alt: 'Yard footage',          category: 'operations', caption: 'Ship breaking yard — live operations footage' },
-  { id: 'wa03', type: V, src: '/WhatsApp Video 2026-08-06 at 8.56.07 PM (2).mp4',   alt: 'Industrial footage',    category: 'operations', caption: 'Industrial yard — operations documentation' },
-  { id: 'wa04', type: V, src: '/WhatsApp Video 2026-08-06 at 8.56.14 PM.mp4',       alt: 'Operations clip',       category: 'operations', caption: 'Industrial yard operations — August 2026' },
-  { id: 'wa05', type: V, src: '/WhatsApp Video 2026-08-06 at 8.56.14 PM (1).mp4',   alt: 'Yard operations',       category: 'operations', caption: 'Yard operations — East Queen Group, Chittagong' },
-  { id: 'wa06', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.01 PM.mp4',       alt: 'Site footage',          category: 'operations', caption: 'East Queen Group — on-site operations documentation' },
-  { id: 'wa07', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.01 PM (1).mp4',   alt: 'Ship breaking',         category: 'operations', caption: 'Ship breaking operations — live footage' },
-  { id: 'wa08', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.02 PM.mp4',       alt: 'Yard footage',          category: 'operations', caption: 'Chittagong yard — operational documentation' },
-  { id: 'wa09', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.02 PM (1).mp4',   alt: 'Operations site',       category: 'operations', caption: 'East Queen operations — site visit footage' },
-  { id: 'wa10', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.02 PM (2).mp4',   alt: 'Live operations',       category: 'operations', caption: 'Live operations — East Queen Group, 2026' },
-  { id: 'wa11', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.03 PM.mp4',       alt: 'Industrial footage',    category: 'operations', caption: 'Industrial operations — East Queen yard' },
-  { id: 'wa12', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.04 PM.mp4',       alt: 'Yard operations',       category: 'operations', caption: 'Yard operations — ship recycling, Chittagong' },
-  { id: 'wa13', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.06 PM.mp4',       alt: 'Operations capture',    category: 'operations', caption: 'On-site operations capture — East Queen Group' },
-  { id: 'wa14', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.13 PM.mp4',       alt: 'Site video',            category: 'operations', caption: 'East Queen operations — authentic site footage' },
-  { id: 'wa15', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.19 PM.mp4',       alt: 'Operations doc',        category: 'operations', caption: 'Operations documentation — East Queen yard, 2026' },
-  { id: 'wa16', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.23 PM.mp4',       alt: 'Yard crew',             category: 'operations', caption: 'Yard crew — precision operations at ship breaking site' },
-  { id: 'wa17', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.24 PM.mp4',       alt: 'Industrial site',       category: 'operations', caption: 'Industrial site — East Queen Group operations' },
-  { id: 'wa18', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.29 PM.mp4',       alt: 'Operations',            category: 'operations', caption: 'Chittagong operations — East Queen ship breaking' },
-  { id: 'wa19', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.33 PM.mp4',       alt: 'Site documentation',    category: 'operations', caption: 'Site documentation — live operations, 2026' },
-  { id: 'wa20', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.37 PM.mp4',       alt: 'Operations capture',    category: 'operations', caption: 'Operations capture — East Queen Group, Chittagong' },
-  { id: 'wa21', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.43 PM.mp4',       alt: 'Yard footage',          category: 'operations', caption: 'Yard operations — East Queen ship breaking facility' },
-  { id: 'wa22', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.47 PM.mp4',       alt: 'Ship breaking',         category: 'operations', caption: 'Ship breaking — continuous operations at Chittagong' },
-  { id: 'wa23', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.48 PM.mp4',       alt: 'Operations',            category: 'operations', caption: 'East Queen operations — field documentation' },
-  { id: 'wa24', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.48 PM (1).mp4',   alt: 'Yard capture',          category: 'operations', caption: 'Yard capture — East Queen ship breaking operations' },
-  { id: 'wa25', type: V, src: '/WhatsApp Video 2026-08-06 at 9.02.53 PM.mp4',       alt: 'Yard operations',       category: 'operations', caption: 'Yard operations — East Queen ship breaking, August 2026' },
-  { id: 'wa26', type: V, src: '/WhatsApp Video 2026-08-06 at 9.03.00 PM.mp4',       alt: 'Industrial operations', category: 'operations', caption: 'Industrial operations — East Queen Group' },
-  { id: 'wa27', type: V, src: '/WhatsApp Video 2026-08-06 at 9.03.07 PM.mp4',       alt: 'Operations footage',    category: 'operations', caption: 'Live operations footage — East Queen Chittagong' },
-  { id: 'wa28', type: V, src: '/WhatsApp Video 2026-08-06 at 9.04.25 PM.mp4',       alt: 'Fisheries',             category: 'facilities', caption: 'Syedpur Fisheries — freshwater aquaculture operations' },
-  { id: 'wa29', type: V, src: '/WhatsApp Video 2026-08-06 at 9.04.32 PM.mp4',       alt: 'Fish farm',             category: 'facilities', caption: 'Integrated fish farming — Syedpur Fisheries & Farms' },
 ]
