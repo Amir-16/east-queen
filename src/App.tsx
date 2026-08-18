@@ -6,7 +6,6 @@ import Footer from '@/components/layout/Footer'
 import ScrollProgressBar from '@/components/layout/ScrollProgressBar'
 import PageLoader from '@/components/ui/PageLoader'
 import BackToTop from '@/components/ui/BackToTop'
-import WhatsAppButton from '@/components/ui/WhatsAppButton'
 
 // Core pages
 const Home         = lazy(() => import('@/pages/Home'))
@@ -98,7 +97,6 @@ export default function App() {
       </main>
       <Footer />
       <BackToTop />
-      <WhatsAppButton />
     </>
   )
 }
