@@ -1,235 +1,424 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
-import Lightbox from 'yet-another-react-lightbox'
-import Zoom from 'yet-another-react-lightbox/plugins/zoom'
-import Captions from 'yet-another-react-lightbox/plugins/captions'
-import 'yet-another-react-lightbox/styles.css'
-import 'yet-another-react-lightbox/plugins/captions.css'
 import {
-  Play, X, ChevronLeft, ChevronRight,
-  Film, ImageIcon, Grid2x2, Maximize2,
+  Play, X, ChevronLeft, ChevronRight, ChevronDown,
+  Film, ImageIcon, Grid2x2, ZoomIn, Layers,
 } from 'lucide-react'
-import { pageTransition } from '@/lib/motion'
+import { pageTransition, ease } from '@/lib/motion'
 import PageHero from '@/components/ui/PageHero'
 import { galleryItems } from '@/data'
 import type { GalleryItem } from '@/types'
 
-// ─── types ──────────────────────────────────────────────────────────────────
-
+/* ─── types ─────────────────────────────────────────────────────────────── */
 type MediaType = 'all' | 'photos' | 'videos'
-type CategoryFilter = 'all' | GalleryItem['category']
+type Category  = GalleryItem['category']
 
-// ─── VideoThumbnail ──────────────────────────────────────────────────────────
-// Lazy: only mounts the <video> element when the card is near the viewport.
-// preload="metadata" + #t=2 extracts the frame at 2s without downloading the file.
+/* ─── constants ──────────────────────────────────────────────────────────── */
+const CATEGORY_META: Record<string, { label: string }> = {
+  operations: { label: 'Operations'  },
+  products:   { label: 'Products'    },
+  facilities: { label: 'Facilities'  },
+}
 
+const ALL_CATS: Array<'operations' | 'products' | 'facilities'> =
+  ['operations', 'products', 'facilities']
+
+/* number of video cards shown before "Show more" */
+const INITIAL_VIDEO_COUNT = 6
+
+/* encode each path segment so spaces and parens in filenames don't break URLs */
+function encodeVideoSrc(src: string): string {
+  return src.split('/').map(seg => encodeURIComponent(seg)).join('/')
+}
+
+const MEDIA_TABS: { label: string; value: MediaType; icon: React.ElementType }[] = [
+  { label: 'All',    value: 'all',    icon: Grid2x2  },
+  { label: 'Photos', value: 'photos', icon: ImageIcon },
+  { label: 'Videos', value: 'videos', icon: Film      },
+]
+
+const CAT_TABS: { label: string; value: 'all' | Category }[] = [
+  { label: 'All',        value: 'all'        },
+  { label: 'Operations', value: 'operations' },
+  { label: 'Products',   value: 'products'   },
+  { label: 'Facilities', value: 'facilities' },
+]
+
+/* ─── lightbox slide variants ────────────────────────────────────────────── */
+const slideVariants = {
+  enter: (d: number) => ({
+    x: d > 0 ? '55%' : '-55%', opacity: 0, scale: 0.87, filter: 'blur(8px)',
+  }),
+  center: { x: 0, opacity: 1, scale: 1, filter: 'blur(0px)' },
+  exit:   (d: number) => ({
+    x: d > 0 ? '-35%' : '35%', opacity: 0, scale: 0.93, filter: 'blur(4px)',
+  }),
+}
+
+/* ─── VideoThumbnail ─────────────────────────────────────────────────────── */
 function VideoThumbnail({ src }: { src: string }) {
-  const sentinel = useRef<HTMLDivElement>(null)
-  const inView = useInView(sentinel, { once: true, margin: '400px' })
-
+  const ref    = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: '400px' })
+  /* encode path segments so spaces / parens in WhatsApp filenames work in URLs */
+  const encoded = encodeVideoSrc(src)
   return (
-    <div ref={sentinel} className="absolute inset-0 bg-navy-950">
+    <div ref={ref} className="absolute inset-0 bg-navy-950">
       {inView && (
-        <video
-          src={`${src}#t=2`}
-          preload="metadata"
-          muted
-          playsInline
-          className="w-full h-full object-cover"
-        />
+        <video src={`${encoded}#t=2`} preload="metadata" muted playsInline
+          className="w-full h-full object-cover" />
       )}
     </div>
   )
 }
 
-// ─── VideoCard ───────────────────────────────────────────────────────────────
-
-function VideoCard({
-  item,
-  idx,
-  onClick,
+/* ─── ImageCard ──────────────────────────────────────────────────────────── */
+function ImageCard({
+  item, idx, floatDelay, onClick,
 }: {
-  item: GalleryItem
-  idx: number
-  onClick: () => void
+  item: GalleryItem; idx: number; floatDelay: number; onClick: () => void
+}) {
+  return (
+    /* break-inside-avoid keeps the card in one CSS column */
+    <div className="break-inside-avoid mb-3">
+      <motion.div
+        initial={{ opacity: 0, y: 36, scale: 0.92 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: '-30px' }}
+        transition={{ delay: Math.min(idx * 0.055, 0.45), duration: 0.52, ease: ease.smooth }}
+      >
+        {/* float wrapper */}
+        <motion.div
+          animate={{ y: [0, -7, 0] }}
+          transition={{
+            repeat: Infinity,
+            duration: 3.2 + floatDelay,
+            ease: 'easeInOut',
+            delay: floatDelay,
+          }}
+          whileHover={{ scale: 1.025, y: -6, transition: { duration: 0.22, ease: ease.smooth } }}
+          whileTap={{ scale: 0.97 }}
+          onClick={onClick}
+          className="group relative overflow-hidden rounded-2xl cursor-pointer
+                     shadow-card hover:shadow-hover transition-shadow duration-300"
+        >
+          <img
+            src={item.src}
+            alt={item.alt}
+            loading="lazy"
+            className="w-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+
+          {/* dark gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-navy-950/85 via-navy-950/20 to-transparent
+                          opacity-0 group-hover:opacity-100 transition-opacity duration-350" />
+
+          {/* caption */}
+          <div className="absolute inset-x-0 bottom-0 p-3.5
+                          translate-y-3 opacity-0
+                          group-hover:translate-y-0 group-hover:opacity-100
+                          transition-all duration-300">
+            <p className="text-white/90 text-[11px] leading-snug line-clamp-2">{item.caption}</p>
+          </div>
+
+          {/* zoom icon */}
+          <div className="absolute top-3 right-3 w-8 h-8 rounded-full
+                          bg-black/35 backdrop-blur-sm border border-white/20
+                          flex items-center justify-center text-white
+                          opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100
+                          transition-all duration-300">
+            <ZoomIn size={13} strokeWidth={2} />
+          </div>
+
+          {/* number badge */}
+          <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-sm
+                             border border-white/15 text-white/60 text-[10px] font-mono font-bold">
+              {String(idx + 1).padStart(2, '0')}
+            </span>
+          </div>
+
+          {/* gold corner */}
+          <div className="absolute top-0 right-0 w-0 h-0
+                          border-t-[36px] border-r-[36px]
+                          border-t-transparent border-r-transparent
+                          group-hover:border-r-gold-500/50
+                          transition-all duration-500" />
+        </motion.div>
+      </motion.div>
+    </div>
+  )
+}
+
+/* ─── VideoCard ──────────────────────────────────────────────────────────── */
+function VideoCard({
+  item, idx, floatDelay, onClick,
+}: {
+  item: GalleryItem; idx: number; floatDelay: number; onClick: () => void
 }) {
   return (
     <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.92, y: 16 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.88 }}
-      transition={{ duration: 0.35, delay: Math.min(idx * 0.04, 0.5), ease: [0.22, 1, 0.36, 1] }}
-      onClick={onClick}
-      className="group relative aspect-video rounded-2xl overflow-hidden cursor-pointer
-                 shadow-card hover:shadow-hover transition-shadow duration-300 bg-navy-950"
+      initial={{ opacity: 0, y: 44, scale: 0.9 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ delay: Math.min(idx * 0.06, 0.48), duration: 0.55, ease: ease.smooth }}
     >
-      {/* Lazy video thumbnail */}
-      <VideoThumbnail src={item.src} />
+      <motion.div
+        animate={{ y: [0, -5, 0] }}
+        transition={{
+          repeat: Infinity,
+          duration: 4 + floatDelay,
+          ease: 'easeInOut',
+          delay: floatDelay,
+        }}
+        whileHover={{ y: -8, scale: 1.015, transition: { duration: 0.24 } }}
+        whileTap={{ scale: 0.97 }}
+        onClick={onClick}
+        className="group relative aspect-video rounded-2xl overflow-hidden cursor-pointer
+                   shadow-card hover:shadow-hover transition-shadow duration-300 bg-navy-950"
+      >
+        <VideoThumbnail src={item.src} />
 
-      {/* Gradient overlay — always visible, deeper on hover */}
-      <div className="absolute inset-0 bg-gradient-to-t
-                      from-navy-950/90 via-navy-900/40 to-navy-900/10
-                      group-hover:from-navy-950/95 group-hover:via-navy-900/60
-                      transition-all duration-400" />
+        {/* gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t
+                        from-black/90 via-black/30 to-black/5
+                        group-hover:from-black/95 group-hover:via-black/50
+                        transition-all duration-400" />
 
-      {/* Thumbnail scale on hover */}
-      <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-105
-                      [&>div]:!absolute [&>div]:!inset-0" />
-
-      {/* ── Play button ─── */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="relative">
-          {/* Outer pulse ring */}
-          <motion.div
-            animate={{ scale: [1, 1.55, 1], opacity: [0.5, 0, 0.5] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute inset-0 rounded-full border-2 border-white/40"
-          />
-          {/* Button */}
-          <div className="relative w-16 h-16 rounded-full
-                          bg-gold-500/80 backdrop-blur-sm border-2 border-gold-400/60
-                          flex items-center justify-center
-                          group-hover:bg-gold-500 group-hover:scale-110 group-hover:border-gold-400
-                          transition-all duration-300 shadow-gold-glow">
-            <Play size={22} fill="white" className="text-white ml-1" />
+        {/* pulse + play button */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="relative">
+            <motion.div
+              animate={{ scale: [1, 1.55, 1], opacity: [0.45, 0, 0.45] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute inset-0 rounded-full border-2 border-white/40"
+            />
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
+              className="relative w-16 h-16 rounded-full
+                         bg-gold-500/80 backdrop-blur-sm border-2 border-gold-400/60
+                         flex items-center justify-center
+                         group-hover:bg-gold-500 group-hover:scale-110
+                         transition-all duration-300 shadow-gold-glow"
+            >
+              <Play size={22} fill="white" className="text-white ml-1" />
+            </motion.div>
           </div>
         </div>
-      </div>
 
-      {/* ── Category badge — top-left ── */}
-      <div className="absolute top-3 left-3">
-        <span className="flex items-center gap-1.5 px-2.5 py-1
-                         bg-gold-500 rounded-lg text-white text-[10px] font-bold uppercase tracking-widest
-                         shadow-gold-glow">
-          <Film size={9} />
-          {item.category}
-        </span>
-      </div>
-
-      {/* ── Video badge — top-right ── */}
-      <div className="absolute top-3 right-3">
-        <span className="flex items-center gap-1 px-2 py-1
-                         bg-black/50 backdrop-blur-sm rounded-md
-                         text-white/80 text-[10px] font-semibold tracking-wider">
-          VIDEO
-        </span>
-      </div>
-
-      {/* ── Caption — bottom ── */}
-      {item.caption && (
-        <div className="absolute bottom-0 left-0 right-0 p-4
-                        translate-y-1 opacity-0
-                        group-hover:translate-y-0 group-hover:opacity-100
-                        transition-all duration-300">
-          <p className="text-white/90 text-xs leading-snug line-clamp-2">{item.caption}</p>
+        {/* category badge */}
+        <div className="absolute top-3 left-3">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 bg-gold-500 rounded-lg
+                           text-white text-[10px] font-bold uppercase tracking-widest shadow-gold-glow">
+            <Film size={9} />
+            {CATEGORY_META[item.category]?.label ?? item.category}
+          </span>
         </div>
-      )}
+
+        {/* VIDEO badge */}
+        <div className="absolute top-3 right-3">
+          <span className="px-2 py-1 bg-black/55 backdrop-blur-sm rounded-md
+                           text-white/75 text-[10px] font-semibold tracking-wider">VIDEO</span>
+        </div>
+
+        {/* caption */}
+        {item.caption && (
+          <div className="absolute bottom-0 left-0 right-0 p-4
+                          translate-y-2 opacity-0
+                          group-hover:translate-y-0 group-hover:opacity-100
+                          transition-all duration-300">
+            <p className="text-white/85 text-xs leading-snug line-clamp-2">{item.caption}</p>
+          </div>
+        )}
+      </motion.div>
     </motion.div>
   )
 }
 
-// ─── ImageCircle ─────────────────────────────────────────────────────────────
-// Circular thumbnail — opens lightbox on click.
-
-function ImageCircle({
-  item,
-  idx,
-  onClick,
+/* ─── ImageLightbox ──────────────────────────────────────────────────────── */
+function ImageLightbox({
+  images, index, dir, onNav, onClose,
 }: {
-  item: GalleryItem
-  idx: number
-  onClick: () => void
+  images: GalleryItem[]; index: number; dir: number
+  onNav: (d: 1 | -1) => void; onClose: () => void
 }) {
+  useEffect(() => {
+    const fn = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') onNav(1)
+      if (e.key === 'ArrowLeft')  onNav(-1)
+      if (e.key === 'Escape')     onClose()
+    }
+    window.addEventListener('keydown', fn)
+    return () => window.removeEventListener('keydown', fn)
+  }, [onNav, onClose])
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  const img = images[index]
+
   return (
-    <motion.button
-      layout
-      initial={{ opacity: 0, scale: 0.65 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.65 }}
-      transition={{
-        type: 'spring', stiffness: 280, damping: 22,
-        delay: Math.min(idx * 0.025, 0.45),
-      }}
-      onClick={onClick}
-      className="group relative flex flex-col items-center gap-2 w-full focus:outline-none"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+      className="fixed inset-0 z-[200] flex flex-col bg-black/96 backdrop-blur-2xl"
+      onClick={onClose}
     >
-      {/* Circle */}
-      <div
-        className="relative w-full aspect-square rounded-full overflow-hidden
-                   ring-[3px] ring-white group-hover:ring-gold-500
-                   shadow-card group-hover:shadow-gold-glow
-                   transition-all duration-300"
-      >
-        <img
-          src={item.src}
-          alt={item.alt}
-          loading="lazy"
-          className="w-full h-full object-cover object-center
-                     transition-transform duration-500 group-hover:scale-110"
-        />
-
-        {/* Gradient overlay */}
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-navy-950/70
-                     opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        />
-
-        {/* Expand icon */}
-        <div
-          className="absolute inset-0 flex items-center justify-center
-                     opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+      {/* top bar */}
+      <div className="flex items-center justify-between px-6 py-4 shrink-0"
+           onClick={e => e.stopPropagation()}>
+        <motion.div
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.08 }}
+          className="flex items-center gap-3"
         >
-          <div
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm
-                       flex items-center justify-center border border-white/40"
-          >
-            <Maximize2 size={14} className="text-white" />
-          </div>
-        </div>
+          <span className="px-3 py-1 bg-gold-500/15 border border-gold-500/30 rounded-full
+                           text-gold-400 text-[10px] font-semibold uppercase tracking-widest">
+            {CATEGORY_META[img.category]?.label ?? img.category}
+          </span>
+          <span className="text-white/35 text-xs font-mono">
+            <span className="text-white/70">{index + 1}</span> / {images.length}
+          </span>
+        </motion.div>
+
+        <motion.button
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileHover={{ scale: 1.12, rotate: 90, transition: { duration: 0.18 } }}
+          whileTap={{ scale: 0.88 }}
+          onClick={onClose}
+          className="w-10 h-10 rounded-full border border-white/15
+                     flex items-center justify-center text-white/55
+                     hover:text-white hover:border-white/40 transition-colors"
+        >
+          <X size={16} strokeWidth={2} />
+        </motion.button>
       </div>
 
-      {/* Caption below — fades in on hover */}
-      {item.caption && (
-        <p
-          className="text-center text-[10px] text-slate-500 leading-snug line-clamp-2
-                     opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-1 w-full"
+      {/* image + nav */}
+      <div className="flex-1 flex items-center justify-center overflow-hidden px-16 md:px-24 relative"
+           onClick={e => e.stopPropagation()}>
+
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          whileHover={{ scale: 1.1, x: -4, transition: { type: 'spring', stiffness: 500 } }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => onNav(-1)}
+          className="absolute left-3 md:left-5 z-20 w-12 h-12 rounded-full
+                     border border-white/20 bg-white/5 backdrop-blur-sm
+                     flex items-center justify-center text-white/65
+                     hover:text-white hover:border-white/40 hover:bg-white/10 transition-colors"
         >
-          {item.caption}
-        </p>
-      )}
-    </motion.button>
+          <ChevronLeft size={22} strokeWidth={2} />
+        </motion.button>
+
+        <div className="relative w-full max-w-5xl flex items-center justify-center">
+          <AnimatePresence initial={false} custom={dir} mode="popLayout">
+            <motion.img
+              key={index}
+              src={img.src}
+              alt={img.alt}
+              custom={dir}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.4, ease: [0.32, 0, 0.24, 1] }}
+              className="w-full max-h-[70vh] object-contain rounded-2xl shadow-2xl select-none"
+              draggable={false}
+            />
+          </AnimatePresence>
+
+          {/* caption */}
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={index}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className="absolute -bottom-8 left-0 right-0 text-center
+                         text-white/45 text-xs pointer-events-none"
+            >
+              {img.caption}
+            </motion.p>
+          </AnimatePresence>
+        </div>
+
+        <motion.button
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          whileHover={{ scale: 1.1, x: 4, transition: { type: 'spring', stiffness: 500 } }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => onNav(1)}
+          className="absolute right-3 md:right-5 z-20 w-12 h-12 rounded-full
+                     border border-white/20 bg-white/5 backdrop-blur-sm
+                     flex items-center justify-center text-white/65
+                     hover:text-white hover:border-white/40 hover:bg-white/10 transition-colors"
+        >
+          <ChevronRight size={22} strokeWidth={2} />
+        </motion.button>
+      </div>
+
+      {/* thumbnail strip */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.3 }}
+        className="shrink-0 px-6 py-5 flex gap-2 justify-center overflow-x-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        {images.map((im, i) => (
+          <motion.button
+            key={im.id}
+            onClick={() => {
+              const d = i > index ? 1 : -1
+              onNav(d)
+            }}
+            whileHover={{ scale: 1.1, y: -3 }}
+            whileTap={{ scale: 0.95 }}
+            className={[
+              'shrink-0 w-14 h-10 rounded-lg overflow-hidden border-2 transition-all duration-200',
+              i === index
+                ? 'border-gold-400 opacity-100 scale-110'
+                : 'border-transparent opacity-30 hover:opacity-65',
+            ].join(' ')}
+          >
+            <img src={im.src} alt="" className="w-full h-full object-cover" draggable={false} />
+          </motion.button>
+        ))}
+      </motion.div>
+    </motion.div>
   )
 }
 
-// ─── VideoModal ──────────────────────────────────────────────────────────────
-
+/* ─── VideoModal ──────────────────────────────────────────────────────────── */
 function VideoModal({
-  videos,
-  index,
-  onClose,
-  onNavigate,
+  videos, index, onClose, onNavigate,
 }: {
-  videos: GalleryItem[]
-  index: number
-  onClose: () => void
-  onNavigate: (i: number) => void
+  videos: GalleryItem[]; index: number
+  onClose: () => void; onNavigate: (i: number) => void
 }) {
-  const current = videos[index]
+  const current  = videos[index]
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  // Body scroll lock
   useEffect(() => {
-    const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prev }
+    return () => { document.body.style.overflow = '' }
   }, [])
 
-  // Keyboard navigation
   const handleKey = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') onClose()
+    if (e.key === 'Escape')     onClose()
     if (e.key === 'ArrowRight' && index < videos.length - 1) onNavigate(index + 1)
-    if (e.key === 'ArrowLeft' && index > 0) onNavigate(index - 1)
+    if (e.key === 'ArrowLeft'  && index > 0)                  onNavigate(index - 1)
     if (e.key === ' ') {
       e.preventDefault()
       const v = videoRef.current
@@ -247,171 +436,189 @@ function VideoModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.18 }}
-      className="fixed inset-0 z-[300] flex flex-col bg-black/97 backdrop-blur-sm"
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-[300] flex flex-col bg-black/97 backdrop-blur-xl"
       onClick={onClose}
     >
-      {/* ── Top bar ── */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4
-                      bg-gradient-to-b from-black/60 to-transparent">
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 px-2.5 py-1 bg-gold-500 rounded-lg
+      {/* top bar */}
+      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4">
+        <motion.div
+          initial={{ opacity: 0, x: -14 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="flex items-center gap-3"
+        >
+          <span className="flex items-center gap-1.5 px-3 py-1 bg-gold-500 rounded-lg
                            text-white text-[10px] font-bold uppercase tracking-widest">
             <Film size={9} /> Video
           </span>
-          <span className="text-white/50 text-sm font-mono">
-            {index + 1} <span className="text-white/25">/</span> {videos.length}
+          <span className="text-white/40 text-sm font-mono">
+            <span className="text-white/70">{index + 1}</span>
+            <span className="text-white/20"> / </span>
+            {videos.length}
           </span>
-        </div>
-        <button
-          onClick={onClose}
-          className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20
-                     flex items-center justify-center text-white/80 hover:text-white
-                     transition-colors duration-200"
-        >
-          <X size={18} />
-        </button>
-      </div>
-
-      {/* ── Video + nav ── */}
-      <div className="flex-1 flex items-center justify-center px-4 py-2 min-h-0">
-        {/* Prev */}
-        <button
-          onClick={e => { e.stopPropagation(); onNavigate(index - 1) }}
-          disabled={index === 0}
-          className="flex-shrink-0 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20
-                     disabled:opacity-20 disabled:cursor-not-allowed
-                     flex items-center justify-center text-white
-                     transition-colors duration-200 mr-4"
-        >
-          <ChevronLeft size={22} />
-        </button>
-
-        {/* Player */}
-        <motion.div
-          key={current.src}
-          initial={{ scale: 0.88, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.88, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-          className="relative w-full max-w-5xl"
-          onClick={e => e.stopPropagation()}
-        >
-          <video
-            ref={videoRef}
-            key={current.src}
-            src={current.src}
-            controls
-            autoPlay
-            playsInline
-            className="w-full rounded-2xl bg-black shadow-deep"
-            style={{ maxHeight: 'calc(100vh - 180px)' }}
-          />
-
-          {/* Caption under player */}
-          {current.caption && (
-            <div className="mt-4 flex items-start gap-3">
-              <div className="w-[3px] h-full min-h-[1.2rem] bg-gold-500 rounded-full flex-shrink-0 self-stretch" />
-              <p className="text-white/60 text-sm leading-relaxed">{current.caption}</p>
-            </div>
-          )}
         </motion.div>
 
-        {/* Next */}
-        <button
-          onClick={e => { e.stopPropagation(); onNavigate(index + 1) }}
-          disabled={index === videos.length - 1}
-          className="flex-shrink-0 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20
-                     disabled:opacity-20 disabled:cursor-not-allowed
-                     flex items-center justify-center text-white
-                     transition-colors duration-200 ml-4"
+        <motion.button
+          whileHover={{ scale: 1.1, rotate: 90, transition: { duration: 0.18 } }}
+          whileTap={{ scale: 0.88 }}
+          onClick={onClose}
+          className="w-10 h-10 rounded-full border border-white/20
+                     flex items-center justify-center text-white/55
+                     hover:text-white hover:border-white/40 transition-colors"
         >
-          <ChevronRight size={22} />
-        </button>
+          <X size={16} />
+        </motion.button>
       </div>
 
-      {/* ── Thumbnail strip ── */}
-      {videos.length > 1 && (
-        <div className="flex-shrink-0 pb-4 px-6">
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin justify-center">
-            {videos.map((v, i) => (
-              <button
-                key={v.id}
-                onClick={e => { e.stopPropagation(); onNavigate(i) }}
-                className={`relative flex-shrink-0 w-20 h-12 rounded-lg overflow-hidden
-                            transition-all duration-200
-                            ${i === index
-                              ? 'ring-2 ring-gold-500 ring-offset-1 ring-offset-black opacity-100'
-                              : 'opacity-40 hover:opacity-70'
-                            }`}
+      {/* player + nav */}
+      <div className="flex-1 flex items-center justify-center px-4 py-2 min-h-0">
+        <motion.button
+          whileHover={{ scale: 1.1, x: -4, transition: { type: 'spring', stiffness: 500 } }}
+          whileTap={{ scale: 0.88 }}
+          onClick={e => { e.stopPropagation(); if (index > 0) onNavigate(index - 1) }}
+          className={`flex-shrink-0 w-12 h-12 rounded-full border border-white/20 bg-white/5
+                     flex items-center justify-center text-white/65
+                     hover:text-white hover:bg-white/10 transition-colors mr-4
+                     ${index === 0 ? 'opacity-25 pointer-events-none' : ''}`}
+        >
+          <ChevronLeft size={22} />
+        </motion.button>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current.src}
+            initial={{ scale: 0.88, opacity: 0, filter: 'blur(6px)' }}
+            animate={{ scale: 1,    opacity: 1, filter: 'blur(0px)' }}
+            exit={{    scale: 0.9,  opacity: 0, filter: 'blur(4px)' }}
+            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+            className="relative w-full max-w-5xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <video
+              ref={videoRef}
+              key={current.src}
+              src={current.src}
+              controls
+              autoPlay
+              playsInline
+              className="w-full rounded-2xl bg-black shadow-2xl"
+              style={{ maxHeight: 'calc(100vh - 200px)' }}
+            />
+            {current.caption && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.28 }}
+                className="mt-4 flex items-start gap-3"
               >
-                <video
-                  src={`${v.src}#t=2`}
-                  preload="metadata"
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
-                {i === index && (
-                  <div className="absolute inset-0 bg-gold-500/20" />
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
+                <div className="w-0.5 self-stretch bg-gold-500 rounded-full flex-shrink-0" />
+                <p className="text-white/50 text-sm leading-relaxed">{current.caption}</p>
+              </motion.div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        <motion.button
+          whileHover={{ scale: 1.1, x: 4, transition: { type: 'spring', stiffness: 500 } }}
+          whileTap={{ scale: 0.88 }}
+          onClick={e => { e.stopPropagation(); if (index < videos.length - 1) onNavigate(index + 1) }}
+          className={`flex-shrink-0 w-12 h-12 rounded-full border border-white/20 bg-white/5
+                     flex items-center justify-center text-white/65
+                     hover:text-white hover:bg-white/10 transition-colors ml-4
+                     ${index === videos.length - 1 ? 'opacity-25 pointer-events-none' : ''}`}
+        >
+          <ChevronRight size={22} />
+        </motion.button>
+      </div>
+
+      {/* thumbnail strip */}
+      {videos.length > 1 && (
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="flex-shrink-0 pb-5 px-6 flex gap-2 overflow-x-auto justify-center"
+        >
+          {videos.map((v, i) => (
+            <motion.button
+              key={v.id}
+              onClick={e => { e.stopPropagation(); onNavigate(i) }}
+              whileHover={{ scale: 1.1, y: -3 }}
+              className={[
+                'relative flex-shrink-0 w-20 h-12 rounded-lg overflow-hidden border-2 transition-all duration-200',
+                i === index
+                  ? 'border-gold-400 opacity-100'
+                  : 'border-transparent opacity-30 hover:opacity-65',
+              ].join(' ')}
+            >
+              <video src={`${v.src}#t=2`} preload="metadata" muted playsInline
+                className="w-full h-full object-cover" />
+              {i === index && <div className="absolute inset-0 bg-gold-500/20" />}
+            </motion.button>
+          ))}
+        </motion.div>
       )}
     </motion.div>
   )
 }
 
-// ─── Gallery page ─────────────────────────────────────────────────────────────
-
-const MEDIA_TYPES: { label: string; value: MediaType; icon: React.ElementType }[] = [
-  { label: 'All',    value: 'all',    icon: Grid2x2   },
-  { label: 'Photos', value: 'photos', icon: ImageIcon  },
-  { label: 'Videos', value: 'videos', icon: Film       },
-]
-
-const CATEGORIES: { label: string; value: CategoryFilter }[] = [
-  { label: 'All Categories', value: 'all'        },
-  { label: 'Operations',     value: 'operations' },
-  { label: 'Facilities',     value: 'facilities' },
-  { label: 'Products',       value: 'products'   },
-]
-
+/* ─── Gallery page ───────────────────────────────────────────────────────── */
 export default function Gallery() {
-  const [mediaType, setMediaType] = useState<MediaType>('all')
-  const [category, setCategory] = useState<CategoryFilter>('all')
-  const [imageIndex, setImageIndex] = useState(-1)
-  const [videoIndex, setVideoIndex] = useState(-1)
+  const [mediaType,  setMediaType]  = useState<MediaType>('all')
+  const [activeCat,  setActiveCat]  = useState<'all' | Category>('all')
+  const [lb,         setLb]         = useState({ open: false, index: 0, dir: 0 })
+  const [videoIdx,   setVideoIdx]   = useState(-1)
 
-  const allImages = galleryItems.filter(i => i.type !== 'video')
-  const allVideos = galleryItems.filter(i => i.type === 'video')
+  const allImages = useMemo(() => galleryItems.filter(i => i.type !== 'video'), [])
+  const allVideos = useMemo(() => galleryItems.filter(i => i.type === 'video'), [])
 
-  const filteredImages = mediaType === 'videos' ? [] : allImages.filter(
-    i => category === 'all' || i.category === category,
+  const filteredImages = useMemo(() =>
+    mediaType === 'videos'
+      ? []
+      : activeCat === 'all'
+        ? allImages
+        : allImages.filter(i => i.category === activeCat),
+    [mediaType, activeCat, allImages],
   )
-  const filteredVideos = mediaType === 'photos' ? [] : allVideos.filter(
-    i => category === 'all' || i.category === category,
+
+  const filteredVideos = useMemo(() =>
+    mediaType === 'photos'
+      ? []
+      : activeCat === 'all'
+        ? allVideos
+        : allVideos.filter(i => i.category === activeCat),
+    [mediaType, activeCat, allVideos],
   )
 
-  const showVideos = filteredVideos.length > 0
-  const showImages = filteredImages.length > 0
+  /* group images/videos by category for sectioned display */
+  const imageGroups = useMemo(() => {
+    const cats = activeCat === 'all' ? ALL_CATS : [activeCat as Category]
+    return cats
+      .map(cat => ({ cat, items: filteredImages.filter(i => i.category === cat) }))
+      .filter(g => g.items.length > 0)
+  }, [filteredImages, activeCat])
 
-  const handleMediaType = (t: MediaType) => {
-    setMediaType(t)
-    setImageIndex(-1)
-    setVideoIndex(-1)
-  }
-  const handleCategory = (c: CategoryFilter) => {
-    setCategory(c)
-    setImageIndex(-1)
-    setVideoIndex(-1)
-  }
+  const videoGroups = useMemo(() => {
+    const cats = activeCat === 'all' ? ALL_CATS : [activeCat as Category]
+    return cats
+      .map(cat => ({ cat, items: filteredVideos.filter(i => i.category === cat) }))
+      .filter(g => g.items.length > 0)
+  }, [filteredVideos, activeCat])
 
-  const imageSlides = filteredImages.map(i => ({
-    src: i.src, alt: i.alt, description: i.caption,
-  }))
+  /* lightbox helpers */
+  const openLb = useCallback((i: number) => setLb({ open: true, index: i, dir: 0 }), [])
+  const closeLb = useCallback(() => setLb(s => ({ ...s, open: false })), [])
+  const navLb   = useCallback((d: 1 | -1) => {
+    setLb(s => ({
+      open:  true,
+      dir:   d,
+      index: (s.index + d + filteredImages.length) % filteredImages.length,
+    }))
+  }, [filteredImages.length])
+
+  const reset = () => { setLb(s => ({ ...s, open: false })); setVideoIdx(-1) }
+
+  const noContent = imageGroups.length === 0 && videoGroups.length === 0
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
@@ -422,159 +629,169 @@ export default function Gallery() {
         image="/images/shipping/tristar-prosperity.jpeg"
       />
 
+      {/* ── IMAGES section (white bg) ─────────────────────────────────── */}
       <section className="section-padding bg-white">
         <div className="section-container">
 
-          {/* ── Stats bar ── */}
+          {/* Stats */}
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.42 }}
             className="flex flex-wrap items-center gap-6 mb-10"
           >
             {[
-              { icon: ImageIcon, value: allImages.length, label: 'Photos',     color: 'text-slate-700' },
-              { icon: Film,      value: allVideos.length, label: 'Videos',     color: 'text-gold-500'  },
-              { icon: Grid2x2,   value: 4,                label: 'Categories', color: 'text-slate-400' },
-            ].map(({ icon: Icon, value, label, color }) => (
-              <div key={label} className="flex items-center gap-2.5">
-                <Icon size={16} className={color} />
-                <span className="font-mono font-black text-slate-900 text-xl leading-none">{value}</span>
-                <span className="text-slate-400 text-sm">{label}</span>
-                <span className="text-slate-200 text-sm last:hidden">·</span>
+              { Icon: ImageIcon, val: allImages.length, lbl: 'Photos',     cls: 'text-slate-700' },
+              { Icon: Film,      val: allVideos.length, lbl: 'Videos',     cls: 'text-gold-500'  },
+              { Icon: Layers,    val: 3,                lbl: 'Categories', cls: 'text-slate-400' },
+            ].map(({ Icon, val, lbl, cls }) => (
+              <div key={lbl} className="flex items-center gap-2.5">
+                <Icon size={15} className={cls} />
+                <span className="font-mono font-black text-slate-900 text-xl leading-none">{val}</span>
+                <span className="text-slate-400 text-sm">{lbl}</span>
+                <span className="text-slate-200 last:hidden">·</span>
               </div>
             ))}
           </motion.div>
 
-          {/* ── Filter row 1: Media type ── */}
-          <div className="flex items-center gap-2 mb-3">
-            {MEDIA_TYPES.map(({ label, value, icon: Icon }) => (
-              <button
-                key={value}
-                onClick={() => handleMediaType(value)}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
-                            transition-colors duration-200 ${
-                              mediaType === value
-                                ? 'text-white'
-                                : 'text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200'
-                            }`}
-              >
-                {mediaType === value && (
-                  <motion.span
-                    layoutId="media-type-pill"
-                    className="absolute inset-0 bg-navy-900 rounded-xl"
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative flex items-center gap-1.5">
-                  <Icon size={13} />
-                  {label}
-                  <span className="font-mono text-[10px] opacity-60">
-                    ({value === 'all' ? galleryItems.length : value === 'photos' ? allImages.length : allVideos.length})
+          {/* Filter bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.38 }}
+            className="flex flex-wrap items-center gap-3 mb-12"
+          >
+            {/* Media type tabs */}
+            <div className="flex items-center bg-slate-100 rounded-xl p-1 gap-0.5">
+              {MEDIA_TABS.map(({ label, value, icon: Icon }) => (
+                <button
+                  key={value}
+                  onClick={() => { setMediaType(value); reset() }}
+                  className={`relative flex items-center gap-1.5 px-4 py-2 rounded-lg
+                              text-sm font-semibold transition-colors duration-200
+                              ${mediaType === value ? 'text-white' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  {mediaType === value && (
+                    <motion.span
+                      layoutId="media-pill"
+                      className="absolute inset-0 bg-navy-900 rounded-lg"
+                      transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative flex items-center gap-1.5">
+                    <Icon size={13} />
+                    {label}
+                    <span className="font-mono text-[10px] opacity-55">
+                      ({value === 'photos' ? allImages.length : value === 'videos' ? allVideos.length : galleryItems.length})
+                    </span>
                   </span>
-                </span>
-              </button>
-            ))}
-          </div>
+                </button>
+              ))}
+            </div>
 
-          {/* ── Filter row 2: Category ── */}
-          <div className="flex flex-wrap items-center gap-2 mb-10">
-            {CATEGORIES.map(({ label, value }) => (
-              <button
-                key={value}
-                onClick={() => handleCategory(value)}
-                className={`relative px-4 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wide
-                            transition-colors duration-200 ${
-                              category === value
+            <div className="w-px h-6 bg-slate-200" />
+
+            {/* Category pills */}
+            <div className="flex flex-wrap gap-1.5">
+              {CAT_TABS.map(({ label, value }) => (
+                <button
+                  key={value}
+                  onClick={() => { setActiveCat(value); reset() }}
+                  className={`relative px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide
+                              transition-colors duration-200
+                              ${activeCat === value
                                 ? 'text-white'
-                                : 'text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200'
-                            }`}
-              >
-                {category === value && (
-                  <motion.span
-                    layoutId="category-pill"
-                    className="absolute inset-0 bg-gold-500 rounded-lg"
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative">{label}</span>
-              </button>
-            ))}
-          </div>
+                                : 'text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200'}`}
+                >
+                  {activeCat === value && (
+                    <motion.span
+                      layoutId="cat-pill"
+                      className="absolute inset-0 bg-gold-500 rounded-full"
+                      transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative">{label}</span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
 
-          {/* ── Content ── */}
+          {/* ── content ── */}
           <AnimatePresence mode="wait">
             <motion.div
-              key={`${mediaType}-${category}`}
+              key={`${mediaType}-${activeCat}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.18 }}
             >
-              {/* ── Videos section ── */}
-              {showVideos && (
-                <div className="mb-14">
-                  {/* Section label */}
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="flex items-center gap-2">
-                      <Film size={16} className="text-gold-500" />
-                      <h2 className="font-playfair font-bold text-slate-900 text-lg">Videos</h2>
-                      <span className="font-mono text-xs text-slate-400 font-semibold">
-                        ({filteredVideos.length})
-                      </span>
+              {/* ── PHOTOS ── */}
+              {imageGroups.length > 0 && (
+                <div className="mb-6">
+                  {/* section heading */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.42 }}
+                    className="flex items-center gap-4 mb-10"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-1 h-9 bg-gradient-to-b from-gold-500 to-gold-300 rounded-full" />
+                      <div>
+                        <p className="text-gold-500 text-[10px] font-bold tracking-[0.28em] uppercase leading-none mb-0.5">
+                          Visual Archive
+                        </p>
+                        <h2 className="font-playfair font-bold text-2xl text-slate-900 leading-tight">Photos</h2>
+                      </div>
+                      <span className="font-mono text-sm text-slate-400">({filteredImages.length})</span>
                     </div>
-                    <div className="flex-1 h-[1px] bg-slate-100" />
-                  </div>
+                    <div className="flex-1 h-px bg-gradient-to-r from-gold-300/60 via-slate-200 to-transparent" />
+                  </motion.div>
 
-                  {/* 3-col responsive video grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <AnimatePresence>
-                      {filteredVideos.map((item, idx) => (
-                        <VideoCard
-                          key={item.id}
-                          item={item}
-                          idx={idx}
-                          onClick={() => setVideoIndex(idx)}
-                        />
-                      ))}
-                    </AnimatePresence>
+                  {/* per-category groups */}
+                  <div className="space-y-12">
+                    {imageGroups.map(({ cat, items }, gi) => (
+                      <div key={cat}>
+                        {/* category sub-label */}
+                        <motion.div
+                          initial={{ opacity: 0, x: -18 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: gi * 0.08, duration: 0.4 }}
+                          className="flex items-center gap-3 mb-5"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-gold-500 shrink-0" />
+                          <span className="text-slate-700 font-semibold text-sm">
+                            {CATEGORY_META[cat]?.label ?? cat}
+                          </span>
+                          <span className="font-mono text-xs text-slate-400">({items.length})</span>
+                          <div className="flex-1 h-px bg-slate-100" />
+                        </motion.div>
+
+                        {/* masonry via CSS columns */}
+                        <div className="columns-2 sm:columns-3 lg:columns-4 gap-3">
+                          {items.map((item, idx) => {
+                            const globalIdx = filteredImages.indexOf(item)
+                            const floatDelay = (globalIdx * 0.38) % 3.5
+                            return (
+                              <ImageCard
+                                key={item.id}
+                                item={item}
+                                idx={idx}
+                                floatDelay={floatDelay}
+                                onClick={() => openLb(globalIdx)}
+                              />
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
 
-              {/* ── Images section — circular grid ── */}
-              {showImages && (
-                <div>
-                  {/* Section label */}
-                  <div className="flex items-center gap-3 mb-8">
-                    <div className="flex items-center gap-2">
-                      <ImageIcon size={16} className="text-slate-500" />
-                      <h2 className="font-playfair font-bold text-slate-900 text-lg">Photos</h2>
-                      <span className="font-mono text-xs text-slate-400 font-semibold">
-                        ({filteredImages.length})
-                      </span>
-                    </div>
-                    <div className="flex-1 h-[1px] bg-slate-100" />
-                  </div>
-
-                  {/* Circle grid — responsive columns */}
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-5 sm:gap-6">
-                    <AnimatePresence>
-                      {filteredImages.map((item, idx) => (
-                        <ImageCircle
-                          key={item.id}
-                          item={item}
-                          idx={idx}
-                          onClick={() => setImageIndex(idx)}
-                        />
-                      ))}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              )}
-
-              {/* ── Empty state ── */}
-              {!showVideos && !showImages && (
+              {/* empty state */}
+              {noContent && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -590,24 +807,108 @@ export default function Gallery() {
         </div>
       </section>
 
-      {/* ── Image lightbox ── */}
-      <Lightbox
-        open={imageIndex >= 0}
-        index={imageIndex}
-        close={() => setImageIndex(-1)}
-        slides={imageSlides}
-        plugins={[Zoom, Captions]}
-        styles={{ container: { backgroundColor: 'rgba(6, 5, 20, 0.97)' } }}
-      />
-
-      {/* ── Video modal ── */}
+      {/* ── VIDEOS section (dark cinema bg) ───────────────────────────── */}
       <AnimatePresence>
-        {videoIndex >= 0 && (
+        {videoGroups.length > 0 && mediaType !== 'photos' && (
+          <motion.section
+            key={`videos-${mediaType}-${activeCat}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="bg-navy-950 section-padding relative overflow-hidden"
+          >
+            {/* subtle grid texture */}
+            <div className="absolute inset-0 bg-grid-pattern pointer-events-none opacity-30" />
+            {/* gold glow top */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/60 to-transparent" />
+
+            <div className="relative section-container">
+              {/* section heading */}
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.42 }}
+                className="flex items-center gap-4 mb-12"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-9 bg-gradient-to-b from-gold-500 to-gold-300 rounded-full" />
+                  <div>
+                    <p className="text-gold-500/65 text-[10px] font-bold tracking-[0.28em] uppercase leading-none mb-0.5">
+                      Live Footage
+                    </p>
+                    <h2 className="font-playfair font-bold text-2xl text-white leading-tight">Videos</h2>
+                  </div>
+                  <span className="font-mono text-sm text-white/30">({filteredVideos.length})</span>
+                </div>
+                <div className="flex-1 h-px bg-gradient-to-r from-gold-500/30 via-white/10 to-transparent" />
+              </motion.div>
+
+              {/* per-category video groups */}
+              <div className="space-y-12">
+                {videoGroups.map(({ cat, items }, gi) => (
+                  <div key={cat}>
+                    {/* category sub-label */}
+                    <motion.div
+                      initial={{ opacity: 0, x: -18 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: gi * 0.08, duration: 0.4 }}
+                      className="flex items-center gap-3 mb-5"
+                    >
+                      <Film size={13} className="text-gold-500 shrink-0" />
+                      <span className="text-white/55 font-semibold text-sm">
+                        {CATEGORY_META[cat]?.label ?? cat}
+                      </span>
+                      <span className="font-mono text-xs text-white/25">({items.length})</span>
+                      <div className="flex-1 h-px bg-white/10" />
+                    </motion.div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {items.map((item, idx) => {
+                        const globalIdx = filteredVideos.indexOf(item)
+                        const floatDelay = (idx * 0.45) % 3
+                        return (
+                          <VideoCard
+                            key={item.id}
+                            item={item}
+                            idx={idx}
+                            floatDelay={floatDelay}
+                            onClick={() => setVideoIdx(globalIdx)}
+                          />
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
+
+      {/* ── Image Lightbox ── */}
+      <AnimatePresence>
+        {lb.open && (
+          <ImageLightbox
+            images={filteredImages}
+            index={lb.index}
+            dir={lb.dir}
+            onNav={navLb}
+            onClose={closeLb}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Video Modal ── */}
+      <AnimatePresence>
+        {videoIdx >= 0 && (
           <VideoModal
             videos={filteredVideos}
-            index={videoIndex}
-            onClose={() => setVideoIndex(-1)}
-            onNavigate={setVideoIndex}
+            index={videoIdx}
+            onClose={() => setVideoIdx(-1)}
+            onNavigate={setVideoIdx}
           />
         )}
       </AnimatePresence>
