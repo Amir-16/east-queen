@@ -570,8 +570,25 @@ export default function Gallery() {
   const [videoIdx,   setVideoIdx]   = useState(-1)
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
 
-  const allImages = useMemo(() => galleryItems.filter(i => i.type !== 'video'), [])
-  const allVideos = useMemo(() => galleryItems.filter(i => i.type === 'video'), [])
+  const allImages = useMemo(() => {
+    const seen = new Set<string>()
+    return galleryItems.filter(i => {
+      if (i.type === 'video') return false
+      if (seen.has(i.src)) return false
+      seen.add(i.src)
+      return true
+    })
+  }, [])
+
+  const allVideos = useMemo(() => {
+    const seen = new Set<string>()
+    return galleryItems.filter(i => {
+      if (i.type !== 'video') return false
+      if (seen.has(i.src)) return false
+      seen.add(i.src)
+      return true
+    })
+  }, [])
 
   const filteredImages = useMemo(() =>
     mediaType === 'videos'
