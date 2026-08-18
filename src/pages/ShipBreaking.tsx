@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from 'react'
+import { useRef, useState, useEffect, useCallback, memo } from 'react'
 import { Link } from 'react-router-dom'
 import {
   motion,
@@ -6,6 +6,7 @@ import {
   useScroll,
   useTransform,
   useInView,
+  useReducedMotion,
 } from 'framer-motion'
 import CountUp from 'react-countup'
 import {
@@ -183,6 +184,111 @@ function StatItem({ value, suffix, label, decimals, inView }: typeof stats[0] & 
   )
 }
 
+/* ─── GalleryCard ────────────────────────────────────────────────────────── */
+
+interface GalleryCardProps {
+  img:     { src: string; label: string }
+  index:   number
+  isTall:  boolean
+  initX:   number
+  initY:   number
+  delay:   number
+  onClick: () => void
+}
+
+const GalleryCard = memo(function GalleryCard({
+  img, index, isTall, initX, initY, delay, onClick,
+}: GalleryCardProps) {
+  const [loaded, setLoaded] = useState(false)
+  const reduced  = useReducedMotion()
+  /* first 2 cards are likely visible on load — fetch them eagerly */
+  const isEager  = index < 2
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: initX, y: initY, scale: 0.93 }}
+      whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: '-50px' }}
+      transition={{ delay, duration: 0.55, ease: ease.smooth }}
+      whileHover="hover"
+      onClick={onClick}
+      className={[
+        'group relative overflow-hidden rounded-2xl shadow-card cursor-pointer select-none',
+        isTall ? 'row-span-2' : '',
+      ].join(' ')}
+    >
+      {/* Pulse skeleton — fades out when image is decoded */}
+      <div className={`absolute inset-0 bg-slate-300 animate-pulse z-[1] transition-opacity duration-500
+                       ${loaded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} />
+
+      {/* Image */}
+      <motion.img
+        src={img.src}
+        alt={img.label}
+        loading={isEager ? 'eager' : 'lazy'}
+        decoding="async"
+        fetchPriority={isEager ? 'high' : 'auto'}
+        onLoad={() => setLoaded(true)}
+        draggable={false}
+        variants={reduced ? undefined : {
+          hover: { scale: 1.08, transition: { duration: 0.65, ease: ease.smooth } },
+        }}
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500
+                    ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      />
+
+      {/* Dark gradient overlay */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-t from-navy-950/85 via-navy-950/20 to-transparent"
+        initial={{ opacity: 0.3 }}
+        variants={{ hover: { opacity: 1, transition: { duration: 0.35 } } }}
+      />
+
+      {/* Gold top-right corner */}
+      <motion.div
+        className="absolute top-0 right-0 w-10 h-10 overflow-hidden"
+        initial={{ opacity: 0 }}
+        variants={{ hover: { opacity: 1, transition: { duration: 0.25 } } }}
+      >
+        <div className="absolute top-0 right-0 w-0 h-0 border-t-[40px] border-r-[40px] border-t-transparent border-r-gold-500/60" />
+      </motion.div>
+
+      {/* Bottom label + zoom icon */}
+      <div className="absolute inset-x-0 bottom-0 p-4 flex items-end justify-between">
+        <motion.p
+          className="text-white text-xs font-semibold tracking-widest uppercase"
+          initial={{ opacity: 0, y: 10 }}
+          variants={{ hover: { opacity: 1, y: 0, transition: { duration: 0.28 } } }}
+        >
+          {img.label}
+        </motion.p>
+        <motion.div
+          className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/20
+                     flex items-center justify-center text-white"
+          initial={{ opacity: 0, scale: 0.6, rotate: -20 }}
+          variants={{
+            hover: { opacity: 1, scale: 1, rotate: 0, transition: { type: 'spring', stiffness: 400, damping: 22 } },
+          }}
+        >
+          <ZoomIn size={14} strokeWidth={2} />
+        </motion.div>
+      </div>
+
+      {/* Number badge */}
+      <motion.div
+        className="absolute top-3 left-3 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm
+                   border border-white/15 flex items-center justify-center"
+        initial={{ opacity: 0, x: -10 }}
+        variants={{ hover: { opacity: 1, x: 0, transition: { duration: 0.25 } } }}
+      >
+        <span className="text-white/80 text-[10px] font-mono font-bold">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+      </motion.div>
+    </motion.div>
+  )
+})
+
 /* ─── lightbox ───────────────────────────────────────────────────────────── */
 
 const slideVariants = {
@@ -206,12 +312,14 @@ function Lightbox({
   index,
   dir,
   onNav,
+  onJump,
   onClose,
 }: {
   images: typeof galleryImages
   index: number
   dir: number
   onNav: (d: 1 | -1) => void
+  onJump: (i: number) => void
   onClose: () => void
 }) {
   useEffect(() => {
@@ -259,7 +367,8 @@ function Lightbox({
           transition={{ type: 'spring', stiffness: 400, damping: 24 }}
           whileHover={{ scale: 1.12, rotate: 90, transition: { duration: 0.2 } }}
           whileTap={{ scale: 0.9 }}
-          onClick={onClose}
+          onClick={e => { e.stopPropagation(); onClose() }}
+          aria-label="Close lightbox"
           className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center
                      text-white/60 hover:text-white hover:border-white/40 transition-colors"
         >
@@ -351,9 +460,10 @@ function Lightbox({
         {images.map((im, i) => (
           <motion.button
             key={im.src}
-            onClick={() => onNav(i > index ? 1 : -1)}
+            onClick={() => i !== index && onJump(i)}
             whileHover={{ scale: 1.1, y: -3 }}
             whileTap={{ scale: 0.95 }}
+            aria-label={`View ${im.label}`}
             className={[
               'shrink-0 w-12 h-9 md:w-16 md:h-11 rounded-md overflow-hidden border-2 transition-all duration-200',
               i === index
@@ -361,7 +471,14 @@ function Lightbox({
                 : 'border-transparent opacity-40 hover:opacity-70',
             ].join(' ')}
           >
-            <img src={im.src} alt="" className="w-full h-full object-cover" draggable={false} />
+            <img
+              src={im.src}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover"
+              draggable={false}
+            />
           </motion.button>
         ))}
       </motion.div>
@@ -388,6 +505,10 @@ export default function ShipBreaking() {
       dir: d,
       index: (s.index + d + galleryImages.length) % galleryImages.length,
     }))
+  }, [])
+  /* jump directly to any thumbnail without stepping through each one */
+  const jumpLb  = useCallback((i: number) => {
+    setLb(s => ({ open: true, index: i, dir: i > s.index ? 1 : -1 }))
   }, [])
 
   const statsInView   = useInView(statsRef,   { once: true, margin: '-80px' })
@@ -423,6 +544,8 @@ export default function ShipBreaking() {
           <img
             src="/images/ship-breaking/coastal-view.jpeg"
             alt="Ship breaking yard at Sitakunda, Chittagong"
+            fetchPriority="high"
+            decoding="async"
             className="w-full h-full object-cover scale-110"
           />
         </motion.div>
@@ -593,6 +716,8 @@ export default function ShipBreaking() {
                 <img
                   src="/images/ship-breaking/scrap-urban-1.jpeg"
                   alt="Ship dismantling operations"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent" />
@@ -902,90 +1027,18 @@ export default function ShipBreaking() {
 
           {/* Asymmetric masonry grid */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 auto-rows-[220px] lg:auto-rows-[200px]">
-            {galleryImages.map((img, i) => {
-              /* tall items span 2 rows; placed at 0, 6, 12 for 3-col visual balance */
-              const isTall = i === 0 || i === 6 || i === 12
-
-              /* entrance direction: left / right / up alternating */
-              const initX = i % 3 === 0 ? -48 : i % 3 === 2 ? 48 : 0
-              const initY = i % 3 === 1 ? 40 : 0
-
-              return (
-                <motion.div
-                  key={img.src}
-                  initial={{ opacity: 0, x: initX, y: initY, scale: 0.93 }}
-                  whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: '-50px' }}
-                  transition={{ delay: (i % 6) * 0.07, duration: 0.55, ease: ease.smooth }}
-                  whileHover="hover"
-                  onClick={() => openLb(i)}
-                  className={[
-                    'group relative overflow-hidden rounded-2xl shadow-card cursor-pointer select-none',
-                    isTall ? 'row-span-2' : '',
-                  ].join(' ')}
-                >
-                  {/* Image */}
-                  <motion.img
-                    src={img.src}
-                    alt={img.label}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    variants={{
-                      hover: { scale: 1.08, transition: { duration: 0.65, ease: ease.smooth } },
-                    }}
-                    draggable={false}
-                  />
-
-                  {/* Dark gradient overlay */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-t from-navy-950/85 via-navy-950/20 to-transparent"
-                    initial={{ opacity: 0.3 }}
-                    variants={{ hover: { opacity: 1, transition: { duration: 0.35 } } }}
-                  />
-
-                  {/* Gold top-right corner */}
-                  <motion.div
-                    className="absolute top-0 right-0 w-10 h-10 overflow-hidden"
-                    initial={{ opacity: 0 }}
-                    variants={{ hover: { opacity: 1, transition: { duration: 0.25 } } }}
-                  >
-                    <div className="absolute top-0 right-0 w-0 h-0 border-t-[40px] border-r-[40px] border-t-transparent border-r-gold-500/60" />
-                  </motion.div>
-
-                  {/* Bottom label + zoom icon */}
-                  <div className="absolute inset-x-0 bottom-0 p-4 flex items-end justify-between">
-                    <motion.p
-                      className="text-white text-xs font-semibold tracking-widest uppercase"
-                      initial={{ opacity: 0, y: 10 }}
-                      variants={{ hover: { opacity: 1, y: 0, transition: { duration: 0.28 } } }}
-                    >
-                      {img.label}
-                    </motion.p>
-                    <motion.div
-                      className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/20
-                                 flex items-center justify-center text-white"
-                      initial={{ opacity: 0, scale: 0.6, rotate: -20 }}
-                      variants={{
-                        hover: { opacity: 1, scale: 1, rotate: 0, transition: { type: 'spring', stiffness: 400, damping: 22 } },
-                      }}
-                    >
-                      <ZoomIn size={14} strokeWidth={2} />
-                    </motion.div>
-                  </div>
-
-                  {/* Number badge (top-left, fades in on hover) */}
-                  <motion.div
-                    className="absolute top-3 left-3 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm
-                               border border-white/15 flex items-center justify-center"
-                    initial={{ opacity: 0, x: -10 }}
-                    variants={{ hover: { opacity: 1, x: 0, transition: { duration: 0.25 } } }}
-                  >
-                    <span className="text-white/80 text-[10px] font-mono font-bold">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                  </motion.div>
-                </motion.div>
-              )
-            })}
+            {galleryImages.map((img, i) => (
+              <GalleryCard
+                key={img.src}
+                img={img}
+                index={i}
+                isTall={i === 0 || i === 6 || i === 12}
+                initX={i % 3 === 0 ? -48 : i % 3 === 2 ? 48 : 0}
+                initY={i % 3 === 1 ? 40 : 0}
+                delay={(i % 6) * 0.07}
+                onClick={() => openLb(i)}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -998,6 +1051,7 @@ export default function ShipBreaking() {
             index={lb.index}
             dir={lb.dir}
             onNav={navLb}
+            onJump={jumpLb}
             onClose={closeLb}
           />
         )}
