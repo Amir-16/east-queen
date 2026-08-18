@@ -1,7 +1,8 @@
-import { useRef } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import {
   motion,
+  AnimatePresence,
   useScroll,
   useTransform,
   useInView,
@@ -14,9 +15,13 @@ import {
   Award,
   ArrowRight,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
   MapPin,
   Waves,
+  X,
+  ZoomIn,
 } from 'lucide-react'
 import { stagger, fadeUp, fadeLeft, fadeRight, ease } from '@/lib/motion'
 
@@ -102,12 +107,19 @@ const certifications = [
 ]
 
 const galleryImages = [
-  { src: '/images/ship-breaking/scrap-urban-1.jpeg',         aspect: 'tall'  },
-  { src: '/images/ship-breaking/scrap-urban-2.jpeg',         aspect: 'wide'  },
-  { src: '/images/ship-breaking/coastal-view.jpeg',          aspect: 'wide'  },
-  { src: '/images/shipping/bbg-master-night.jpeg',           aspect: 'tall'  },
-  { src: '/images/shipping/harmonia-arrival.jpeg',           aspect: 'wide'  },
-  { src: '/images/products/imports/steel-scrap/scrap-1.jpeg',aspect: 'wide'  },
+  { src: '/images/ship-breaking/yard-wide-1.jpeg',   label: 'Yard Overview'      },
+  { src: '/images/ship-breaking/coastal-view.jpeg',  label: 'Coastal View'       },
+  { src: '/images/ship-breaking/scrap-yard-1.jpeg',  label: 'Scrap Yard'         },
+  { src: '/images/ship-breaking/scrap-yard-2.jpeg',  label: 'Scrap Yard'         },
+  { src: '/images/ship-breaking/scrap-urban-1.jpeg', label: 'Urban Scrap'        },
+  { src: '/images/ship-breaking/scrap-urban-2.jpeg', label: 'Urban Scrap'        },
+  { src: '/images/ship-breaking/yard-wide-2.jpeg',   label: 'Yard Operations'    },
+  { src: '/images/ship-breaking/scrap-yard-3.jpeg',  label: 'Dismantling'        },
+  { src: '/images/ship-breaking/scrap-yard-4.jpeg',  label: 'Steel Recovery'     },
+  { src: '/images/ship-breaking/yard-wide-3.jpeg',   label: 'Yard Panorama'      },
+  { src: '/images/ship-breaking/scrap-yard-5.jpeg',  label: 'Cutting Operations' },
+  { src: '/images/ship-breaking/scrap-yard-6.jpeg',  label: 'Scrap Processing'   },
+  { src: '/images/ship-breaking/yard-wide-4.jpeg',   label: 'Wide View'          },
 ]
 
 /* ─── sub-components ──────────────────────────────────────────────────── */
@@ -171,6 +183,192 @@ function StatItem({ value, suffix, label, decimals, inView }: typeof stats[0] & 
   )
 }
 
+/* ─── lightbox ───────────────────────────────────────────────────────────── */
+
+const slideVariants = {
+  enter: (dir: number) => ({
+    x: dir > 0 ? '55%' : '-55%',
+    opacity: 0,
+    scale: 0.88,
+    filter: 'blur(6px)',
+  }),
+  center: { x: 0, opacity: 1, scale: 1, filter: 'blur(0px)' },
+  exit:   (dir: number) => ({
+    x: dir > 0 ? '-35%' : '35%',
+    opacity: 0,
+    scale: 0.92,
+    filter: 'blur(6px)',
+  }),
+}
+
+function Lightbox({
+  images,
+  index,
+  dir,
+  onNav,
+  onClose,
+}: {
+  images: typeof galleryImages
+  index: number
+  dir: number
+  onNav: (d: 1 | -1) => void
+  onClose: () => void
+}) {
+  useEffect(() => {
+    const fn = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') onNav(1)
+      if (e.key === 'ArrowLeft')  onNav(-1)
+      if (e.key === 'Escape')     onClose()
+    }
+    window.addEventListener('keydown', fn)
+    return () => window.removeEventListener('keydown', fn)
+  }, [onNav, onClose])
+
+  /* lock body scroll while open */
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  const img = images[index]
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      className="fixed inset-0 z-[200] flex flex-col bg-black/96 backdrop-blur-2xl"
+      onClick={onClose}
+    >
+      {/* ── Top bar ── */}
+      <div className="relative z-10 flex items-center justify-between px-6 py-4 shrink-0">
+        <motion.p
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-white/40 text-xs tracking-widest uppercase font-semibold"
+        >
+          Sitakunda Yard &nbsp;·&nbsp;
+          <span className="text-gold-400">{index + 1}</span>
+          <span className="text-white/25"> / {images.length}</span>
+        </motion.p>
+
+        <motion.button
+          initial={{ opacity: 0, scale: 0.7, rotate: -45 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 24 }}
+          whileHover={{ scale: 1.12, rotate: 90, transition: { duration: 0.2 } }}
+          whileTap={{ scale: 0.9 }}
+          onClick={onClose}
+          className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center
+                     text-white/60 hover:text-white hover:border-white/40 transition-colors"
+        >
+          <X size={16} strokeWidth={2} />
+        </motion.button>
+      </div>
+
+      {/* ── Main image area ── */}
+      <div
+        className="relative flex-1 flex items-center justify-center overflow-hidden px-16 md:px-24"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Prev button */}
+        <motion.button
+          initial={{ opacity: 0, x: -24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.12, type: 'spring', stiffness: 320, damping: 26 }}
+          whileHover={{ scale: 1.1, x: -3, transition: { type: 'spring', stiffness: 500 } }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => onNav(-1)}
+          className="absolute left-3 md:left-6 z-20 w-12 h-12 rounded-full
+                     border border-white/20 bg-white/5 backdrop-blur-sm
+                     flex items-center justify-center text-white/70 hover:text-white
+                     hover:border-white/40 hover:bg-white/10 transition-colors"
+        >
+          <ChevronLeft size={22} strokeWidth={2} />
+        </motion.button>
+
+        {/* Animated image */}
+        <div className="relative w-full max-w-5xl max-h-[75vh] flex items-center justify-center">
+          <AnimatePresence initial={false} custom={dir} mode="popLayout">
+            <motion.img
+              key={index}
+              src={img.src}
+              alt={img.label}
+              custom={dir}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.42, ease: [0.32, 0, 0.24, 1] }}
+              className="w-full max-h-[72vh] object-contain rounded-xl shadow-2xl select-none"
+              draggable={false}
+            />
+          </AnimatePresence>
+
+          {/* Label badge */}
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={index}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-sm
+                         text-white/70 text-[11px] tracking-widest uppercase px-4 py-1.5 rounded-full
+                         border border-white/10 pointer-events-none"
+            >
+              {img.label}
+            </motion.span>
+          </AnimatePresence>
+        </div>
+
+        {/* Next button */}
+        <motion.button
+          initial={{ opacity: 0, x: 24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.12, type: 'spring', stiffness: 320, damping: 26 }}
+          whileHover={{ scale: 1.1, x: 3, transition: { type: 'spring', stiffness: 500 } }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => onNav(1)}
+          className="absolute right-3 md:right-6 z-20 w-12 h-12 rounded-full
+                     border border-white/20 bg-white/5 backdrop-blur-sm
+                     flex items-center justify-center text-white/70 hover:text-white
+                     hover:border-white/40 hover:bg-white/10 transition-colors"
+        >
+          <ChevronRight size={22} strokeWidth={2} />
+        </motion.button>
+      </div>
+
+      {/* ── Thumbnail strip ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.18, duration: 0.35 }}
+        className="shrink-0 px-6 py-4 flex gap-2 justify-center overflow-x-auto no-scrollbar"
+        onClick={e => e.stopPropagation()}
+      >
+        {images.map((im, i) => (
+          <motion.button
+            key={im.src}
+            onClick={() => onNav(i > index ? 1 : -1)}
+            whileHover={{ scale: 1.1, y: -3 }}
+            whileTap={{ scale: 0.95 }}
+            className={[
+              'shrink-0 w-12 h-9 md:w-16 md:h-11 rounded-md overflow-hidden border-2 transition-all duration-200',
+              i === index
+                ? 'border-gold-400 opacity-100 scale-110'
+                : 'border-transparent opacity-40 hover:opacity-70',
+            ].join(' ')}
+          >
+            <img src={im.src} alt="" className="w-full h-full object-cover" draggable={false} />
+          </motion.button>
+        ))}
+      </motion.div>
+    </motion.div>
+  )
+}
+
 /* ─── main page ──────────────────────────────────────────────────────────── */
 
 export default function ShipBreaking() {
@@ -178,8 +376,22 @@ export default function ShipBreaking() {
   const statsRef      = useRef<HTMLElement>(null)
   const processRef    = useRef<HTMLElement>(null)
 
+  /* lightbox */
+  const [lb, setLb] = useState<{ open: boolean; index: number; dir: number }>({
+    open: false, index: 0, dir: 0,
+  })
+  const openLb  = useCallback((i: number) => setLb({ open: true, index: i, dir: 0 }), [])
+  const closeLb = useCallback(() => setLb(s => ({ ...s, open: false })), [])
+  const navLb   = useCallback((d: 1 | -1) => {
+    setLb(s => ({
+      open: true,
+      dir: d,
+      index: (s.index + d + galleryImages.length) % galleryImages.length,
+    }))
+  }, [])
+
   const statsInView   = useInView(statsRef,   { once: true, margin: '-80px' })
-  const processInView = useInView(processRef, { once: true, margin: '-100px' })
+  const processInView = useInView(processRef, { once: false, margin: '-100px' })
 
   /* hero parallax */
   const { scrollYProgress: heroScroll } = useScroll({
@@ -478,99 +690,197 @@ export default function ShipBreaking() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════
-          PROCESS — numbered vertical timeline (dark)
+          PROCESS — zigzag timeline, bidirectional scroll animations
       ══════════════════════════════════════════════════════════════════ */}
       <section ref={processRef} className="section-padding bg-white relative overflow-hidden">
-        {/* Large decorative "05" number */}
-        <div
-          className="absolute right-0 top-0 bottom-0 flex items-center pointer-events-none select-none"
-          aria-hidden="true"
-        >
-          <span className="font-playfair font-bold text-[18vw] text-slate-100 leading-none pr-8">
-            05
-          </span>
-        </div>
-
         <div className="relative section-container">
+
+          {/* ── Header — fades UP in both scroll directions ── */}
           <motion.div
             variants={stagger}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
-            className="mb-14"
+            viewport={{ once: false, margin: '-60px' }}
+            className="mb-20 text-center"
           >
-            <motion.p
-              variants={fadeUp}
-              className="text-gold-500 text-xs font-semibold tracking-[0.3em] uppercase mb-4"
-            >
+            <motion.p variants={fadeUp} className="text-gold-500 text-xs font-semibold tracking-[0.3em] uppercase mb-4">
               The Process
             </motion.p>
-            <motion.div variants={fadeUp} className="h-[2px] w-10 bg-gold-500 rounded-full mb-6" />
-            <motion.h2
-              variants={fadeUp}
-              className="font-playfair font-bold text-h1 text-slate-900 max-w-xl"
-            >
+            <motion.div variants={fadeUp} className="h-[2px] w-10 bg-gold-500 rounded-full mb-6 mx-auto" />
+            <motion.h2 variants={fadeUp} className="font-playfair font-bold text-h1 text-slate-900 max-w-xl mx-auto">
               From Ocean Arrival to Steel Output
             </motion.h2>
+            <motion.p variants={fadeUp} className="text-slate-500 mt-5 max-w-md mx-auto leading-relaxed">
+              Five precision-engineered stages transforming end-of-life vessels into high-grade steel.
+            </motion.p>
           </motion.div>
 
-          {/* Vertical timeline */}
-          <div className="relative max-w-2xl">
-            {/* Animated left track */}
-            <div className="absolute left-6 top-0 bottom-0 w-px bg-slate-200" />
+          {/* ── Timeline container ── */}
+          <div className="relative">
+
+            {/* Desktop — center vertical track (draws DOWN, resets on scroll-up) */}
+            <div className="absolute left-1/2 -translate-x-px top-0 bottom-0 w-px bg-slate-200 hidden lg:block" />
             <motion.div
-              className="absolute left-6 top-0 w-px bg-gradient-to-b from-gold-500 via-gold-500/60 to-transparent origin-top"
+              className="absolute left-1/2 -translate-x-px top-0 w-px bg-gradient-to-b from-gold-500 via-gold-400/50 to-transparent origin-top hidden lg:block"
+              style={{ height: '100%' }}
               initial={{ scaleY: 0 }}
               animate={processInView ? { scaleY: 1 } : { scaleY: 0 }}
-              transition={{ duration: 1.8, ease: ease.slow, delay: 0.3 }}
-              style={{ height: '100%' }}
+              transition={{ duration: 2.2, ease: ease.slow, delay: 0.1 }}
             />
 
-            <div className="space-y-6">
-              {processSteps.map((p, i) => (
-                <motion.div
-                  key={p.step}
-                  initial={{ opacity: 0, x: -40 }}
-                  animate={processInView ? { opacity: 1, x: 0 } : {}}
-                  transition={{ delay: i * 0.15 + 0.5, duration: 0.55, ease: ease.smooth }}
-                  className="flex items-start gap-8 pl-0"
-                >
-                  {/* Step circle */}
-                  <div className="relative z-10 shrink-0">
-                    <div
-                      className="w-12 h-12 rounded-full bg-white border-2 border-gold-200
-                                  flex items-center justify-center shadow-sm-card"
-                    >
-                      <span className="font-mono text-xs font-bold text-gold-500">{p.step}</span>
-                    </div>
-                  </div>
+            {/* Mobile — left vertical track */}
+            <div className="absolute left-6 top-0 bottom-0 w-px bg-slate-200 lg:hidden" />
+            <motion.div
+              className="absolute left-6 top-0 w-px bg-gradient-to-b from-gold-500 via-gold-400/50 to-transparent origin-top lg:hidden"
+              style={{ height: '100%' }}
+              initial={{ scaleY: 0 }}
+              animate={processInView ? { scaleY: 1 } : { scaleY: 0 }}
+              transition={{ duration: 2.2, ease: ease.slow, delay: 0.1 }}
+            />
 
-                  {/* Card */}
-                  <motion.div
-                    whileHover={{ x: 6, transition: { duration: 0.2 } }}
-                    className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5
-                               hover:border-gold-200 hover:bg-white hover:shadow-sm-card
-                               transition-all duration-300 cursor-default group"
+            {/* Steps */}
+            <div className="flex flex-col gap-8 lg:gap-4">
+              {processSteps.map((p, i) => {
+                const isLeft = i % 2 === 0
+                const delay  = i * 0.08
+
+                return (
+                  <div
+                    key={p.step}
+                    className="relative flex items-start gap-5 lg:grid lg:grid-cols-[1fr_6rem_1fr] lg:items-center lg:gap-0"
                   >
-                    <h3 className="font-bold text-slate-900 text-base mb-2">
-                      {p.title}
-                    </h3>
-                    <p className="text-slate-500 text-sm leading-relaxed">{p.description}</p>
-                  </motion.div>
-                </motion.div>
-              ))}
+
+                    {/* ─ Desktop LEFT column — slides from LEFT, exits LEFT ─ */}
+                    <div className="hidden lg:block">
+                      {isLeft ? (
+                        <motion.div
+                          initial={{ opacity: 0, x: -65, y: 20 }}
+                          whileInView={{ opacity: 1, x: 0, y: 0 }}
+                          viewport={{ once: false, margin: '-60px' }}
+                          transition={{ delay, duration: 0.6, ease: ease.smooth }}
+                          whileHover={{ x: -6, y: -5, transition: { duration: 0.22 } }}
+                          className="group mr-6 bg-white border border-slate-200 rounded-2xl p-6
+                                     hover:border-gold-300 hover:shadow-card transition-all duration-300 cursor-default"
+                        >
+                          <motion.h3
+                            initial={{ opacity: 0, y: 12 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: false, margin: '-60px' }}
+                            transition={{ delay: delay + 0.14, duration: 0.4, ease: ease.smooth }}
+                            className="font-bold text-slate-900 text-base mb-2 text-right group-hover:text-gold-600 transition-colors"
+                          >
+                            {p.title}
+                          </motion.h3>
+                          <motion.p
+                            initial={{ opacity: 0, y: 8 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: false, margin: '-60px' }}
+                            transition={{ delay: delay + 0.22, duration: 0.4, ease: ease.smooth }}
+                            className="text-slate-500 text-sm leading-relaxed text-right"
+                          >
+                            {p.description}
+                          </motion.p>
+                        </motion.div>
+                      ) : (
+                        <div className="mr-6" />
+                      )}
+                    </div>
+
+                    {/* ─ Center node — drops from ABOVE, springs back up on exit ─ */}
+                    <div className="relative z-10 flex justify-center items-center shrink-0 lg:shrink">
+                      <motion.div
+                        initial={{ opacity: 0, y: -36, scale: 0.5 }}
+                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                        viewport={{ once: false, margin: '-60px' }}
+                        transition={{
+                          delay,
+                          type: 'spring',
+                          stiffness: 400,
+                          damping: 22,
+                        }}
+                        className="relative w-14 h-14 rounded-full bg-white border-2 border-gold-300
+                                   flex items-center justify-center shadow-sm-card"
+                      >
+                        <span className="font-mono text-xs font-bold text-gold-500">{p.step}</span>
+                        {/* Ripple — expands OUTWARD on each entry */}
+                        <motion.div
+                          className="absolute inset-0 rounded-full border-2 border-gold-400/35"
+                          initial={{ scale: 1, opacity: 0.7 }}
+                          whileInView={{ scale: 1.9, opacity: 0 }}
+                          viewport={{ once: false, margin: '-60px' }}
+                          transition={{ delay: delay + 0.18, duration: 1.1, ease: 'easeOut' }}
+                        />
+                      </motion.div>
+                    </div>
+
+                    {/* ─ Desktop RIGHT column — slides from RIGHT, exits RIGHT ─ */}
+                    <div className="hidden lg:block">
+                      {!isLeft ? (
+                        <motion.div
+                          initial={{ opacity: 0, x: 65, y: 20 }}
+                          whileInView={{ opacity: 1, x: 0, y: 0 }}
+                          viewport={{ once: false, margin: '-60px' }}
+                          transition={{ delay, duration: 0.6, ease: ease.smooth }}
+                          whileHover={{ x: 6, y: -5, transition: { duration: 0.22 } }}
+                          className="group ml-6 bg-white border border-slate-200 rounded-2xl p-6
+                                     hover:border-gold-300 hover:shadow-card transition-all duration-300 cursor-default"
+                        >
+                          <motion.h3
+                            initial={{ opacity: 0, y: 12 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: false, margin: '-60px' }}
+                            transition={{ delay: delay + 0.14, duration: 0.4, ease: ease.smooth }}
+                            className="font-bold text-slate-900 text-base mb-2 group-hover:text-gold-600 transition-colors"
+                          >
+                            {p.title}
+                          </motion.h3>
+                          <motion.p
+                            initial={{ opacity: 0, y: 8 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: false, margin: '-60px' }}
+                            transition={{ delay: delay + 0.22, duration: 0.4, ease: ease.smooth }}
+                            className="text-slate-500 text-sm leading-relaxed"
+                          >
+                            {p.description}
+                          </motion.p>
+                        </motion.div>
+                      ) : (
+                        <div className="ml-6" />
+                      )}
+                    </div>
+
+                    {/* ─ Mobile card — slides from RIGHT ─ */}
+                    <motion.div
+                      initial={{ opacity: 0, x: 44, y: 16 }}
+                      whileInView={{ opacity: 1, x: 0, y: 0 }}
+                      viewport={{ once: false, margin: '-60px' }}
+                      transition={{ delay, duration: 0.55, ease: ease.smooth }}
+                      whileHover={{ x: 5, transition: { duration: 0.2 } }}
+                      className="lg:hidden flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5
+                                 hover:border-gold-200 hover:bg-white hover:shadow-sm-card
+                                 transition-all duration-300 cursor-default"
+                    >
+                      <h3 className="font-bold text-slate-900 text-base mb-2">{p.title}</h3>
+                      <p className="text-slate-500 text-sm leading-relaxed">{p.description}</p>
+                    </motion.div>
+
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════
-          GALLERY — cinematic asymmetric grid
+          GALLERY — cinematic asymmetric grid + lightbox
       ══════════════════════════════════════════════════════════════════ */}
       <section className="section-padding bg-slate-50 relative">
         <div className="absolute inset-0 bg-dots-pattern pointer-events-none" />
 
         <div className="relative section-container">
+
+          {/* Header */}
           <motion.div
             variants={stagger}
             initial="hidden"
@@ -578,70 +888,120 @@ export default function ShipBreaking() {
             viewport={{ once: true, margin: '-60px' }}
             className="mb-12"
           >
-            <motion.p
-              variants={fadeUp}
-              className="text-gold-500 text-xs font-semibold tracking-[0.3em] uppercase mb-4"
-            >
+            <motion.p variants={fadeUp} className="text-gold-500 text-xs font-semibold tracking-[0.3em] uppercase mb-4">
               Yard Gallery
             </motion.p>
             <motion.div variants={fadeUp} className="h-[2px] w-10 bg-gold-500 rounded-full mb-6" />
-            <motion.h2 variants={fadeUp} className="font-playfair font-bold text-h1 text-slate-900">
-              Inside the Sitakunda Yard
-            </motion.h2>
+            <motion.div variants={fadeUp} className="flex items-end justify-between flex-wrap gap-4">
+              <h2 className="font-playfair font-bold text-h1 text-slate-900">
+                Inside the Sitakunda Yard
+              </h2>
+              <p className="text-slate-400 text-sm">{galleryImages.length} photos · click to explore</p>
+            </motion.div>
           </motion.div>
 
-          {/* 3-column asymmetric masonry */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {galleryImages.map((img, i) => (
-              <motion.div
-                key={img.src}
-                initial={{ opacity: 0, scale: 0.94 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ delay: i * 0.08, duration: 0.55, ease: ease.smooth }}
-                whileHover="hover"
-                className={[
-                  'group relative overflow-hidden rounded-xl shadow-card cursor-pointer',
-                  /* tall images span 2 rows on desktop */
-                  i === 0 || i === 3 ? 'lg:row-span-2' : '',
-                  i === 0 || i === 3 ? 'aspect-[3/4] lg:aspect-auto' : 'aspect-[4/3]',
-                ].join(' ')}
-              >
-                <motion.img
-                  src={img.src}
-                  alt={`Ship breaking operations ${i + 1}`}
-                  className="w-full h-full object-cover"
-                  variants={{
-                    hover: { scale: 1.06, transition: { duration: 0.7, ease: ease.smooth } },
-                  }}
-                />
-                {/* overlay on hover */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-navy-950/20 to-transparent"
-                  variants={{
-                    hover: { opacity: 1 },
-                  }}
-                  initial={{ opacity: 0.4 }}
-                  transition={{ duration: 0.4 }}
-                />
-                {/* bottom label */}
-                <motion.p
-                  className="absolute bottom-4 left-4 text-white/80 text-xs font-semibold tracking-widest uppercase"
-                  initial={{ opacity: 0, y: 8 }}
-                  variants={{
-                    hover: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-                  }}
-                >
-                  Sitakunda Yard
-                </motion.p>
+          {/* Asymmetric masonry grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 auto-rows-[220px] lg:auto-rows-[200px]">
+            {galleryImages.map((img, i) => {
+              /* tall items span 2 rows; placed at 0, 6, 12 for 3-col visual balance */
+              const isTall = i === 0 || i === 6 || i === 12
 
-                {/* red corner accent */}
-                <div className="absolute top-0 right-0 w-0 h-0 border-t-[32px] border-r-[32px] border-t-transparent border-r-gold-500/0 group-hover:border-r-gold-500/50 transition-all duration-500" />
-              </motion.div>
-            ))}
+              /* entrance direction: left / right / up alternating */
+              const initX = i % 3 === 0 ? -48 : i % 3 === 2 ? 48 : 0
+              const initY = i % 3 === 1 ? 40 : 0
+
+              return (
+                <motion.div
+                  key={img.src}
+                  initial={{ opacity: 0, x: initX, y: initY, scale: 0.93 }}
+                  whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+                  viewport={{ once: true, margin: '-50px' }}
+                  transition={{ delay: (i % 6) * 0.07, duration: 0.55, ease: ease.smooth }}
+                  whileHover="hover"
+                  onClick={() => openLb(i)}
+                  className={[
+                    'group relative overflow-hidden rounded-2xl shadow-card cursor-pointer select-none',
+                    isTall ? 'row-span-2' : '',
+                  ].join(' ')}
+                >
+                  {/* Image */}
+                  <motion.img
+                    src={img.src}
+                    alt={img.label}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    variants={{
+                      hover: { scale: 1.08, transition: { duration: 0.65, ease: ease.smooth } },
+                    }}
+                    draggable={false}
+                  />
+
+                  {/* Dark gradient overlay */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-t from-navy-950/85 via-navy-950/20 to-transparent"
+                    initial={{ opacity: 0.3 }}
+                    variants={{ hover: { opacity: 1, transition: { duration: 0.35 } } }}
+                  />
+
+                  {/* Gold top-right corner */}
+                  <motion.div
+                    className="absolute top-0 right-0 w-10 h-10 overflow-hidden"
+                    initial={{ opacity: 0 }}
+                    variants={{ hover: { opacity: 1, transition: { duration: 0.25 } } }}
+                  >
+                    <div className="absolute top-0 right-0 w-0 h-0 border-t-[40px] border-r-[40px] border-t-transparent border-r-gold-500/60" />
+                  </motion.div>
+
+                  {/* Bottom label + zoom icon */}
+                  <div className="absolute inset-x-0 bottom-0 p-4 flex items-end justify-between">
+                    <motion.p
+                      className="text-white text-xs font-semibold tracking-widest uppercase"
+                      initial={{ opacity: 0, y: 10 }}
+                      variants={{ hover: { opacity: 1, y: 0, transition: { duration: 0.28 } } }}
+                    >
+                      {img.label}
+                    </motion.p>
+                    <motion.div
+                      className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/20
+                                 flex items-center justify-center text-white"
+                      initial={{ opacity: 0, scale: 0.6, rotate: -20 }}
+                      variants={{
+                        hover: { opacity: 1, scale: 1, rotate: 0, transition: { type: 'spring', stiffness: 400, damping: 22 } },
+                      }}
+                    >
+                      <ZoomIn size={14} strokeWidth={2} />
+                    </motion.div>
+                  </div>
+
+                  {/* Number badge (top-left, fades in on hover) */}
+                  <motion.div
+                    className="absolute top-3 left-3 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm
+                               border border-white/15 flex items-center justify-center"
+                    initial={{ opacity: 0, x: -10 }}
+                    variants={{ hover: { opacity: 1, x: 0, transition: { duration: 0.25 } } }}
+                  >
+                    <span className="text-white/80 text-[10px] font-mono font-bold">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                  </motion.div>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </section>
+
+      {/* Lightbox portal */}
+      <AnimatePresence>
+        {lb.open && (
+          <Lightbox
+            images={galleryImages}
+            index={lb.index}
+            dir={lb.dir}
+            onNav={navLb}
+            onClose={closeLb}
+          />
+        )}
+      </AnimatePresence>
 
       {/* ══════════════════════════════════════════════════════════════════
           CERTIFICATIONS
