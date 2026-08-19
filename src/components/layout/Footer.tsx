@@ -174,9 +174,21 @@ export default function Footer() {
               Privacy Policy
             </Link>
             <span>·</span>
-            <Link to="/terms-conditions" className="hover:text-slate-700 transition-colors duration-200">
+            <Link to="/terms-and-conditions" className="hover:text-slate-700 transition-colors duration-200">
               Terms & Conditions
             </Link>
+            <span>·</span>
+            <span className="text-slate-400">
+              Powered by{' '}
+              <a
+                href="https://soft-m.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-500 hover:text-slate-800 font-medium transition-colors duration-200"
+              >
+                soft-m.com
+              </a>
+            </span>
           </div>
         </div>
       </div>
