@@ -178,6 +178,7 @@ export default function HeroSection() {
       <Swiper
         modules={[Autoplay, EffectFade]}
         effect="fade"
+        fadeEffect={{ crossFade: true }}
         autoplay={{ delay: SLIDE_DELAY, disableOnInteraction: false }}
         loop
         speed={1400}
@@ -187,12 +188,7 @@ export default function HeroSection() {
       >
         {slides.map((slide, idx) => (
           <SwiperSlide key={idx} className="relative w-full h-full overflow-hidden">
-            <motion.div
-              className="absolute inset-0"
-              initial={{ scale: 1.08 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 7, ease: 'linear' }}
-            >
+            <div className="absolute inset-0 kenburns">
               <img
                 src={slide.image}
                 alt=""
@@ -201,7 +197,7 @@ export default function HeroSection() {
                 decoding="async"
                 fetchPriority={idx === 0 ? 'high' : 'auto'}
               />
-            </motion.div>
+            </div>
             {/* Layered overlays */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/65 to-black/25" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
