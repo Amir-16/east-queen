@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Phone, Anchor } from 'lucide-react'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Autoplay, EffectFade } from 'swiper/modules'
+import { Autoplay, EffectFade, Keyboard } from 'swiper/modules'
 import type { Swiper as SwiperType } from 'swiper'
 import 'swiper/css'
 import 'swiper/css/effect-fade'
@@ -59,29 +59,44 @@ const slides = [
   },
 ]
 
+// Variant definitions — kept outside the component to avoid recreating on every render
 const wordAnim = {
   hidden:  { opacity: 0, y: 28, skewY: 4 },
   visible: { opacity: 1, y: 0, skewY: 0, transition: { duration: 0.55, ease: [0.25, 0.1, 0.25, 1] as const } },
 }
 
-const staggerWords = {
+const staggerLine1 = {
   hidden:  {},
   visible: { transition: { staggerChildren: 0.08 } },
 }
 
-const fadeUp = {
-  hidden:  { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.25, 0.1, 0.25, 1] as const } },
+// Line 2 starts after line 1's first words have settled
+const staggerLine2 = {
+  hidden:  {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.35 } },
 }
 
+const fadeUp = {
+  hidden:  { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const } },
+}
+
+// ─── Slide content ────────────────────────────────────────────────────────────
+
 function SlideContent({ slide, slideKey }: { slide: typeof slides[number]; slideKey: number }) {
+  const reduced = useReducedMotion()
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
         key={slideKey}
-        initial="hidden"
-        animate="visible"
-        exit={{ opacity: 0, y: -10, transition: { duration: 0.25 } }}
+        // When reduced motion is preferred, use a plain cross-fade instead of
+        // the word-stagger system; plain values don't propagate variant strings
+        // to children, so word/stagger variants silently become no-ops.
+        initial={reduced ? { opacity: 0 } : 'hidden'}
+        animate={reduced ? { opacity: 1 } : 'visible'}
+        exit={{ opacity: 0, y: reduced ? 0 : -8, transition: { duration: 0.25 } }}
+        transition={reduced ? { duration: 0.35 } : undefined}
         className="max-w-3xl"
       >
         {/* Tag badge */}
@@ -102,33 +117,30 @@ function SlideContent({ slide, slideKey }: { slide: typeof slides[number]; slide
           </span>
         </motion.div>
 
-        {/* Headline line 1 */}
-        <motion.h1
-          className="font-playfair font-bold text-display text-white leading-[1.06] mb-1"
-          variants={staggerWords}
-        >
-          {slide.line1.split(' ').map((word, i) => (
-            <motion.span key={i} variants={wordAnim} className="inline-block mr-[0.2em]">
-              {word}
-            </motion.span>
-          ))}
-        </motion.h1>
+        {/* Single <h1> with two block lines — one heading per landmark, semantically correct */}
+        <h1 className="font-playfair font-bold text-display leading-[1.06] mb-8">
+          {/* Line 1 */}
+          <motion.span className="block text-white mb-1" variants={staggerLine1}>
+            {slide.line1.split(' ').map((word, i) => (
+              <motion.span key={i} variants={wordAnim} className="inline-block mr-[0.2em]">
+                {word}
+              </motion.span>
+            ))}
+          </motion.span>
 
-        {/* Headline line 2 — last word in brand red */}
-        <motion.h1
-          className="font-playfair font-bold text-display leading-[1.06] mb-8"
-          variants={staggerWords}
-        >
-          {slide.line2.split(' ').map((word, i, arr) => (
-            <motion.span
-              key={i}
-              variants={wordAnim}
-              className={`inline-block mr-[0.2em] ${i === arr.length - 1 ? 'text-gold-400' : 'text-white'}`}
-            >
-              {word}
-            </motion.span>
-          ))}
-        </motion.h1>
+          {/* Line 2 — last word in brand red */}
+          <motion.span className="block" variants={staggerLine2}>
+            {slide.line2.split(' ').map((word, i, arr) => (
+              <motion.span
+                key={i}
+                variants={wordAnim}
+                className={`inline-block mr-[0.2em] ${i === arr.length - 1 ? 'text-gold-400' : 'text-white'}`}
+              >
+                {word}
+              </motion.span>
+            ))}
+          </motion.span>
+        </h1>
 
         {/* Subtitle */}
         <motion.p variants={fadeUp} className="text-white/75 text-base sm:text-lg leading-relaxed mb-7 sm:mb-10 max-w-[520px]">
@@ -163,23 +175,35 @@ function SlideContent({ slide, slideKey }: { slide: typeof slides[number]; slide
   )
 }
 
+// ─── Hero section ─────────────────────────────────────────────────────────────
+
 export default function HeroSection() {
   const [activeIndex, setActiveIndex] = useState(0)
+  const [isPaused,    setIsPaused]    = useState(false)
   const swiperRef = useRef<SwiperType | null>(null)
-  const reduced = useReducedMotion()
+  const reduced   = useReducedMotion()
 
   const goPrev = () => swiperRef.current?.slidePrev()
   const goNext = () => swiperRef.current?.slideNext()
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
+    <section
+      role="region"
+      aria-label="East Queen Group — maritime leadership highlights"
+      className="relative min-h-screen flex items-center overflow-hidden"
+      // Track hover at the section level so the progress bar can pause
+      // in sync with Swiper's own pauseOnMouseEnter behaviour
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
 
-      {/* Swiper image backgrounds */}
+      {/* ── Background image slider ─────────────────────────────────────── */}
       <Swiper
-        modules={[Autoplay, EffectFade]}
+        modules={[Autoplay, EffectFade, Keyboard]}
         effect="fade"
         fadeEffect={{ crossFade: true }}
-        autoplay={{ delay: SLIDE_DELAY, disableOnInteraction: false }}
+        autoplay={{ delay: SLIDE_DELAY, disableOnInteraction: false, pauseOnMouseEnter: true }}
+        keyboard={{ enabled: true, onlyInViewport: true }}
         loop
         speed={1400}
         className="!absolute inset-0 w-full h-full"
@@ -188,24 +212,26 @@ export default function HeroSection() {
       >
         {slides.map((slide, idx) => (
           <SwiperSlide key={idx} className="relative w-full h-full overflow-hidden">
+            {/* .kenburns animation is driven by .swiper-slide-active in CSS so it
+                restarts cleanly each time this slide becomes active */}
             <div className="absolute inset-0 kenburns">
               <img
                 src={slide.image}
                 alt=""
+                aria-hidden="true"
                 className="absolute inset-0 w-full h-full object-cover object-center"
                 loading={idx === 0 ? 'eager' : 'lazy'}
                 decoding="async"
                 fetchPriority={idx === 0 ? 'high' : 'auto'}
               />
             </div>
-            {/* Layered overlays */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/65 to-black/25" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
           </SwiperSlide>
         ))}
       </Swiper>
 
-      {/* Red left accent bar */}
+      {/* ── Left accent bar ─────────────────────────────────────────────── */}
       <motion.div
         initial={{ scaleY: 0 }}
         animate={{ scaleY: 1 }}
@@ -215,12 +241,13 @@ export default function HeroSection() {
                    origin-top hidden lg:block"
       />
 
-      {/* Slide counter — top right */}
+      {/* ── Slide counter (top-right) ────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 1.5 }}
         className="absolute top-24 right-6 sm:right-10 z-20 hidden sm:flex flex-col items-end gap-1"
+        aria-hidden="true"
       >
         <AnimatePresence mode="wait">
           <motion.span
@@ -240,7 +267,7 @@ export default function HeroSection() {
         </span>
       </motion.div>
 
-      {/* Prev / Next nav arrows */}
+      {/* ── Prev / Next arrows (bottom-right) ───────────────────────────── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -267,9 +294,14 @@ export default function HeroSection() {
         </button>
       </motion.div>
 
-      {/* Main content */}
+      {/* ── Main content ────────────────────────────────────────────────── */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 md:pt-28 pb-10 sm:pb-14 md:pb-20 w-full">
-        <SlideContent slide={slides[activeIndex]} slideKey={activeIndex} />
+
+        {/* aria-live wraps only the changing content so screen readers
+            announce slide changes without re-reading static UI */}
+        <div aria-live="polite" aria-atomic="true">
+          <SlideContent slide={slides[activeIndex]} slideKey={activeIndex} />
+        </div>
 
         {/* Stats + slide dots */}
         <motion.div
@@ -291,41 +323,42 @@ export default function HeroSection() {
           ))}
 
           {/* Slide dot indicators */}
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2" role="tablist" aria-label="Slide navigation">
             {slides.map((_, i) => (
               <button
                 key={i}
+                role="tab"
+                aria-selected={i === activeIndex}
+                aria-label={`Go to slide ${i + 1}`}
                 onClick={() => swiperRef.current?.slideToLoop(i)}
                 className={`rounded-full transition-all duration-300 ${
                   i === activeIndex
                     ? 'w-6 h-2 bg-gold-500'
                     : 'w-2 h-2 bg-white/40 hover:bg-white/70'
                 }`}
-                aria-label={`Slide ${i + 1}`}
               />
             ))}
           </div>
         </motion.div>
       </div>
 
-      {/* Progress bar */}
-      <div className="absolute bottom-0 left-0 w-full h-[3px] bg-white/15 z-20">
-        <motion.div
+      {/* ── Progress bar — CSS animation so animation-play-state works ─── */}
+      <div className="absolute bottom-0 left-0 w-full h-[3px] bg-white/15 z-20" aria-hidden="true">
+        <div
           key={activeIndex}
-          className="h-full bg-gold-500"
-          initial={{ width: '0%' }}
-          animate={{ width: '100%' }}
-          transition={{ duration: SLIDE_DELAY / 1000, ease: 'linear' }}
+          className="progress-fill"
+          style={{ animationPlayState: isPaused ? 'paused' : 'running' }}
         />
       </div>
 
-      {/* Scroll cue */}
+      {/* ── Scroll cue ──────────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2.2 }}
         className="absolute bottom-10 left-1/2 -translate-x-1/2
                    flex flex-col items-center gap-1.5 text-white/50 z-10"
+        aria-hidden="true"
       >
         <span className="text-[9px] uppercase tracking-[0.3em]">Scroll</span>
         <motion.div
