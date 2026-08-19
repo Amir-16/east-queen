@@ -1,11 +1,20 @@
+/**
+ * ShipHeroSection
+ * ─ Real Odyssey-of-the-Seas photo as full-bleed background
+ * ─ Ship + scene gently float (y-bob + subtle sway)
+ * ─ Animated SVG wave layers overlaid on the photo's ocean
+ * ─ SVG feTurbulence filter for organic water surface texture
+ * ─ Web Audio ocean sound — runs from first click until manually stopped
+ * ─ Respects prefers-reduced-motion throughout
+ */
 import { useRef, useEffect, useState, useCallback } from 'react'
-import { motion, useReducedMotion, useInView } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Phone, Volume2, VolumeX, ChevronDown, Anchor } from 'lucide-react'
+import { ArrowRight, Phone, Volume2, VolumeX, ChevronDown } from 'lucide-react'
 import { CONTACT } from '@/lib/constants'
 import { ease } from '@/lib/motion'
 
-// ─── Stats ───────────────────────────────────────────────────
+// ─── Stats ────────────────────────────────────────────────────────────────────
 const STATS = [
   { n: '42+',  l: 'Years'     },
   { n: '6',    l: 'Companies' },
@@ -13,190 +22,226 @@ const STATS = [
   { n: '20+',  l: 'Countries' },
 ]
 
-// ─── Wave layer config (back → front) ────────────────────────
-// Colors sampled from the ocean in the photo (deep Atlantic blue)
-const WAVE_LAYERS = [
-  { yBase: 72, amp: 10, fill: '#0e3058', opacity: 0.55, speed: 36 },
-  { yBase: 60, amp: 14, fill: '#0c2a50', opacity: 0.70, speed: 24 },
-  { yBase: 48, amp: 17, fill: '#091f3c', opacity: 0.85, speed: 15 },
-  { yBase: 36, amp: 12, fill: '#060f20', opacity: 1.00, speed: 9  },
+// ─── Wave layers (back → front)
+// White semi-transparent fills so waves are clearly visible on ANY background.
+// Opacity increases towards the front for a depth/parallax feel.
+const WAVES = [
+  { yBase: 74, amp: 11, fill: 'rgba(255,255,255,0.07)', speed: 38 },
+  { yBase: 62, amp: 15, fill: 'rgba(255,255,255,0.12)', speed: 26 },
+  { yBase: 50, amp: 18, fill: 'rgba(255,255,255,0.19)', speed: 16 },
+  { yBase: 36, amp: 13, fill: 'rgba(255,255,255,0.28)', speed: 9  },
 ]
 
-// ─── Build seamless double-tile wave path ────────────────────
-// viewBox: 0 0 2880 100, tile width = 1440
-function buildWavePath(yBase: number, amp: number): string {
-  // 8 half-waves per tile; organic variance per segment
-  const HALF = 180
+// ─── Build a seamless double-tile SVG wave path (viewBox 0 0 2880 100) ───────
+function wavePath(yBase: number, amp: number): string {
   const segs: string[] = []
   for (let tile = 0; tile < 2; tile++) {
-    for (let w = 0; w < 8; w++) {
-      const ox  = tile * 1440 + w * HALF
-      const cx  = ox + HALF / 2
-      const ex  = ox + HALF
-      const dir = w % 2 === 0 ? -1 : 1
-      const var_ = 1 + ((w * 19 + tile * 37) % 5) * 0.05
-      segs.push(`Q${cx},${yBase + dir * amp * var_} ${ex},${yBase}`)
+    for (let i = 0; i < 8; i++) {
+      const ox  = tile * 1440 + i * 180
+      const cx  = ox + 90
+      const ex  = ox + 180
+      const dir = i % 2 === 0 ? -1 : 1
+      // slight variance per segment for organic look
+      const v   = 1 + ((i * 23 + tile * 41) % 5) * 0.04
+      segs.push(`Q${cx},${yBase + dir * amp * v} ${ex},${yBase}`)
     }
   }
   return `M0,${yBase} ${segs.join(' ')} L2880,100 L0,100 Z`
 }
 
-// ─────────────────────────────────────────────────────────────
-//  Web Audio — procedural ocean sound (pink noise + LFO)
-// ─────────────────────────────────────────────────────────────
-function useOceanSound(sectionRef: React.RefObject<HTMLElement>) {
-  const ctxRef  = useRef<AudioContext | null>(null)
-  const gainRef = useRef<GainNode | null>(null)
-  const [muted,  setMuted]  = useState(true)
-  const [booted, setBooted] = useState(false)
-  const inView = useInView(sectionRef as React.RefObject<Element>, { amount: 0.3 })
+// ─────────────────────────────────────────────────────────────────────────────
+// useOceanSound
+// Audio graph (clean separation of concerns):
+//   pink noise → lowpass → [swell gain] → compressor → [master gain] → out
+//                bandpass ↗
+//   LFO oscillator → lfoGain → swell gain.gain   ← modulates signal amplitude
+//   master gain is ONLY for user toggle (setTargetAtTime never conflicts with LFO)
+//
+// Auto-starts on mount. Browsers that block autoplay get a one-time
+// first-interaction fallback (click / touchstart / scroll / keydown).
+// Toggle button only fades master gain up/down — audio nodes never stop.
+// ─────────────────────────────────────────────────────────────────────────────
+function useOceanSound() {
+  const ctxRef    = useRef<AudioContext | null>(null)
+  const masterRef = useRef<GainNode    | null>(null)
+  const startedRef = useRef(false)
+  const [playing, setPlaying] = useState(true)
 
-  const boot = useCallback(() => {
-    if (ctxRef.current) return
+  // ── Build the full audio graph (idempotent) ────────────────────────────────
+  const buildGraph = useCallback(() => {
+    if (ctxRef.current) return ctxRef.current
     try {
       const ctx = new AudioContext()
       const sr  = ctx.sampleRate
 
-      // 4-second pink noise buffer (Paul Kellet's algorithm)
+      // Pink noise (Paul Kellet) — 4-second looping buffer, amplitude ×0.18
       const buf = ctx.createBuffer(2, sr * 4, sr)
       for (let ch = 0; ch < 2; ch++) {
         const d = buf.getChannelData(ch)
-        let b0=0, b1=0, b2=0, b3=0, b4=0, b5=0, b6=0
+        let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0
         for (let i = 0; i < d.length; i++) {
           const w = Math.random() * 2 - 1
           b0=0.99886*b0+w*0.0555179; b1=0.99332*b1+w*0.0750759
           b2=0.96900*b2+w*0.1538520; b3=0.86650*b3+w*0.3104856
           b4=0.55000*b4+w*0.5329522; b5=-0.7616*b5-w*0.0168980
-          d[i] = (b0+b1+b2+b3+b4+b5+b6+w*0.5362) * 0.10
-          b6 = w * 0.115926
+          d[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.18  // louder than before
+          b6=w*0.115926
         }
       }
-
       const src = ctx.createBufferSource()
       src.buffer = buf; src.loop = true
 
-      // Low-pass removes harsh highs → deep ocean "whoosh"
+      // Filters
       const lp = ctx.createBiquadFilter()
-      lp.type = 'lowpass'; lp.frequency.value = 680; lp.Q.value = 0.55
+      lp.type = 'lowpass'; lp.frequency.value = 800; lp.Q.value = 0.5
 
-      // Band-pass focuses the low wave rumble
       const bp = ctx.createBiquadFilter()
-      bp.type = 'bandpass'; bp.frequency.value = 130; bp.Q.value = 0.38
+      bp.type = 'bandpass'; bp.frequency.value = 160; bp.Q.value = 0.4
 
-      // High-shelf boost for subtle surf hiss
-      const hs = ctx.createBiquadFilter()
-      hs.type = 'highshelf'; hs.frequency.value = 3200; hs.gain.value = -8
+      // ── Swell gain — THIS is where the LFO modulates signal amplitude ──────
+      // Stays at 0.75, LFO adds ±0.25 → oscillates 0.50–1.00 (always positive)
+      const swellGain = ctx.createGain()
+      swellGain.gain.value = 0.75
 
-      // Slow LFO — wave swell rhythm (~0.1 Hz = 10 s per swell)
       const lfo = ctx.createOscillator()
-      lfo.type = 'sine'; lfo.frequency.value = 0.10
-      const lfoG = ctx.createGain(); lfoG.gain.value = 0.20
+      lfo.type = 'sine'; lfo.frequency.value = 0.11  // ~9 s per swell
+      const lfoAmp = ctx.createGain()
+      lfoAmp.gain.value = 0.25
+      lfo.connect(lfoAmp); lfoAmp.connect(swellGain.gain)
 
-      // Second LFO for variation (slightly different frequency)
-      const lfo2 = ctx.createOscillator()
-      lfo2.type = 'sine'; lfo2.frequency.value = 0.17
-      const lfoG2 = ctx.createGain(); lfoG2.gain.value = 0.10
+      // ── Compressor — prevents clipping on loud LFO peaks ──────────────────
+      const comp = ctx.createDynamicsCompressor()
+      comp.threshold.value = -18
+      comp.knee.value = 30
+      comp.ratio.value = 8
+      comp.attack.value = 0.01
+      comp.release.value = 0.3
 
-      // Master gain (starts silent)
-      const master = ctx.createGain(); master.gain.value = 0
+      // ── Master — ONLY touched by toggle (no LFO here) ─────────────────────
+      const master = ctx.createGain()
+      master.gain.value = 0   // silent until resumed
 
-      lfo.connect(lfoG);   lfoG.connect(master.gain)
-      lfo2.connect(lfoG2); lfoG2.connect(master.gain)
+      // Wire: src → filters → swellGain → comp → master → out
       src.connect(lp); src.connect(bp)
-      lp.connect(hs); hs.connect(master)
-      bp.connect(master)
+      lp.connect(swellGain); bp.connect(swellGain)
+      swellGain.connect(comp)
+      comp.connect(master)
       master.connect(ctx.destination)
 
-      src.start(); lfo.start(); lfo2.start()
+      src.start(); lfo.start()
+
       ctxRef.current  = ctx
-      gainRef.current = master
-      setBooted(true)
-    } catch { /* audio blocked */ }
+      masterRef.current = master
+      return ctx
+    } catch {
+      return null
+    }
   }, [])
 
-  // Auto-fade when visible + unmuted
+  // ── Activate: resume context + fade master gain in ────────────────────────
+  const activate = useCallback(() => {
+    if (startedRef.current) return
+    const ctx = buildGraph()
+    if (!ctx) return
+    ctx.resume().then(() => {
+      startedRef.current = true
+      masterRef.current!.gain.setTargetAtTime(0.9, ctx.currentTime, 1.8)
+      setPlaying(true)
+    }).catch(() => {})
+  }, [buildGraph])
+
+  // ── Auto-start on mount; fallback to first user gesture ───────────────────
   useEffect(() => {
-    const ctx  = ctxRef.current
-    const gain = gainRef.current
-    if (!ctx || !gain) return
-    const t = ctx.currentTime
-    if (inView && !muted) {
-      ctx.resume().catch(() => {})
-      gain.gain.setTargetAtTime(0.52, t, 2.5)
-    } else {
-      gain.gain.setTargetAtTime(0, t, 1.2)
+    buildGraph() // pre-build graph so it's ready instantly
+
+    // Try immediate resume (works if browser allows autoplay)
+    const ctx = ctxRef.current
+    if (ctx) {
+      ctx.resume().then(() => {
+        if (ctx.state === 'running') {
+          startedRef.current = true
+          masterRef.current!.gain.setTargetAtTime(0.9, ctx.currentTime, 1.8)
+        }
+      }).catch(() => {})
     }
-  }, [inView, muted])
+
+    // Guaranteed fallback: first user gesture triggers audio
+    const GESTURES = ['pointerdown','touchstart','keydown','wheel'] as const
+    const onGesture = () => {
+      activate()
+      GESTURES.forEach(e => window.removeEventListener(e, onGesture))
+    }
+    GESTURES.forEach(e => window.addEventListener(e, onGesture, { passive: true }))
+    return () => GESTURES.forEach(e => window.removeEventListener(e, onGesture))
+  }, [buildGraph, activate])
+
+  // ── Toggle mute / unmute ─────────────────────────────────────────────────
+  const toggle = useCallback(() => {
+    if (!startedRef.current) { activate(); return }
+    const ctx  = ctxRef.current!
+    const gain = masterRef.current!
+    ctx.resume().then(() => {
+      setPlaying(prev => {
+        const next = !prev
+        gain.gain.setTargetAtTime(next ? 0.9 : 0, ctx.currentTime, next ? 1.5 : 0.6)
+        return next
+      })
+    })
+  }, [activate])
 
   useEffect(() => () => { ctxRef.current?.close() }, [])
 
-  const toggle = useCallback(() => {
-    boot()
-    setMuted(prev => {
-      const next = !prev
-      const ctx  = ctxRef.current
-      const gain = gainRef.current
-      if (ctx && gain) {
-        if (!next) { ctx.resume().catch(() => {}); gain.gain.setTargetAtTime(0.52, ctx.currentTime, 1.5) }
-        else        { gain.gain.setTargetAtTime(0, ctx.currentTime, 0.7) }
-      }
-      return next
-    })
-  }, [boot])
-
-  return { muted, toggle, booted }
+  return { playing, toggle }
 }
 
-// ─────────────────────────────────────────────────────────────
-//  Animated ocean wave overlay
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// OceanWaves — animated SVG layers + turbulence filter + foam + shimmer
+// ─────────────────────────────────────────────────────────────────────────────
 function OceanWaves({ reduced }: { reduced: boolean | null }) {
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      {/* SVG filter definition — organic water-surface distortion */}
-      <svg className="absolute w-0 h-0" aria-hidden="true">
+    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+
+      {/* Hidden SVG filter — organic water-surface turbulence */}
+      <svg className="absolute w-0 h-0">
         <defs>
-          <filter id="sh-ocean" x="0%" y="0%" width="100%" height="100%"
+          <filter id="ocean-fx" x="0%" y="0%" width="100%" height="100%"
                   colorInterpolationFilters="sRGB">
-            <feTurbulence type="turbulence" baseFrequency="0.014 0.05"
-                          numOctaves="3" seed="4" result="noise">
+            <feTurbulence type="turbulence" baseFrequency="0.013 0.048"
+                          numOctaves="3" seed="6" result="noise">
               <animate attributeName="baseFrequency"
-                values="0.014 0.05;0.019 0.056;0.014 0.05"
-                dur="10s" repeatCount="indefinite" />
+                values="0.013 0.048;0.019 0.055;0.013 0.048"
+                dur="9s" repeatCount="indefinite" />
             </feTurbulence>
             <feDisplacementMap in="SourceGraphic" in2="noise"
-                               scale="8" xChannelSelector="R" yChannelSelector="G" />
+                               scale="9" xChannelSelector="R" yChannelSelector="G" />
           </filter>
         </defs>
       </svg>
 
-      {/* Wave tiles — each 200% wide, translating -50% for infinite loop */}
-      <div
-        className="absolute inset-0"
-        style={{ filter: 'url(#sh-ocean)' }}
-      >
-        {WAVE_LAYERS.map((layer, i) => (
+      {/* Wave layers with turbulence filter */}
+      <div className="absolute inset-0" style={{ filter: 'url(#ocean-fx)' }}>
+        {WAVES.map((w, i) => (
           <motion.div
             key={i}
             className="absolute bottom-0 left-0 h-full"
-            style={{ width: '200%', opacity: layer.opacity, willChange: 'transform' }}
+            style={{ width: '200%', willChange: 'transform' }}
             animate={reduced ? undefined : { x: ['0%', '-50%'] }}
-            transition={{ duration: layer.speed, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: w.speed, repeat: Infinity, ease: 'linear' }}
           >
             <svg viewBox="0 0 2880 100" preserveAspectRatio="none" className="w-full h-full">
-              <path d={buildWavePath(layer.yBase, layer.amp)} fill={layer.fill} />
+              <path d={wavePath(w.yBase, w.amp)} fill={w.fill} />
             </svg>
           </motion.div>
         ))}
       </div>
 
-      {/* Foam / whitecap crest on the leading wave */}
+      {/* Foam / whitecap strip — moves faster than deepest wave */}
       {!reduced && (
         <motion.div
-          className="absolute left-0 h-[3px]"
-          style={{ bottom: '62%', width: '200%', willChange: 'transform' }}
+          className="absolute left-0 bottom-[60%]"
+          style={{ width: '200%', height: 3, willChange: 'transform' }}
           animate={{ x: ['0%', '-50%'] }}
-          transition={{ duration: 8.5, repeat: Infinity, ease: 'linear' }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
         >
           <svg viewBox="0 0 2880 4" preserveAspectRatio="none" className="w-full h-full">
             <path
@@ -204,44 +249,46 @@ function OceanWaves({ reduced }: { reduced: boolean | null }) {
                 const x = k * 60
                 return `Q${x+15},0 ${x+30},2 Q${x+45},4 ${x+60},2`
               }).join(' ')}`}
-              stroke="rgba(255,255,255,0.22)"
-              strokeWidth={1.5}
-              fill="none"
+              stroke="rgba(255,255,255,0.65)" strokeWidth="2" fill="none"
             />
           </svg>
         </motion.div>
       )}
 
-      {/* Water-surface shimmer */}
+      {/* Sunlight shimmer on water surface */}
       {!reduced && (
         <motion.div
-          className="absolute top-[4px] left-0 right-0 h-[2px] pointer-events-none"
-          style={{ background: 'linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.12) 25%,rgba(255,255,255,0.22) 50%,rgba(255,255,255,0.12) 75%,transparent 100%)' }}
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-[3px] left-0 right-0 pointer-events-none"
+          style={{ height: 2, background: 'linear-gradient(90deg,transparent 5%,rgba(255,255,255,0.35) 30%,rgba(255,255,255,0.60) 50%,rgba(255,255,255,0.35) 70%,transparent 95%)' }}
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
         />
       )}
     </div>
   )
 }
 
-// ─────────────────────────────────────────────────────────────
-//  Spray / mist particles at waterline
-// ─────────────────────────────────────────────────────────────
-const SPRAY = Array.from({ length: 14 }, (_, i) => ({
-  id: i, x: 5 + (i * 137.5) % 90, delay: (i * 0.43) % 4, dur: 2.8 + (i % 4) * 0.6, size: 2 + (i % 3),
+// ─────────────────────────────────────────────────────────────────────────────
+// Spray / mist particles rising at the waterline
+// ─────────────────────────────────────────────────────────────────────────────
+const SPRAY = Array.from({ length: 18 }, (_, i) => ({
+  id: i, x: (i * 137.5) % 95,
+  delay: (i * 0.38) % 4.5,
+  dur:   2.5 + (i % 5) * 0.5,
+  size:  1.5 + (i % 3) * 1.2,
+  drift: i % 2 === 0 ? 7 : -7,
 }))
 
 function SprayParticles({ reduced }: { reduced: boolean | null }) {
   if (reduced) return null
   return (
-    <div className="absolute left-0 right-0 pointer-events-none overflow-hidden" style={{ bottom: '30%', height: 60 }}>
+    <div className="absolute left-0 right-0 overflow-hidden pointer-events-none"
+         style={{ bottom: '28%', height: 70 }}>
       {SPRAY.map(p => (
-        <motion.div
-          key={p.id}
-          className="absolute rounded-full bg-white/20"
-          style={{ left: `${p.x}%`, bottom: 0, width: p.size, height: p.size }}
-          animate={{ y: [-0, -30, -60], opacity: [0, 0.4, 0], x: [0, (p.id % 2 === 0 ? 8 : -8)] }}
+        <motion.div key={p.id}
+          className="absolute rounded-full"
+          style={{ left: `${p.x}%`, bottom: 0, width: p.size, height: p.size, background: 'rgba(255,255,255,0.28)' }}
+          animate={{ y: [0, -40, -70], opacity: [0, 0.5, 0], x: [0, p.drift] }}
           transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: 'easeOut' }}
         />
       ))}
@@ -249,100 +296,78 @@ function SprayParticles({ reduced }: { reduced: boolean | null }) {
   )
 }
 
-// ─────────────────────────────────────────────────────────────
-//  Text animation variants
-// ─────────────────────────────────────────────────────────────
-const txtContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.4 } },
-}
-const txtItem = {
-  hidden:  { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: ease.smooth } },
-}
-const wordBox = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.55 } },
-}
-const wordAnim = {
-  hidden:  { opacity: 0, y: 40, skewY: 5  },
-  visible: { opacity: 1, y: 0,  skewY: 0, transition: { duration: 0.55, ease: ease.smooth } },
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// Text entrance variants
+// ─────────────────────────────────────────────────────────────────────────────
+const txtCont  = { hidden:{}, visible:{ transition:{ staggerChildren:0.09, delayChildren:0.35 } } }
+const txtItem  = { hidden:{ opacity:0, y:28 }, visible:{ opacity:1, y:0, transition:{ duration:0.65, ease:ease.smooth } } }
+const wrdCont  = { hidden:{}, visible:{ transition:{ staggerChildren:0.07, delayChildren:0.5  } } }
+const wrdAnim  = { hidden:{ opacity:0, y:38, skewY:5 }, visible:{ opacity:1, y:0, skewY:0, transition:{ duration:0.55, ease:ease.smooth } } }
 
-// ─────────────────────────────────────────────────────────────
-//  Main component
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Main component
+// ─────────────────────────────────────────────────────────────────────────────
 export default function ShipHeroSection() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const reduced    = useReducedMotion()
-  const { muted, toggle, booted } = useOceanSound(sectionRef)
+  const reduced            = useReducedMotion()
+  const { playing, toggle } = useOceanSound()
 
   return (
     <section
-      ref={sectionRef}
       className="relative min-h-screen overflow-hidden flex flex-col"
-      aria-label="Hero — East Queen Group"
+      aria-label="East Queen Group hero"
     >
 
-      {/* ══════════════════════════════════════════
-          SHIP IMAGE — full-bleed background, gently floating
-          ══════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════════════════════
+          SHIP IMAGE — full-bleed, gently floating
+          The entire scene (ship + ocean + sky) bobs together,
+          giving a convincing "sitting on the ocean" feel.
+          ══════════════════════════════════════════════════════════ */}
       <motion.div
         className="absolute inset-0 z-0"
+        style={{ willChange: 'transform' }}
         animate={reduced ? undefined : {
-          y:     [0, -14, 0, -8, 0],
-          scale: [1, 1.006, 1, 1.003, 1],
+          y:     [0, -12, 0, -7, 0],
+          scale: [1, 1.005, 1, 1.003, 1],
+          rotate:[0,  0.25, 0, -0.25, 0],
         }}
         transition={{
-          y:     { duration: 6, repeat: Infinity, ease: 'easeInOut' },
-          scale: { duration: 9, repeat: Infinity, ease: 'easeInOut' },
+          y:      { duration: 6,   repeat: Infinity, ease: 'easeInOut' },
+          scale:  { duration: 9,   repeat: Infinity, ease: 'easeInOut' },
+          rotate: { duration: 8.5, repeat: Infinity, ease: 'easeInOut' },
         }}
-        style={{ willChange: 'transform' }}
       >
         <img
-          src="/images/hero/odyssey-hero.jpeg"
-          alt="East Queen Group — maritime excellence"
+          src="/images/hero/odyssey-hero.png"
+          alt="Odyssey of the Seas — East Queen Group maritime excellence"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '65% 55%' }}
+          style={{ objectPosition: '60% 52%' }}
           loading="eager"
           fetchPriority="high"
           decoding="async"
-          onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/shipping/tristar-prosperity.jpeg' }}
         />
       </motion.div>
 
-      {/* ── Sky atmosphere overlay (subtle depth without killing the blues) ── */}
-      <div
-        className="absolute inset-0 z-[1] pointer-events-none"
-        style={{
-          background: 'linear-gradient(180deg, rgba(5,12,28,0.30) 0%, rgba(5,12,28,0.05) 35%, rgba(5,12,28,0.08) 60%, rgba(5,12,28,0.88) 100%)',
-        }}
-      />
+      {/* ── Overlays ─────────────────────────────────────────────── */}
 
-      {/* ── Left gradient — text readability zone ── */}
-      <div
-        className="absolute inset-y-0 left-0 z-[2] pointer-events-none w-full"
-        style={{
-          background: 'linear-gradient(100deg, rgba(4,10,24,0.95) 0%, rgba(4,10,24,0.85) 28%, rgba(4,10,24,0.55) 50%, rgba(4,10,24,0.15) 68%, transparent 82%)',
-        }}
-      />
+      {/* Sky depth — preserves blue sky, adds subtle vignette at top */}
+      <div className="absolute inset-0 z-[1] pointer-events-none"
+           style={{ background: 'linear-gradient(180deg, rgba(5,14,30,0.28) 0%, rgba(5,14,30,0.04) 30%, rgba(5,14,30,0.12) 62%, rgba(4,12,26,0.92) 100%)' }} />
 
-      {/* ── Sun glare (top-right, from where the real sky is) ── */}
-      <div
-        className="absolute top-0 right-0 z-[2] pointer-events-none"
-        style={{
-          width: '45%', height: '40%',
-          background: 'radial-gradient(ellipse at 80% 10%, rgba(180,218,255,0.12) 0%, transparent 65%)',
-        }}
-      />
+      {/* Left readability band — strong enough for white text over bright blue */}
+      <div className="absolute inset-0 z-[2] pointer-events-none"
+           style={{ background: 'linear-gradient(105deg, rgba(4,10,24,0.94) 0%, rgba(4,10,24,0.84) 26%, rgba(4,10,24,0.50) 48%, rgba(4,10,24,0.12) 64%, transparent 80%)' }} />
 
-      {/* ══════════════════════════════════════════
+      {/* Subtle sun glare top-right (matches the Odyssey photo's bright sky) */}
+      <div className="absolute top-0 right-0 z-[2] pointer-events-none"
+           style={{ width:'42%', height:'38%', background:'radial-gradient(ellipse at 85% 8%, rgba(190,225,255,0.10) 0%, transparent 65%)' }} />
+
+      {/* ══════════════════════════════════════════════════════════
           MAIN CONTENT
-          ══════════════════════════════════════════ */}
-      <div className="relative z-10 flex-1 flex items-center max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-[38vh]">
+          ══════════════════════════════════════════════════════════ */}
+      <div className="relative z-10 flex-1 flex items-center max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-[37vh]">
         <motion.div
           className="w-full lg:w-[52%] xl:w-[46%]"
-          variants={txtContainer}
+          variants={txtCont}
           initial="hidden"
           animate="visible"
         >
@@ -354,175 +379,152 @@ export default function ShipHeroSection() {
             </span>
           </motion.div>
 
-          {/* Headline line 1 */}
+          {/* H1 line 1 */}
           <motion.h1
             className="font-playfair font-bold text-display text-white leading-[1.06] mb-1"
-            variants={wordBox}
+            variants={wrdCont}
           >
-            {['Where', 'Ships'].map((w, i) => (
-              <motion.span key={i} variants={wordAnim} className="inline-block mr-[0.22em]">{w}</motion.span>
+            {['Where','Ships'].map((w,i) => (
+              <motion.span key={i} variants={wrdAnim} className="inline-block mr-[0.22em]">{w}</motion.span>
             ))}
           </motion.h1>
 
-          {/* Headline line 2 — last word in brand red */}
+          {/* H1 line 2 — last word in brand red */}
           <motion.h1
             className="font-playfair font-bold text-display leading-[1.06] mb-8"
-            variants={wordBox}
+            variants={wrdCont}
           >
-            {['Meet', 'the', 'World'].map((w, i, arr) => (
-              <motion.span
-                key={i}
-                variants={wordAnim}
-                className={`inline-block mr-[0.22em] ${i === arr.length - 1 ? 'text-gold-500' : 'text-white'}`}
-              >
+            {['Meet','the','World'].map((w,i,arr) => (
+              <motion.span key={i} variants={wrdAnim}
+                className={`inline-block mr-[0.22em] ${i===arr.length-1?'text-gold-500':'text-white'}`}>
                 {w}
               </motion.span>
             ))}
           </motion.h1>
 
-          {/* Sub-text */}
-          <motion.p
-            variants={txtItem}
-            className="text-white/70 text-base sm:text-lg leading-relaxed mb-9 max-w-[460px]"
-          >
+          {/* Sub */}
+          <motion.p variants={txtItem}
+            className="text-white/68 text-base sm:text-lg leading-relaxed mb-9 max-w-[460px]">
             Four decades of maritime excellence — ship breaking, LPG energy,
             fisheries, and international commodity trade from the shores of Chittagong.
           </motion.p>
 
           {/* CTAs */}
           <motion.div variants={txtItem} className="flex flex-wrap gap-3 mb-10">
-            <Link
-              to="/companies"
+            <Link to="/companies"
               className="group inline-flex items-center gap-2.5 px-7 py-3.5
                          bg-gold-500 hover:bg-gold-400 text-white font-bold
                          rounded-lg text-sm tracking-wide transition-all duration-200
-                         hover:shadow-gold-glow"
-            >
+                         hover:shadow-gold-glow">
               Our Portfolio
               <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform duration-200" />
             </Link>
-            <a
-              href={`tel:${CONTACT.phones[0].replace(/\s/g, '')}`}
+            <a href={`tel:${CONTACT.phones[0].replace(/\s/g,'')}`}
               className="inline-flex items-center gap-2 px-7 py-3.5
                          bg-white/10 hover:bg-white/18 border border-white/25
                          hover:border-gold-500/60 text-white font-semibold
-                         rounded-lg text-sm tracking-wide transition-all duration-200"
-            >
+                         rounded-lg text-sm tracking-wide transition-all duration-200">
               <Phone size={14} />
               Call Us
             </a>
           </motion.div>
 
-          {/* Stats strip */}
-          <motion.div
-            variants={txtItem}
-            className="flex flex-wrap gap-6 pt-6 border-t border-white/12"
-          >
+          {/* Stats */}
+          <motion.div variants={txtItem} className="flex flex-wrap gap-6 pt-6 border-t border-white/12">
             {STATS.map(({ n, l }) => (
               <div key={l} className="flex flex-col items-center">
-                <span className="font-mono font-bold text-gold-400 text-[1.6rem] leading-none">{n}</span>
-                <span className="text-white/50 text-[10px] uppercase tracking-[0.22em] mt-1">{l}</span>
+                <span className="font-mono font-bold text-gold-400 text-[1.65rem] leading-none">{n}</span>
+                <span className="text-white/48 text-[10px] uppercase tracking-[0.22em] mt-1">{l}</span>
               </div>
             ))}
           </motion.div>
         </motion.div>
       </div>
 
-      {/* ══════════════════════════════════════════
-          ANIMATED WATER SECTION — bottom 36 vh
-          Overlays the photo's ocean with moving waves
-          ══════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════════════════════
+          ANIMATED OCEAN — bottom 36 vh
+          Overlays the photo's real ocean with moving SVG waves.
+          The turbulence filter makes every wave edge look organic.
+          ══════════════════════════════════════════════════════════ */}
       <div
         className="absolute bottom-0 left-0 right-0 z-[5]"
         style={{ height: '36vh', minHeight: 180 }}
         aria-hidden="true"
       >
-        {/* Deep water fill beneath all waves */}
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(180deg,transparent 0%,#040e1e 55%)' }}
-        />
+        {/* Deep water fill */}
+        <div className="absolute inset-0"
+             style={{ background: 'linear-gradient(180deg, transparent 0%, #050f22 50%)' }} />
 
         <OceanWaves reduced={reduced} />
         <SprayParticles reduced={reduced} />
 
-        {/* Horizon transition — photo ocean meets animated ocean */}
-        <div
-          className="absolute top-0 left-0 right-0 pointer-events-none"
-          style={{
-            height: 80,
-            background: 'linear-gradient(to bottom, transparent 0%, rgba(10,25,55,0.35) 50%, rgba(8,20,45,0.7) 100%)',
-          }}
-        />
+        {/* Horizon blend — photo ocean → animated ocean */}
+        <div className="absolute top-0 left-0 right-0 pointer-events-none"
+             style={{ height: 90, background: 'linear-gradient(to bottom, transparent 0%, rgba(8,22,50,0.4) 55%, rgba(6,16,40,0.72) 100%)' }} />
       </div>
 
-      {/* ── Anchor badge (brand touch) ── */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1.8, duration: 0.5, ease: ease.snappy }}
-        className="absolute z-20 hidden lg:flex items-center justify-center"
-        style={{ right: '4%', bottom: 'calc(36vh + 32px)' }}
-      >
-        <motion.div
-          animate={reduced ? undefined : { rotate: [0, 8, 0, -8, 0] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-md
-                     border border-white/15 flex items-center justify-center"
-        >
-          <Anchor size={20} className="text-gold-400" />
-        </motion.div>
-      </motion.div>
-
-      {/* ── Sound toggle ── */}
+      {/* ══════════════════════════════════════════════════════════
+          SOUND TOGGLE
+          ══════════════════════════════════════════════════════════ */}
       <motion.button
         onClick={toggle}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2.2 }}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.8, duration: 0.5 }}
         whileHover={{ scale: 1.06 }}
-        whileTap={{ scale: 0.94 }}
+        whileTap={{ scale: 0.93 }}
         className="absolute z-30 flex items-center gap-2.5
-                   px-3.5 py-2 rounded-full backdrop-blur-sm
-                   border border-white/15 bg-black/25 hover:bg-black/40
-                   text-white/75 hover:text-white text-[11px] font-medium
-                   transition-colors duration-200 cursor-pointer"
-        style={{ right: 20, bottom: 'calc(36vh + 20px)' }}
-        aria-label={muted ? 'Play ocean sound' : 'Mute ocean sound'}
+                   px-4 py-2.5 rounded-full backdrop-blur-md
+                   border bg-black/30 hover:bg-black/45
+                   text-[11px] font-semibold tracking-wide
+                   transition-colors duration-200 cursor-pointer select-none"
+        style={{
+          right:        20,
+          bottom:       'calc(36vh + 18px)',
+          borderColor:  playing ? 'rgba(226,31,47,0.5)' : 'rgba(255,255,255,0.18)',
+          color:        playing ? '#F76169'              : 'rgba(255,255,255,0.72)',
+        }}
+        aria-label={playing ? 'Mute ocean sound' : 'Play ocean sound'}
       >
-        {muted ? (
+        {playing ? (
           <>
-            <VolumeX size={12} className="flex-shrink-0" />
-            <span className="hidden sm:inline whitespace-nowrap">
-              {booted ? 'Sound off' : 'Ocean sound'}
+            {/* Pulsing speaker when active */}
+            <motion.div animate={{ scale:[1,1.25,1] }} transition={{ duration:1.1, repeat:Infinity }}>
+              <Volume2 size={13} />
+            </motion.div>
+            <span className="hidden sm:inline">Sound On</span>
+            {/* Live audio bars */}
+            <span className="hidden sm:flex items-end gap-[2px] h-3">
+              {[1,2,3].map(i => (
+                <motion.span key={i}
+                  className="w-[2px] rounded-full bg-current"
+                  animate={{ height:['4px','10px','4px'] }}
+                  transition={{ duration:0.6, repeat:Infinity, delay:i*0.12 }}
+                />
+              ))}
             </span>
           </>
         ) : (
           <>
-            <motion.span
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 1.2, repeat: Infinity }}
-            >
-              <Volume2 size={12} className="text-gold-400 flex-shrink-0" />
-            </motion.span>
-            <span className="hidden sm:inline text-gold-300 whitespace-nowrap">Sound on</span>
+            <VolumeX size={13} />
+            <span className="hidden sm:inline">Ocean Sound</span>
           </>
         )}
       </motion.button>
 
-      {/* ── Scroll cue ── */}
+      {/* ── Scroll cue ──────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2.6 }}
-        className="absolute left-1/2 -translate-x-1/2 z-30
-                   flex flex-col items-center gap-1.5 text-white/40"
-        style={{ bottom: 'calc(36vh + 20px)' }}
+        transition={{ delay: 2.4 }}
+        className="absolute left-1/2 -translate-x-1/2 z-20
+                   flex flex-col items-center gap-1.5 text-white/38"
+        style={{ bottom: 'calc(36vh + 18px)' }}
       >
         <span className="text-[9px] uppercase tracking-[0.38em]">Scroll</span>
         <motion.div
-          animate={reduced ? undefined : { y: [0, 5, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+          animate={reduced ? undefined : { y:[0,5,0] }}
+          transition={{ duration:1.6, repeat:Infinity, ease:'easeInOut' }}
         >
           <ChevronDown size={14} />
         </motion.div>
