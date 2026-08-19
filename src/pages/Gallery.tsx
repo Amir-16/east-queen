@@ -738,7 +738,7 @@ export default function Gallery() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.38 }}
-            className="flex flex-wrap items-center gap-3 mb-12"
+            className="flex flex-wrap items-center gap-2 sm:gap-3 mb-10 sm:mb-12"
           >
             {/* Media type tabs */}
             <div className="flex items-center bg-slate-100 rounded-xl p-1 gap-0.5">

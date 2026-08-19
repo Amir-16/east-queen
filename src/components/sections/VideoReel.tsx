@@ -69,7 +69,7 @@ export default function VideoReel() {
       </motion.div>
 
       {/* Video strip */}
-      <div className="flex h-[280px] sm:h-[340px] lg:h-[400px] gap-0.5">
+      <div className="flex h-[200px] sm:h-[280px] md:h-[340px] lg:h-[400px] gap-0.5">
         {reels.map(({ video, label, sub, poster }, i) => (
           <motion.div
             key={video}

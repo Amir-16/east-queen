@@ -15,7 +15,7 @@ export default function ContactCTA() {
                       bg-gradient-to-r from-transparent via-gold-500 to-transparent" />
 
       <div className="relative section-container">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
 
           {/* Left */}
           <motion.div

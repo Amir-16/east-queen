@@ -590,7 +590,7 @@ export default function ShipBreaking() {
 
         {/* Content */}
         <motion.div
-          className="relative section-container pb-20 lg:pb-28"
+          className="relative section-container pb-14 sm:pb-20 lg:pb-28"
           style={{ y: heroTextY, opacity: heroOpacity }}
         >
           {/* Eyebrow */}
@@ -698,7 +698,7 @@ export default function ShipBreaking() {
       ══════════════════════════════════════════════════════════════════ */}
       <section className="section-padding bg-white">
         <div className="section-container">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 
             {/* Left — text */}
             <motion.div
@@ -1047,7 +1047,7 @@ export default function ShipBreaking() {
           </motion.div>
 
           {/* Asymmetric masonry grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 auto-rows-[220px] lg:auto-rows-[200px]">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 auto-rows-[180px] md:auto-rows-[200px]">
             {galleryImages.map((img, i) => (
               <GalleryCard
                 key={img.src}
@@ -1083,7 +1083,7 @@ export default function ShipBreaking() {
       ══════════════════════════════════════════════════════════════════ */}
       <section className="section-padding bg-white">
         <div className="section-container">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 
             {/* Left — heading */}
             <motion.div

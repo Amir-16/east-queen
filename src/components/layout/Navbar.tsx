@@ -347,7 +347,7 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="fixed top-0 right-0 h-full w-[310px] bg-white z-[70]
+              className="fixed top-0 right-0 h-full w-[min(310px,90vw)] bg-white z-[70]
                          flex flex-col shadow-[0_0_80px_rgba(13,11,30,0.2)]"
             >
               {/* Drawer header */}

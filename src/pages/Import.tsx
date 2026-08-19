@@ -28,7 +28,7 @@ export default function Import() {
             className="mb-12"
           />
 
-          <div className="grid lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-4 gap-6 md:gap-8">
             {/* Tab sidebar */}
             <div className="space-y-2">
               {importProducts.map((p) => (
@@ -51,7 +51,7 @@ export default function Import() {
             </div>
 
             {/* Product detail */}
-            <div className="lg:col-span-3">
+            <div className="md:col-span-3">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeProduct.id}

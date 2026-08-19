@@ -94,7 +94,7 @@ export default function CoreValues() {
       <section className="section-padding bg-slate-50">
         <div className="section-container">
           <motion.div
-            className="grid md:grid-cols-2 gap-6"
+            className="grid md:grid-cols-2 gap-4 md:gap-6"
             variants={stagger}
             initial="hidden"
             whileInView="visible"

@@ -96,7 +96,7 @@ export default function LegalLayout({
     >
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative pt-36 pb-24 bg-navy-950 overflow-hidden">
+      <section className="relative pt-24 sm:pt-32 md:pt-36 pb-14 sm:pb-20 md:pb-24 bg-navy-950 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern" />
         <div className="absolute top-0 left-0 right-0 h-[3px]
                         bg-gradient-to-r from-transparent via-gold-500 to-transparent" />
@@ -180,7 +180,7 @@ export default function LegalLayout({
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-              className="lg:w-72 shrink-0"
+              className="hidden lg:block lg:w-72 shrink-0"
             >
               <div className="sticky top-24 space-y-3">
 

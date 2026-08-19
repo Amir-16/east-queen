@@ -58,14 +58,14 @@ export default function AboutSnippet() {
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 min-h-[640px]">
 
         {/* ── Left: image mosaic ──────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 grid-rows-[220px_220px] gap-1.5 p-1.5">
+        <div className="grid grid-cols-2 grid-rows-[150px_150px] sm:grid-rows-[220px_220px] gap-1.5 p-1.5">
           {imageGrid.map(({ src, alt, span }, i) => (
             <MosaicImg key={src} src={src} alt={alt} span={span} delay={i * 0.1} />
           ))}
         </div>
 
         {/* ── Right: story text ────────────────────────────────────────────── */}
-        <div className="flex flex-col justify-center px-10 py-16 lg:py-20 relative">
+        <div className="flex flex-col justify-center px-5 sm:px-8 lg:px-10 py-10 sm:py-16 lg:py-20 relative">
           {/* Large watermark year */}
           <span className="absolute -right-4 bottom-8 font-playfair font-black
                            text-[140px] leading-none select-none pointer-events-none
@@ -140,7 +140,7 @@ export default function AboutSnippet() {
             </motion.div>
 
             {/* Animated counters */}
-            <div ref={ref} className="grid grid-cols-2 gap-5 mt-12 pt-10 border-t border-white/10">
+            <div ref={ref} className="grid grid-cols-2 gap-3 sm:gap-5 mt-10 sm:mt-12 pt-8 sm:pt-10 border-t border-white/10">
               {stats.map(({ n, suffix, label, sub }, i) => (
                 <motion.div
                   key={label}

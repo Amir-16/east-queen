@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 import CountUp from 'react-countup'
 import { ArrowRight, Eye, Target, Flame } from 'lucide-react'
-import { pageTransition, fadeLeft, fadeRight, staggerSlow, fadeDown, scaleIn } from '@/lib/motion'
+import { pageTransition, fadeLeft, staggerSlow, fadeDown, scaleIn } from '@/lib/motion'
 import PageHero from '@/components/ui/PageHero'
 import SectionHeader from '@/components/ui/SectionHeader'
 import { timelineEvents } from '@/data'
@@ -247,7 +247,7 @@ export default function About() {
           </motion.div>
 
           {/* ── Body paragraphs: word-by-word rain from above ── */}
-          <div className="max-w-3xl mb-16 space-y-4">
+          <div className="max-w-3xl mb-10 sm:mb-16 space-y-4">
             <RainText
               text="East Queen Group is one of Bangladesh's oldest and most respected industrial conglomerates, proudly rooted in Chattogram since 1968. With over five decades of experience, we have established ourselves as pioneers in multiple sectors — including ship recycling, civil construction, steel trading, international trade, logistics, manufacturing, agriculture, and infrastructure development."
               className="text-slate-600 text-lg leading-relaxed"
@@ -259,7 +259,7 @@ export default function About() {
           </div>
 
           {/* ── Vision & Mission: equal 2-col cards ── */}
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
+          <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-6">
 
             {/* ── VISION — slides from LEFT ── */}
             <motion.div
@@ -457,7 +457,7 @@ export default function About() {
       <section id="chairman_message" className="section-padding bg-slate-50 relative overflow-hidden">
         <div className="absolute inset-0 bg-dots-pattern pointer-events-none" />
         <div className="section-container relative">
-          <div className="grid lg:grid-cols-[320px_1fr] gap-12 xl:gap-20 items-start">
+          <div className="grid lg:grid-cols-[280px_1fr] gap-8 lg:gap-12 xl:gap-20 items-start">
 
             {/* Portrait — slides in from left */}
             <motion.div
@@ -575,7 +575,7 @@ export default function About() {
       <section className="section-padding bg-white relative overflow-hidden">
         <div className="absolute inset-0 bg-light-grid pointer-events-none opacity-60" />
         <div className="section-container relative">
-          <div className="grid lg:grid-cols-2 gap-16 xl:gap-24 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 xl:gap-24 items-center">
 
             {/* Left — text from above */}
             <motion.div
@@ -606,7 +606,7 @@ export default function About() {
               />
 
               {/* Stat cards — from above */}
-              <div ref={statsRef} className="grid grid-cols-2 gap-4 mt-10">
+              <div ref={statsRef} className="grid grid-cols-2 gap-3 sm:gap-4 mt-8 sm:mt-10">
                 {glanceStats.map((s, i) => (
                   <motion.div
                     key={s.label}
@@ -706,7 +706,7 @@ export default function About() {
             </motion.h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-4 md:gap-6">
             {principleLinks.map(({ label, sub, href, img, tag }, i) => (
               <motion.div
                 key={href}
@@ -921,7 +921,7 @@ export default function About() {
             className="mb-14"
           />
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-4 md:gap-6">
             {differentiators.map((d, i) => (
               <motion.div
                 key={d.title}

@@ -194,7 +194,7 @@ export default function ProductsHighlight() {
 
         {/* Process strip */}
         <motion.div
-          className="bg-slate-50 border border-slate-200 rounded-2xl p-8 shadow-sm mb-10"
+          className="bg-slate-50 border border-slate-200 rounded-2xl p-5 sm:p-8 shadow-sm mb-10"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
@@ -210,7 +210,7 @@ export default function ProductsHighlight() {
             <div className="absolute top-6 left-[10%] right-[10%] h-px hidden md:block
                             bg-gradient-to-r from-transparent via-gold-500/35 to-transparent" />
 
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 relative z-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 relative z-10">
               {processSteps.map((step, i) => (
                 <motion.div
                   key={step.step}

@@ -88,7 +88,7 @@ export default function Contact() {
       {/* Main content */}
       <section className="section-padding bg-slate-50">
         <div className="section-container">
-          <div className="grid lg:grid-cols-5 gap-12">
+          <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
             {/* Form — 3 cols */}
             <motion.div
               className="lg:col-span-3"

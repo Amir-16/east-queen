@@ -106,7 +106,7 @@ function SlideContent({ slide, slideKey }: { slide: typeof slides[number]; slide
         </motion.h1>
 
         {/* Subtitle */}
-        <motion.p variants={fadeUp} className="text-white/75 text-lg leading-relaxed mb-10 max-w-[520px]">
+        <motion.p variants={fadeUp} className="text-white/75 text-base sm:text-lg leading-relaxed mb-7 sm:mb-10 max-w-[520px]">
           {slide.sub}
         </motion.p>
 
@@ -192,7 +192,7 @@ export default function HeroSection() {
       />
 
       {/* Main content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 w-full">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 md:pt-28 pb-10 sm:pb-14 md:pb-20 w-full">
         <SlideContent slide={slides[activeIndex]} slideKey={activeIndex} />
 
         {/* Stats + slide dots */}
@@ -200,7 +200,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8 }}
-          className="flex flex-wrap items-center gap-8 mt-12 pt-8 border-t border-white/15"
+          className="flex flex-wrap items-center gap-4 sm:gap-8 mt-8 sm:mt-12 pt-5 sm:pt-8 border-t border-white/15"
         >
           {[
             { n: '42+',  l: 'Years' },
