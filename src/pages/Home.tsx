@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { pageTransition } from '@/lib/motion'
 import SEO from '@/components/ui/SEO'
+import ShipHeroSection from '@/components/sections/ShipHeroSection'
 import HeroSection from '@/components/sections/HeroSection'
 import MarqueeStrip from '@/components/sections/MarqueeStrip'
 import AboutSnippet from '@/components/sections/AboutSnippet'
@@ -16,6 +17,7 @@ export default function Home() {
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
       <SEO url="/" />
+      <ShipHeroSection />
       <HeroSection />
       <MarqueeStrip />
       <AboutSnippet />
