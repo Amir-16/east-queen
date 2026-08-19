@@ -56,7 +56,7 @@ export default function GalleryMosaic() {
 
         {/* Mosaic grid */}
         <div
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 auto-rows-[160px] sm:auto-rows-[180px] gap-2 sm:gap-3"
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 auto-rows-[120px] sm:auto-rows-[150px] md:auto-rows-[180px] gap-2 sm:gap-3"
         >
           {tiles.map(({ src, alt, style }, i) => (
             <motion.div
@@ -71,6 +71,7 @@ export default function GalleryMosaic() {
                 src={src}
                 alt={alt}
                 loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover object-center
                            group-hover:scale-108 transition-transform duration-600 ease-out"
                 style={{ transition: 'transform 0.6s ease-out' }}

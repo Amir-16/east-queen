@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
@@ -10,6 +10,33 @@ const imageGrid = [
   { src: '/images/companies/syedpur/farm-1.jpeg',            alt: 'Syedpur farm and fisheries',        span: '' },
   { src: '/images/ship-breaking/yard-wide-1.jpeg',           alt: 'Ship-breaking yard panorama',       span: 'col-span-2' },
 ]
+
+function MosaicImg({ src, alt, span, delay }: { src: string; alt: string; span: string; delay: number }) {
+  const [loaded, setLoaded] = useState(false)
+  return (
+    <motion.div
+      className={`relative overflow-hidden group ${span}`}
+      initial={{ opacity: 0, scale: 1.04 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ delay, duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+    >
+      <div className={`absolute inset-0 bg-navy-800 animate-pulse transition-opacity duration-500
+                       ${loaded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} />
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        className={`w-full h-full object-cover object-center
+                    group-hover:scale-105 transition-all duration-700 ease-out
+                    ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      />
+      <div className="absolute inset-0 bg-navy-900/30 group-hover:bg-navy-900/10 transition-colors duration-500" />
+    </motion.div>
+  )
+}
 
 const stats = [
   { n: 42,   suffix: '+', label: 'Years',     sub: 'of industrial excellence' },
@@ -31,30 +58,14 @@ export default function AboutSnippet() {
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 min-h-[640px]">
 
         {/* ── Left: image mosaic ──────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 grid-rows-[220px_220px] gap-1.5 p-1.5">
+        <div className="grid grid-cols-2 grid-rows-[150px_150px] sm:grid-rows-[220px_220px] gap-1.5 p-1.5">
           {imageGrid.map(({ src, alt, span }, i) => (
-            <motion.div
-              key={src}
-              className={`relative overflow-hidden group ${span}`}
-              initial={{ opacity: 0, scale: 1.04 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
-            >
-              <img
-                src={src}
-                alt={alt}
-                loading="lazy"
-                className="w-full h-full object-cover object-center
-                           group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-              <div className="absolute inset-0 bg-navy-900/30 group-hover:bg-navy-900/10 transition-colors duration-500" />
-            </motion.div>
+            <MosaicImg key={src} src={src} alt={alt} span={span} delay={i * 0.1} />
           ))}
         </div>
 
         {/* ── Right: story text ────────────────────────────────────────────── */}
-        <div className="flex flex-col justify-center px-10 py-16 lg:py-20 relative">
+        <div className="flex flex-col justify-center px-5 sm:px-8 lg:px-10 py-10 sm:py-16 lg:py-20 relative">
           {/* Large watermark year */}
           <span className="absolute -right-4 bottom-8 font-playfair font-black
                            text-[140px] leading-none select-none pointer-events-none
@@ -129,7 +140,7 @@ export default function AboutSnippet() {
             </motion.div>
 
             {/* Animated counters */}
-            <div ref={ref} className="grid grid-cols-2 gap-5 mt-12 pt-10 border-t border-white/10">
+            <div ref={ref} className="grid grid-cols-2 gap-3 sm:gap-5 mt-10 sm:mt-12 pt-8 sm:pt-10 border-t border-white/10">
               {stats.map(({ n, suffix, label, sub }, i) => (
                 <motion.div
                   key={label}

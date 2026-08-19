@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react'
+import { motion, AnimatePresence, useInView, useReducedMotion } from 'framer-motion'
 import {
   Play, X, ChevronLeft, ChevronRight, ChevronDown,
   Film, ImageIcon, Grid2x2, ZoomIn, Layers,
@@ -57,26 +57,42 @@ const slideVariants = {
 
 /* ─── VideoThumbnail ─────────────────────────────────────────────────────── */
 function VideoThumbnail({ src }: { src: string }) {
-  const ref    = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '400px' })
-  /* encode path segments so spaces / parens in WhatsApp filenames work in URLs */
+  const ref     = useRef<HTMLDivElement>(null)
+  const inView  = useInView(ref, { once: true, margin: '400px' })
+  const [ready, setReady] = useState(false)
   const encoded = encodeVideoSrc(src)
+
   return (
     <div ref={ref} className="absolute inset-0 bg-navy-950">
+      {/* dark skeleton pulses until the video poster frame is decoded */}
+      <div className={`absolute inset-0 bg-navy-800 animate-pulse transition-opacity duration-300
+                       ${ready ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} />
       {inView && (
-        <video src={`${encoded}#t=2`} preload="metadata" muted playsInline
-          className="w-full h-full object-cover" />
+        <video
+          src={`${encoded}#t=2`}
+          preload="metadata"
+          muted
+          playsInline
+          onLoadedMetadata={() => setReady(true)}
+          className={`w-full h-full object-cover transition-opacity duration-500
+                      ${ready ? 'opacity-100' : 'opacity-0'}`}
+        />
       )}
     </div>
   )
 }
 
 /* ─── ImageCard ──────────────────────────────────────────────────────────── */
-function ImageCard({
+const ImageCard = memo(function ImageCard({
   item, idx, floatDelay, onClick,
 }: {
   item: GalleryItem; idx: number; floatDelay: number; onClick: () => void
 }) {
+  const [loaded, setLoaded] = useState(false)
+  const reduced = useReducedMotion()
+  /* first 4 images are likely above-fold — load eagerly with high priority */
+  const isEager = idx < 4
+
   return (
     /* break-inside-avoid keeps the card in one CSS column */
     <div className="break-inside-avoid mb-3">
@@ -86,26 +102,29 @@ function ImageCard({
         viewport={{ once: true, margin: '-30px' }}
         transition={{ delay: Math.min(idx * 0.055, 0.45), duration: 0.52, ease: ease.smooth }}
       >
-        {/* float wrapper */}
+        {/* float wrapper — skipped when user prefers reduced motion */}
         <motion.div
-          animate={{ y: [0, -7, 0] }}
-          transition={{
-            repeat: Infinity,
-            duration: 3.2 + floatDelay,
-            ease: 'easeInOut',
-            delay: floatDelay,
-          }}
+          animate={reduced ? undefined : { y: [0, -7, 0] }}
+          transition={{ repeat: Infinity, duration: 3.2 + floatDelay, ease: 'easeInOut', delay: floatDelay }}
           whileHover={{ scale: 1.025, y: -6, transition: { duration: 0.22, ease: ease.smooth } }}
           whileTap={{ scale: 0.97 }}
           onClick={onClick}
           className="group relative overflow-hidden rounded-2xl cursor-pointer
                      shadow-card hover:shadow-hover transition-shadow duration-300"
         >
+          {/* pulse skeleton — fades out once the image is decoded */}
+          <div className={`absolute inset-0 bg-slate-100 animate-pulse transition-opacity duration-500
+                           ${loaded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} />
+
           <img
             src={item.src}
             alt={item.alt}
-            loading="lazy"
-            className="w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            loading={isEager ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchPriority={isEager ? 'high' : 'auto'}
+            onLoad={() => setLoaded(true)}
+            className={`w-full object-cover transition-all duration-700 group-hover:scale-110
+                        ${loaded ? 'opacity-100' : 'opacity-0'}`}
           />
 
           {/* dark gradient */}
@@ -147,14 +166,16 @@ function ImageCard({
       </motion.div>
     </div>
   )
-}
+})
 
 /* ─── VideoCard ──────────────────────────────────────────────────────────── */
-function VideoCard({
+const VideoCard = memo(function VideoCard({
   item, idx, floatDelay, onClick,
 }: {
   item: GalleryItem; idx: number; floatDelay: number; onClick: () => void
 }) {
+  const reduced = useReducedMotion()
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 44, scale: 0.9 }}
@@ -163,13 +184,8 @@ function VideoCard({
       transition={{ delay: Math.min(idx * 0.06, 0.48), duration: 0.55, ease: ease.smooth }}
     >
       <motion.div
-        animate={{ y: [0, -5, 0] }}
-        transition={{
-          repeat: Infinity,
-          duration: 4 + floatDelay,
-          ease: 'easeInOut',
-          delay: floatDelay,
-        }}
+        animate={reduced ? undefined : { y: [0, -5, 0] }}
+        transition={{ repeat: Infinity, duration: 4 + floatDelay, ease: 'easeInOut', delay: floatDelay }}
         whileHover={{ y: -8, scale: 1.015, transition: { duration: 0.24 } }}
         whileTap={{ scale: 0.97 }}
         onClick={onClick}
@@ -233,14 +249,14 @@ function VideoCard({
       </motion.div>
     </motion.div>
   )
-}
+})
 
 /* ─── ImageLightbox ──────────────────────────────────────────────────────── */
 function ImageLightbox({
-  images, index, dir, onNav, onClose,
+  images, index, dir, onNav, onJump, onClose,
 }: {
   images: GalleryItem[]; index: number; dir: number
-  onNav: (d: 1 | -1) => void; onClose: () => void
+  onNav: (d: 1 | -1) => void; onJump: (i: number) => void; onClose: () => void
 }) {
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
@@ -268,37 +284,54 @@ function ImageLightbox({
       className="fixed inset-0 z-[200] flex flex-col bg-black/96 backdrop-blur-2xl"
       onClick={onClose}
     >
-      {/* top bar */}
-      <div className="flex items-center justify-between px-6 py-4 shrink-0"
-           onClick={e => e.stopPropagation()}>
-        <motion.div
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.08 }}
-          className="flex items-center gap-3"
-        >
-          <span className="px-3 py-1 bg-gold-500/15 border border-gold-500/30 rounded-full
-                           text-gold-400 text-[10px] font-semibold uppercase tracking-widest">
-            {CATEGORY_META[img.category]?.label ?? img.category}
-          </span>
-          <span className="text-white/35 text-xs font-mono">
-            <span className="text-white/70">{index + 1}</span> / {images.length}
-          </span>
-        </motion.div>
+      {/* ── Counter — top left ── */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.12, duration: 0.35 }}
+        className="absolute top-5 left-5 z-20 flex items-center gap-2.5 pointer-events-none select-none"
+      >
+        <span className="px-2.5 py-1 bg-gold-500/15 border border-gold-500/30 rounded-full
+                         text-gold-400 text-[10px] font-semibold uppercase tracking-widest">
+          {CATEGORY_META[img.category]?.label ?? img.category}
+        </span>
+        <span className="w-px h-3 bg-white/20" />
+        <span className="font-mono text-sm">
+          <span className="text-white/75 font-bold">{index + 1}</span>
+          <span className="text-white/30"> / {images.length}</span>
+        </span>
+      </motion.div>
 
-        <motion.button
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileHover={{ scale: 1.12, rotate: 90, transition: { duration: 0.18 } }}
-          whileTap={{ scale: 0.88 }}
-          onClick={onClose}
-          className="w-10 h-10 rounded-full border border-white/15
-                     flex items-center justify-center text-white/55
-                     hover:text-white hover:border-white/40 transition-colors"
+      {/* ── Close button — prominent floating top-right ── */}
+      <motion.div
+        className="absolute top-4 right-4 z-20 flex items-center gap-3"
+        onClick={e => e.stopPropagation()}
+      >
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="hidden sm:block text-white/30 text-[10px] font-mono tracking-[0.25em] uppercase select-none"
         >
-          <X size={16} strokeWidth={2} />
+          esc
+        </motion.span>
+        <motion.button
+          initial={{ scale: 0, rotate: -90 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 360, damping: 22, delay: 0.18 }}
+          whileHover={{ scale: 1.12, rotate: 90, transition: { type: 'spring', stiffness: 500, damping: 18 } }}
+          whileTap={{ scale: 0.85 }}
+          onClick={onClose}
+          aria-label="Close (Escape)"
+          className="w-[52px] h-[52px] rounded-full
+                     bg-black/60 border-2 border-white/20 backdrop-blur-md
+                     flex items-center justify-center text-white
+                     hover:bg-gold-500 hover:border-gold-500/60
+                     transition-colors duration-200 shadow-2xl shadow-black/50"
+        >
+          <X size={22} strokeWidth={2.5} />
         </motion.button>
-      </div>
+      </motion.div>
 
       {/* image + nav */}
       <div className="flex-1 flex items-center justify-center overflow-hidden px-16 md:px-24 relative"
@@ -379,12 +412,10 @@ function ImageLightbox({
         {images.map((im, i) => (
           <motion.button
             key={im.id}
-            onClick={() => {
-              const d = i > index ? 1 : -1
-              onNav(d)
-            }}
+            onClick={() => i !== index && onJump(i)}
             whileHover={{ scale: 1.1, y: -3 }}
             whileTap={{ scale: 0.95 }}
+            aria-label={`View photo ${i + 1}`}
             className={[
               'shrink-0 w-14 h-10 rounded-lg overflow-hidden border-2 transition-all duration-200',
               i === index
@@ -392,7 +423,14 @@ function ImageLightbox({
                 : 'border-transparent opacity-30 hover:opacity-65',
             ].join(' ')}
           >
-            <img src={im.src} alt="" className="w-full h-full object-cover" draggable={false} />
+            <img
+              src={im.src}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover"
+              draggable={false}
+            />
           </motion.button>
         ))}
       </motion.div>
@@ -440,35 +478,54 @@ function VideoModal({
       className="fixed inset-0 z-[300] flex flex-col bg-black/97 backdrop-blur-xl"
       onClick={onClose}
     >
-      {/* top bar */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4">
-        <motion.div
-          initial={{ opacity: 0, x: -14 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-3"
-        >
-          <span className="flex items-center gap-1.5 px-3 py-1 bg-gold-500 rounded-lg
-                           text-white text-[10px] font-bold uppercase tracking-widest">
-            <Film size={9} /> Video
-          </span>
-          <span className="text-white/40 text-sm font-mono">
-            <span className="text-white/70">{index + 1}</span>
-            <span className="text-white/20"> / </span>
-            {videos.length}
-          </span>
-        </motion.div>
+      {/* ── Counter — top left ── */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.12, duration: 0.35 }}
+        className="absolute top-5 left-5 z-20 flex items-center gap-2.5 pointer-events-none select-none"
+      >
+        <span className="flex items-center gap-1.5 px-3 py-1 bg-gold-500 rounded-lg
+                         text-white text-[10px] font-bold uppercase tracking-widest">
+          <Film size={9} /> Video
+        </span>
+        <span className="w-px h-3 bg-white/20" />
+        <span className="font-mono text-sm">
+          <span className="text-white/75 font-bold">{index + 1}</span>
+          <span className="text-white/30"> / {videos.length}</span>
+        </span>
+      </motion.div>
 
-        <motion.button
-          whileHover={{ scale: 1.1, rotate: 90, transition: { duration: 0.18 } }}
-          whileTap={{ scale: 0.88 }}
-          onClick={onClose}
-          className="w-10 h-10 rounded-full border border-white/20
-                     flex items-center justify-center text-white/55
-                     hover:text-white hover:border-white/40 transition-colors"
+      {/* ── Close button — prominent floating top-right ── */}
+      <motion.div
+        className="absolute top-4 right-4 z-20 flex items-center gap-3"
+        onClick={e => e.stopPropagation()}
+      >
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="hidden sm:block text-white/30 text-[10px] font-mono tracking-[0.25em] uppercase select-none"
         >
-          <X size={16} />
+          esc
+        </motion.span>
+        <motion.button
+          initial={{ scale: 0, rotate: -90 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 360, damping: 22, delay: 0.18 }}
+          whileHover={{ scale: 1.12, rotate: 90, transition: { type: 'spring', stiffness: 500, damping: 18 } }}
+          whileTap={{ scale: 0.85 }}
+          onClick={onClose}
+          aria-label="Close (Escape)"
+          className="w-[52px] h-[52px] rounded-full
+                     bg-black/60 border-2 border-white/20 backdrop-blur-md
+                     flex items-center justify-center text-white
+                     hover:bg-gold-500 hover:border-gold-500/60
+                     transition-colors duration-200 shadow-2xl shadow-black/50"
+        >
+          <X size={22} strokeWidth={2.5} />
         </motion.button>
-      </div>
+      </motion.div>
 
       {/* player + nav */}
       <div className="flex-1 flex items-center justify-center px-4 py-2 min-h-0">
@@ -551,7 +608,7 @@ function VideoModal({
                   : 'border-transparent opacity-30 hover:opacity-65',
               ].join(' ')}
             >
-              <video src={`${v.src}#t=2`} preload="metadata" muted playsInline
+              <video src={`${encodeVideoSrc(v.src)}#t=2`} preload="metadata" muted playsInline
                 className="w-full h-full object-cover" />
               {i === index && <div className="absolute inset-0 bg-gold-500/20" />}
             </motion.button>
@@ -568,9 +625,27 @@ export default function Gallery() {
   const [activeCat,  setActiveCat]  = useState<'all' | Category>('all')
   const [lb,         setLb]         = useState({ open: false, index: 0, dir: 0 })
   const [videoIdx,   setVideoIdx]   = useState(-1)
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
 
-  const allImages = useMemo(() => galleryItems.filter(i => i.type !== 'video'), [])
-  const allVideos = useMemo(() => galleryItems.filter(i => i.type === 'video'), [])
+  const allImages = useMemo(() => {
+    const seen = new Set<string>()
+    return galleryItems.filter(i => {
+      if (i.type === 'video') return false
+      if (seen.has(i.src)) return false
+      seen.add(i.src)
+      return true
+    })
+  }, [])
+
+  const allVideos = useMemo(() => {
+    const seen = new Set<string>()
+    return galleryItems.filter(i => {
+      if (i.type !== 'video') return false
+      if (seen.has(i.src)) return false
+      seen.add(i.src)
+      return true
+    })
+  }, [])
 
   const filteredImages = useMemo(() =>
     mediaType === 'videos'
@@ -616,7 +691,11 @@ export default function Gallery() {
     }))
   }, [filteredImages.length])
 
-  const reset = () => { setLb(s => ({ ...s, open: false })); setVideoIdx(-1) }
+  const jumpLb = useCallback((i: number) => {
+    setLb(s => ({ open: true, index: i, dir: i > s.index ? 1 : -1 }))
+  }, [])
+
+  const reset = useCallback(() => { setLb(s => ({ ...s, open: false })); setVideoIdx(-1) }, [])
 
   const noContent = imageGroups.length === 0 && videoGroups.length === 0
 
@@ -659,7 +738,7 @@ export default function Gallery() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.38 }}
-            className="flex flex-wrap items-center gap-3 mb-12"
+            className="flex flex-wrap items-center gap-2 sm:gap-3 mb-10 sm:mb-12"
           >
             {/* Media type tabs */}
             <div className="flex items-center bg-slate-100 rounded-xl p-1 gap-0.5">
@@ -865,21 +944,58 @@ export default function Gallery() {
                       <div className="flex-1 h-px bg-white/10" />
                     </motion.div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {items.map((item, idx) => {
-                        const globalIdx = filteredVideos.indexOf(item)
-                        const floatDelay = (idx * 0.45) % 3
-                        return (
-                          <VideoCard
-                            key={item.id}
-                            item={item}
-                            idx={idx}
-                            floatDelay={floatDelay}
-                            onClick={() => setVideoIdx(globalIdx)}
-                          />
-                        )
-                      })}
-                    </div>
+                    {(() => {
+                      const isExpanded = !!expandedGroups[cat]
+                      const visible = isExpanded ? items : items.slice(0, INITIAL_VIDEO_COUNT)
+                      const remaining = items.length - INITIAL_VIDEO_COUNT
+                      return (
+                        <>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {visible.map((item, idx) => {
+                              const globalIdx = filteredVideos.indexOf(item)
+                              const floatDelay = (idx * 0.45) % 3
+                              return (
+                                <VideoCard
+                                  key={item.id}
+                                  item={item}
+                                  idx={idx}
+                                  floatDelay={floatDelay}
+                                  onClick={() => setVideoIdx(globalIdx)}
+                                />
+                              )
+                            })}
+                          </div>
+                          {remaining > 0 && !isExpanded && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 8 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ delay: 0.15 }}
+                              className="flex justify-center mt-6"
+                            >
+                              <motion.button
+                                whileHover={{ scale: 1.04, y: -2, boxShadow: '0 8px 24px rgba(245,158,11,0.25)' }}
+                                whileTap={{ scale: 0.96 }}
+                                transition={{ type: 'spring', stiffness: 420, damping: 22 }}
+                                onClick={() => setExpandedGroups(p => ({ ...p, [cat]: true }))}
+                                className="flex items-center gap-2 px-6 py-2.5 rounded-full
+                                           border border-gold-500/40 bg-gold-500/10 text-gold-400
+                                           text-sm font-semibold hover:bg-gold-500/20 transition-colors"
+                              >
+                                <motion.span
+                                  animate={{ y: [0, 2, 0] }}
+                                  transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
+                                  className="flex"
+                                >
+                                  <ChevronDown size={15} strokeWidth={2.5} />
+                                </motion.span>
+                                Show {remaining} more
+                              </motion.button>
+                            </motion.div>
+                          )}
+                        </>
+                      )
+                    })()}
                   </div>
                 ))}
               </div>
@@ -896,6 +1012,7 @@ export default function Gallery() {
             index={lb.index}
             dir={lb.dir}
             onNav={navLb}
+            onJump={jumpLb}
             onClose={closeLb}
           />
         )}

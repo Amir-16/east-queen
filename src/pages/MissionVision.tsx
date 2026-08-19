@@ -59,7 +59,7 @@ export default function MissionVision() {
 
             <div className="section-container relative">
               <div
-                className={`grid lg:grid-cols-2 gap-14 xl:gap-24 items-center ${
+                className={`grid lg:grid-cols-2 gap-8 lg:gap-14 xl:gap-24 items-center ${
                   !isEven ? 'lg:[&>*:first-child]:order-2' : ''
                 }`}
               >

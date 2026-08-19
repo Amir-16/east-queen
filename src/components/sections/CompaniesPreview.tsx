@@ -42,7 +42,7 @@ export default function CompaniesPreview() {
           {/* Featured company — spans 2 cols */}
           {companies[0] && (
             <motion.div
-              className="relative overflow-hidden rounded-2xl lg:col-span-2 h-[340px] lg:h-[420px] group cursor-pointer"
+              className="relative overflow-hidden rounded-2xl lg:col-span-2 h-[260px] md:h-[340px] lg:h-[420px] group cursor-pointer"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -53,6 +53,8 @@ export default function CompaniesPreview() {
               <img
                 src={companies[0].coverImage}
                 alt={companies[0].name}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover object-center
                            scale-100 group-hover:scale-105 transition-transform duration-700 ease-out"
               />
@@ -98,7 +100,7 @@ export default function CompaniesPreview() {
           {/* Third company (tall right card) */}
           {companies[1] && (
             <motion.div
-              className="relative overflow-hidden rounded-2xl h-[280px] lg:h-[420px] group cursor-pointer"
+              className="relative overflow-hidden rounded-2xl h-[220px] md:h-[280px] lg:h-[420px] group cursor-pointer"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -109,6 +111,8 @@ export default function CompaniesPreview() {
               <img
                 src={companies[1].coverImage}
                 alt={companies[1].name}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover object-center
                            scale-100 group-hover:scale-105 transition-transform duration-700 ease-out"
               />
@@ -143,7 +147,7 @@ export default function CompaniesPreview() {
           {companies.slice(2).map((company, i) => (
             <motion.div
               key={company.id}
-              className="relative overflow-hidden rounded-2xl h-[200px] group cursor-pointer"
+              className="relative overflow-hidden rounded-2xl h-[160px] sm:h-[200px] group cursor-pointer"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -154,6 +158,8 @@ export default function CompaniesPreview() {
               <img
                 src={company.coverImage}
                 alt={company.name}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover object-center
                            scale-100 group-hover:scale-110 transition-transform duration-700 ease-out"
               />

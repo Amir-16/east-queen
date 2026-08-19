@@ -22,7 +22,7 @@ export default function PageHero({ title, subtitle, breadcrumbs, image, classNam
       animate="animate"
       exit="exit"
       className={cn(
-        'relative pt-40 pb-20 bg-navy-900 overflow-hidden',
+        'relative pt-24 sm:pt-32 md:pt-40 pb-10 sm:pb-14 md:pb-20 bg-navy-900 overflow-hidden',
         className,
       )}
     >

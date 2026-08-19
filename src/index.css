@@ -50,3 +50,31 @@
 @layer utilities {
   .animation-pause { animation-play-state: paused; }
 }
+
+@keyframes kenburns {
+  from { transform: scale(1.08); }
+  to   { transform: scale(1); }
+}
+
+/* Animation is OFF by default so all slides don't run it simultaneously on
+   page load. Swiper adds .swiper-slide-active, which restarts it cleanly
+   each time a slide becomes the visible one. */
+.kenburns {
+  animation: none;
+}
+.swiper-slide-active .kenburns {
+  animation: kenburns 7s linear forwards;
+}
+
+@keyframes progress-grow {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+/* Duration matches SLIDE_DELAY constant in HeroSection.tsx (5500ms).
+   animation-play-state is toggled via inline style on hover. */
+.progress-fill {
+  height: 100%;
+  background-color: #E21F2F;
+  animation: progress-grow 5.5s linear forwards;
+}

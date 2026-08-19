@@ -17,9 +17,9 @@ export default function Footer() {
       <div className="absolute top-0 left-0 right-0 h-[3px]
                       bg-gradient-to-r from-transparent via-gold-500 to-transparent" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-16 pb-8">
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8"
           variants={stagger}
           initial="hidden"
           whileInView="visible"
@@ -174,9 +174,21 @@ export default function Footer() {
               Privacy Policy
             </Link>
             <span>·</span>
-            <Link to="/terms-conditions" className="hover:text-slate-700 transition-colors duration-200">
+            <Link to="/terms-and-conditions" className="hover:text-slate-700 transition-colors duration-200">
               Terms & Conditions
             </Link>
+            <span>·</span>
+            <span className="text-slate-400">
+              Powered by{' '}
+              <a
+                href="https://soft-m.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-500 hover:text-slate-800 font-medium transition-colors duration-200"
+              >
+                soft-m.com
+              </a>
+            </span>
           </div>
         </div>
       </div>

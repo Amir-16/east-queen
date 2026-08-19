@@ -36,7 +36,7 @@ export default function CompanyDetail({ slug }: Props) {
       className="bg-white"
     >
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
-      <section className="relative min-h-[60vh] flex items-end pb-16 overflow-hidden">
+      <section className="relative min-h-[55vh] flex items-end pb-10 sm:pb-14 md:pb-16 overflow-hidden">
         {company.coverImage && (
           <div className="absolute inset-0">
             <img
@@ -231,7 +231,7 @@ export default function CompanyDetail({ slug }: Props) {
             >
               {/* Gallery strip */}
               {company.galleryImages && company.galleryImages.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-2">
                   {company.galleryImages.map((src, i) => (
                     <div key={i} className="aspect-video rounded-xl overflow-hidden">
                       <img

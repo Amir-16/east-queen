@@ -3,9 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { pageTransition } from '@/lib/motion'
 import PageHero from '@/components/ui/PageHero'
 import SectionHeader from '@/components/ui/SectionHeader'
+import CompanyCard from '@/components/cards/CompanyCard'
 import { companies } from '@/data'
-import { INDUSTRY_COLORS } from '@/lib/constants'
-import { CheckCircle2, ArrowRight } from 'lucide-react'
 import type { Company } from '@/types'
 
 type Filter = 'all' | Company['industry']
@@ -75,49 +74,12 @@ export default function Companies() {
                 <motion.div
                   key={company.id}
                   layout
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.92 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-white rounded-2xl border border-slate-100 shadow-card overflow-hidden hover:shadow-hover hover:border-gold-300/40 transition-all duration-300 group"
+                  exit={{ opacity: 0, scale: 0.92 }}
+                  transition={{ duration: 0.28 }}
                 >
-                  {/* Logo area — brand gradient frame + white inset card */}
-                  <div className={`relative h-48 bg-gradient-to-br ${company.color} p-3`}>
-                    {/* White inset card — logo renders cleanly regardless of shape */}
-                    <div className="w-full h-full bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center">
-                      <img
-                        src={company.logo}
-                        alt={company.name}
-                        className="w-full h-full object-contain p-5"
-                      />
-                    </div>
-                    <span className={`absolute top-4 right-4 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider backdrop-blur-sm ${INDUSTRY_COLORS[company.industry]}`}>
-                      {company.industry}
-                    </span>
-                  </div>
-
-                  <div className="p-7">
-                    <h3 className="font-inter font-bold text-navy-900 text-xl mb-1.5 group-hover:text-gold-600 transition-colors duration-200">
-                      {company.name}
-                    </h3>
-                    <p className="text-gold-600 text-xs font-medium italic mb-4">{company.tagline}</p>
-                    <p className="text-slate-600 text-sm leading-relaxed mb-6">{company.description}</p>
-
-                    {/* Services */}
-                    <div className="space-y-2 mb-7">
-                      {company.services.map((s) => (
-                        <div key={s} className="flex items-center gap-2.5 text-sm text-slate-600">
-                          <CheckCircle2 size={13} className="text-gold-500 shrink-0" />
-                          {s}
-                        </div>
-                      ))}
-                    </div>
-
-                    <button className="group/btn inline-flex items-center gap-2 px-5 py-2.5 bg-navy-900 hover:bg-navy-800 text-white text-sm font-semibold rounded-xl transition-colors duration-200">
-                      Send Enquiry
-                      <ArrowRight size={13} className="group-hover/btn:translate-x-1 transition-transform duration-200" />
-                    </button>
-                  </div>
+                  <CompanyCard company={company} />
                 </motion.div>
               ))}
             </AnimatePresence>

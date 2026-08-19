@@ -14,6 +14,8 @@ export default function StatsSection() {
         src="/images/shipping/vessel-2.jpeg"
         alt=""
         aria-hidden
+        loading="lazy"
+        decoding="async"
         className="absolute inset-0 w-full h-full object-cover object-center"
       />
       <div className="absolute inset-0 bg-gradient-to-br from-navy-950/95 via-navy-900/90 to-navy-950/80" />

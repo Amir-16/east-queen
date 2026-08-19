@@ -46,7 +46,7 @@ export default function Associates() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="mt-16 p-10 bg-navy-900 rounded-2xl text-center relative overflow-hidden"
+            className="mt-12 sm:mt-16 p-6 sm:p-10 bg-navy-900 rounded-2xl text-center relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-grid-pattern" />
             <div className="relative">
