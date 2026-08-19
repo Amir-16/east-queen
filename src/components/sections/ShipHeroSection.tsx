@@ -51,30 +51,29 @@ function wavePath(yBase: number, amp: number): string {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // useOceanSound
-// Audio graph (clean separation of concerns):
-//   pink noise → lowpass → [swell gain] → compressor → [master gain] → out
-//                bandpass ↗
-//   LFO oscillator → lfoGain → swell gain.gain   ← modulates signal amplitude
-//   master gain is ONLY for user toggle (setTargetAtTime never conflicts with LFO)
+// Audio graph: pink noise → lowpass → [swell gain] → compressor → [master] → out
+//              bandpass ↗
+//   LFO → lfoGain → swellGain.gain  (amplitude modulation ~9 s per swell)
+//   master gain is ONLY touched by toggle — never by the LFO
 //
-// Auto-starts on mount. Browsers that block autoplay get a one-time
-// first-interaction fallback (click / touchstart / scroll / keydown).
-// Toggle button only fades master gain up/down — audio nodes never stop.
+// Sound is OFF on mount (playing = false). First button click builds the graph
+// inside a user-gesture handler and starts audio. Subsequent clicks fade the
+// master gain up/down. No autoplay, no gesture-listener race conditions.
 // ─────────────────────────────────────────────────────────────────────────────
 function useOceanSound() {
-  const ctxRef    = useRef<AudioContext | null>(null)
-  const masterRef = useRef<GainNode    | null>(null)
+  const ctxRef     = useRef<AudioContext | null>(null)
+  const masterRef  = useRef<GainNode    | null>(null)
   const startedRef = useRef(false)
-  const [playing, setPlaying] = useState(true)
+  const [playing, setPlaying] = useState(false)
 
   // ── Build the full audio graph (idempotent) ────────────────────────────────
-  const buildGraph = useCallback(() => {
+  const buildGraph = useCallback((): AudioContext | null => {
     if (ctxRef.current) return ctxRef.current
     try {
       const ctx = new AudioContext()
       const sr  = ctx.sampleRate
 
-      // Pink noise (Paul Kellet) — 4-second looping buffer, amplitude ×0.18
+      // Pink noise (Paul Kellet) — 4-second looping buffer
       const buf = ctx.createBuffer(2, sr * 4, sr)
       for (let ch = 0; ch < 2; ch++) {
         const d = buf.getChannelData(ch)
@@ -84,32 +83,29 @@ function useOceanSound() {
           b0=0.99886*b0+w*0.0555179; b1=0.99332*b1+w*0.0750759
           b2=0.96900*b2+w*0.1538520; b3=0.86650*b3+w*0.3104856
           b4=0.55000*b4+w*0.5329522; b5=-0.7616*b5-w*0.0168980
-          d[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.18  // louder than before
+          d[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.18
           b6=w*0.115926
         }
       }
       const src = ctx.createBufferSource()
       src.buffer = buf; src.loop = true
 
-      // Filters
       const lp = ctx.createBiquadFilter()
       lp.type = 'lowpass'; lp.frequency.value = 800; lp.Q.value = 0.5
 
       const bp = ctx.createBiquadFilter()
       bp.type = 'bandpass'; bp.frequency.value = 160; bp.Q.value = 0.4
 
-      // ── Swell gain — THIS is where the LFO modulates signal amplitude ──────
-      // Stays at 0.75, LFO adds ±0.25 → oscillates 0.50–1.00 (always positive)
+      // Swell gain stays at 0.75; LFO adds ±0.25 → oscillates 0.50–1.00
       const swellGain = ctx.createGain()
       swellGain.gain.value = 0.75
 
       const lfo = ctx.createOscillator()
-      lfo.type = 'sine'; lfo.frequency.value = 0.11  // ~9 s per swell
+      lfo.type = 'sine'; lfo.frequency.value = 0.11
       const lfoAmp = ctx.createGain()
       lfoAmp.gain.value = 0.25
       lfo.connect(lfoAmp); lfoAmp.connect(swellGain.gain)
 
-      // ── Compressor — prevents clipping on loud LFO peaks ──────────────────
       const comp = ctx.createDynamicsCompressor()
       comp.threshold.value = -18
       comp.knee.value = 30
@@ -117,11 +113,9 @@ function useOceanSound() {
       comp.attack.value = 0.01
       comp.release.value = 0.3
 
-      // ── Master — ONLY touched by toggle (no LFO here) ─────────────────────
       const master = ctx.createGain()
-      master.gain.value = 0   // silent until resumed
+      master.gain.value = 0  // silent until user activates
 
-      // Wire: src → filters → swellGain → comp → master → out
       src.connect(lp); src.connect(bp)
       lp.connect(swellGain); bp.connect(swellGain)
       swellGain.connect(comp)
@@ -130,7 +124,7 @@ function useOceanSound() {
 
       src.start(); lfo.start()
 
-      ctxRef.current  = ctx
+      ctxRef.current   = ctx
       masterRef.current = master
       return ctx
     } catch {
@@ -138,56 +132,27 @@ function useOceanSound() {
     }
   }, [])
 
-  // ── Activate: resume context + fade master gain in ────────────────────────
-  const activate = useCallback(() => {
-    if (startedRef.current) return
+  // ── Toggle: first click starts audio; subsequent clicks mute/unmute ────────
+  const toggle = useCallback(() => {
     const ctx = buildGraph()
     if (!ctx) return
+
     ctx.resume().then(() => {
-      startedRef.current = true
-      masterRef.current!.gain.setTargetAtTime(0.9, ctx.currentTime, 1.8)
-      setPlaying(true)
+      const master = masterRef.current!
+      if (!startedRef.current) {
+        // First activation — always fade in
+        startedRef.current = true
+        master.gain.setTargetAtTime(0.9, ctx.currentTime, 1.5)
+        setPlaying(true)
+      } else {
+        setPlaying(prev => {
+          const next = !prev
+          master.gain.setTargetAtTime(next ? 0.9 : 0, ctx.currentTime, next ? 1.5 : 0.6)
+          return next
+        })
+      }
     }).catch(() => {})
   }, [buildGraph])
-
-  // ── Auto-start on mount; fallback to first user gesture ───────────────────
-  useEffect(() => {
-    buildGraph() // pre-build graph so it's ready instantly
-
-    // Try immediate resume (works if browser allows autoplay)
-    const ctx = ctxRef.current
-    if (ctx) {
-      ctx.resume().then(() => {
-        if (ctx.state === 'running') {
-          startedRef.current = true
-          masterRef.current!.gain.setTargetAtTime(0.9, ctx.currentTime, 1.8)
-        }
-      }).catch(() => {})
-    }
-
-    // Guaranteed fallback: first user gesture triggers audio
-    const GESTURES = ['pointerdown','touchstart','keydown','wheel'] as const
-    const onGesture = () => {
-      activate()
-      GESTURES.forEach(e => window.removeEventListener(e, onGesture))
-    }
-    GESTURES.forEach(e => window.addEventListener(e, onGesture, { passive: true }))
-    return () => GESTURES.forEach(e => window.removeEventListener(e, onGesture))
-  }, [buildGraph, activate])
-
-  // ── Toggle mute / unmute ─────────────────────────────────────────────────
-  const toggle = useCallback(() => {
-    if (!startedRef.current) { activate(); return }
-    const ctx  = ctxRef.current!
-    const gain = masterRef.current!
-    ctx.resume().then(() => {
-      setPlaying(prev => {
-        const next = !prev
-        gain.gain.setTargetAtTime(next ? 0.9 : 0, ctx.currentTime, next ? 1.5 : 0.6)
-        return next
-      })
-    })
-  }, [activate])
 
   useEffect(() => () => { ctxRef.current?.close() }, [])
 
