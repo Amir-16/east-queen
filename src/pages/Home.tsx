@@ -5,11 +5,15 @@ import ShipHeroSection from '@/components/sections/ShipHeroSection'
 import HeroSection from '@/components/sections/HeroSection'
 import MarqueeStrip from '@/components/sections/MarqueeStrip'
 import AboutSnippet from '@/components/sections/AboutSnippet'
+import ChairmanMessage from '@/components/sections/ChairmanMessage'
 import VideoReel from '@/components/sections/VideoReel'
 import CompaniesPreview from '@/components/sections/CompaniesPreview'
+import ShipBreakingFeature from '@/components/sections/ShipBreakingFeature'
 import ProductsHighlight from '@/components/sections/ProductsHighlight'
+import ProcessStrip from '@/components/sections/ProcessStrip'
 import GalleryMosaic from '@/components/sections/GalleryMosaic'
 import StatsSection from '@/components/sections/StatsSection'
+import MapVisual from '@/components/sections/MapVisual'
 import AssociatesTeaser from '@/components/sections/AssociatesTeaser'
 import ContactCTA from '@/components/sections/ContactCTA'
 
@@ -21,11 +25,15 @@ export default function Home() {
       <HeroSection />
       <MarqueeStrip />
       <AboutSnippet />
+      <ChairmanMessage />
       <VideoReel />
       <CompaniesPreview />
+      <ShipBreakingFeature />
       <ProductsHighlight />
+      <ProcessStrip />
       <GalleryMosaic />
       <StatsSection />
+      <MapVisual />
       <AssociatesTeaser />
       <ContactCTA />
     </motion.div>
