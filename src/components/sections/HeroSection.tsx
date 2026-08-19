@@ -308,19 +308,27 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8 }}
-          className="flex flex-wrap items-center gap-4 sm:gap-8 mt-8 sm:mt-12 pt-5 sm:pt-8 border-t border-white/15"
+          className="flex flex-wrap items-center gap-6 sm:gap-10 mt-8 sm:mt-12"
         >
+          {/* Glass pill anchors the stats against any slide background */}
+          <div className="flex flex-wrap items-center gap-6 sm:gap-10 px-5 py-3.5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10">
           {[
-            { n: '42+',  l: 'Years' },
+            { n: '42+',  l: 'Years'     },
             { n: '6',    l: 'Companies' },
-            { n: '100+', l: 'Clients' },
             { n: '500+', l: 'Employees' },
-          ].map((s) => (
-            <div key={s.l} className="text-center">
-              <p className="font-mono font-bold text-gold-400 text-2xl leading-none">{s.n}</p>
-              <p className="text-white/60 text-[10px] uppercase tracking-[0.2em] mt-1">{s.l}</p>
+            { n: '20+',  l: 'Countries' },
+          ].map((s, i, arr) => (
+            <div key={s.l} className="flex items-center gap-4 sm:gap-6">
+              <div className="text-center">
+                <p className="font-mono font-black text-white text-2xl leading-none tracking-tight">{s.n}</p>
+                <p className="text-gold-500 text-[9px] font-bold uppercase tracking-[0.22em] mt-1">{s.l}</p>
+              </div>
+              {i < arr.length - 1 && (
+                <div className="h-6 w-px bg-white/15 hidden sm:block" />
+              )}
             </div>
           ))}
+          </div>
 
           {/* Slide dot indicators */}
           <div className="ml-auto flex items-center gap-2" role="tablist" aria-label="Slide navigation">
