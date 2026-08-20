@@ -4,6 +4,12 @@ import { Play, ArrowRight } from 'lucide-react'
 
 const reels = [
   {
+    video:  '/videos/operations/ops-2.mp4',
+    label:  'Operations',
+    sub:    'Gateway to Global Business',
+    poster: '/images/operations/facility-1.jpeg',
+  },
+  {
     video:  '/videos/ship-breaking/yard-1.mp4',
     label:  'Ship Breaking',
     sub:    'Sitakunda Yard',
@@ -17,15 +23,9 @@ const reels = [
   },
   {
     video:  '/videos/operations/ops-1.mp4',
-    label:  'Operations',
-    sub:    'Port & Yard',
+    label:  'Port & Yard',
+    sub:    'Chittagong Operations',
     poster: '/images/gallery/coal/hold-aerial.jpeg',
-  },
-  {
-    video:  '/videos/exports/export-ops-1.mp4',
-    label:  'Export Ops',
-    sub:    'Commodity Trade',
-    poster: '/images/products/exports/mill-scale/mill-1.jpeg',
   },
   {
     video:  '/videos/fisheries/fisheries-1.mp4',

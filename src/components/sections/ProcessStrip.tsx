@@ -1,39 +1,39 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { Globe, ShieldCheck, Ship, BarChart3, PackageCheck } from 'lucide-react'
+import { Search, ShieldCheck, Hammer, BarChart3, PackageCheck } from 'lucide-react'
 import { ease, stagger, fadeUp } from '@/lib/motion'
 import SectionHeader from '@/components/ui/SectionHeader'
 
 const steps = [
   {
-    icon: Globe,
+    icon: Search,
     step: '01',
-    title: 'Source',
-    description: 'Identify commodity opportunities across 20+ global markets.',
+    title: 'Acquire',
+    description: 'Source end-of-life vessels from global shipping markets and owners.',
   },
   {
     icon: ShieldCheck,
     step: '02',
-    title: 'Inspect',
-    description: 'Pre-shipment quality control, certification, and compliance checks.',
+    title: 'Survey',
+    description: 'Pre-purchase structural inspection, hazardous material audit, and HKC compliance check.',
   },
   {
-    icon: Ship,
+    icon: Hammer,
     step: '03',
-    title: 'Ship',
-    description: 'Vessel chartering, freight booking, and full logistics coordination.',
+    title: 'Recycle',
+    description: 'Safe dismantling at our Sitakunda yard under certified environmental and safety protocols.',
   },
   {
     icon: BarChart3,
     step: '04',
-    title: 'Trade',
-    description: 'Transparent pricing, trade documentation, and customs clearance.',
+    title: 'Process',
+    description: 'Grade and certify re-rollable scrap steel, spare parts, and recovered commodities.',
   },
   {
     icon: PackageCheck,
     step: '05',
-    title: 'Deliver',
-    description: 'Last-mile delivery to ports, yards, and industrial facilities.',
+    title: 'Supply',
+    description: 'Deliver processed steel and materials to mills and industrial buyers across Bangladesh.',
   },
 ]
 
@@ -49,8 +49,8 @@ export default function ProcessStrip() {
       <div className="relative section-container">
         <SectionHeader
           eyebrow="How We Operate"
-          title="Trade Done Right — Every Time"
-          subtitle="Our five-stage process guarantees quality, compliance, and on-time delivery across every shipment."
+          title="Ship Recycling, Done Right"
+          subtitle="Our five-stage process ensures every vessel is dismantled safely, sustainably, and in full compliance with international standards."
           align="center"
           className="mb-16"
         />
