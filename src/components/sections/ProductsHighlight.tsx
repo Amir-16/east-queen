@@ -1,7 +1,11 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
-import { ArrowRight, TrendingUp, TrendingDown, Globe } from 'lucide-react'
+import {
+  ArrowRight, TrendingUp, TrendingDown, Globe,
+  Search, ShieldCheck, Package, Ship, FileText,
+  type LucideIcon,
+} from 'lucide-react'
 import { exportProducts, importProducts } from '@/data'
 
 // ─── Variants ────────────────────────────────────────────────────────────────
@@ -21,12 +25,32 @@ const fadeUp = {
 }
 
 // ─── Process steps ────────────────────────────────────────────────────────────
-const STEPS = [
-  { n: '01', title: 'Sourcing',       sub: 'Factory & farm direct'       },
-  { n: '02', title: 'Inspection',     sub: 'SGS / independent QC'        },
-  { n: '03', title: 'Packing',        sub: 'Bulk / jumbo bags / drums'   },
-  { n: '04', title: 'Shipping',       sub: 'Vessel chartering & booking' },
-  { n: '05', title: 'Documentation',  sub: 'Full customs & compliance'   },
+const STEPS: { n: string; icon: LucideIcon; title: string; sub: string; detail: string }[] = [
+  {
+    n: '01', icon: Search,       title: 'Sourcing',
+    sub:    'Direct from Origin',
+    detail: 'Factory & farm direct procurement across Bangladesh, Oman, Indonesia, and beyond.',
+  },
+  {
+    n: '02', icon: ShieldCheck,  title: 'Inspection',
+    sub:    'SGS / Bureau Veritas',
+    detail: 'Independent third-party QC testing, sampling, and certification before loading.',
+  },
+  {
+    n: '03', icon: Package,      title: 'Packing',
+    sub:    'Bulk · Jumbo · Drums',
+    detail: 'Flexible packing formats tailored to commodity type, port, and buyer requirements.',
+  },
+  {
+    n: '04', icon: Ship,         title: 'Shipping',
+    sub:    'Vessel Chartering',
+    detail: 'Full freight management — vessel booking, draft survey, BL issuance, and tracking.',
+  },
+  {
+    n: '05', icon: FileText,     title: 'Documentation',
+    sub:    'Full Compliance',
+    detail: 'L/C, customs clearance, phytosanitary certificates, and all trade documentation.',
+  },
 ]
 
 // ─── Product card ─────────────────────────────────────────────────────────────
@@ -260,66 +284,161 @@ export default function ProductsHighlight() {
           </div>
         </div>
 
-        {/* ── Process strip ──────────────────────────────────────────────── */}
-        <motion.div
-          ref={processRef}
-          variants={fadeUp}
-          initial="hidden"
-          animate={processView ? 'visible' : 'hidden'}
-          className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm"
-        >
-          {/* Header */}
-          <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
-            <p className="text-slate-400 text-[10px] font-semibold uppercase tracking-[0.3em] text-center">
-              Our Trade Process
-            </p>
-          </div>
+        {/* ── Process section ────────────────────────────────────────────── */}
+        <div ref={processRef}>
 
-          {/* Steps */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 relative">
-            {/* Animated connector line */}
-            <div className="absolute top-[2.55rem] left-[10%] right-[10%] h-px
-                            bg-slate-100 hidden lg:block" />
+          {/* Section label */}
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate={processView ? 'visible' : 'hidden'}
+            className="flex items-center gap-4 mb-10"
+          >
+            <div className="h-[2px] flex-1 bg-gradient-to-r from-transparent to-slate-200" />
+            <div className="flex items-center gap-2.5 px-5 py-2 rounded-full
+                            border border-slate-200 bg-white shadow-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-pulse" />
+              <span className="text-slate-500 text-[11px] font-semibold uppercase tracking-[0.28em]">
+                Our Trade Process
+              </span>
+              <div className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-pulse" />
+            </div>
+            <div className="h-[2px] flex-1 bg-gradient-to-l from-transparent to-slate-200" />
+          </motion.div>
+
+          {/* ── Desktop: horizontal card row ── */}
+          <div className="hidden lg:block relative">
+
+            {/* Track line (grey base) */}
+            <div className="absolute top-[3.6rem] left-[8%] right-[8%] h-px bg-slate-200" />
+            {/* Animated fill line */}
             {processView && (
               <motion.div
-                className="absolute top-[2.55rem] left-[10%] h-px hidden lg:block
-                           bg-gradient-to-r from-gold-500/60 to-gold-500/20 origin-left"
+                className="absolute top-[3.6rem] left-[8%] h-px bg-gold-500/50 origin-left"
+                style={{ right: '8%' }}
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ duration: 1.6, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-                style={{ right: '10%' }}
+                transition={{ duration: 1.8, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
               />
             )}
 
-            {STEPS.map((step, i) => (
-              <motion.div
-                key={step.n}
-                initial={{ opacity: 0, y: 18 }}
-                animate={processView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: 0.2 + i * 0.1, duration: 0.45, ease }}
-                className="flex flex-col items-center text-center px-4 py-8
-                           border-r border-slate-100 last:border-r-0
-                           group cursor-default
-                           hover:bg-slate-50 transition-colors duration-300"
-              >
-                <div className="relative mb-4 z-10">
-                  <div className="w-11 h-11 rounded-full bg-white border-2 border-slate-200
-                                  group-hover:border-gold-500
-                                  group-hover:shadow-[0_0_0_4px_rgba(226,31,47,0.08)]
-                                  flex items-center justify-center
-                                  shadow-sm transition-all duration-300">
-                    <span className="font-mono font-bold text-gold-500 text-[11px]">{step.n}</span>
-                  </div>
-                </div>
-                <p className="text-slate-800 font-semibold text-sm mb-1
-                              group-hover:text-gold-500 transition-colors duration-200">
-                  {step.title}
-                </p>
-                <p className="text-slate-400 text-[11px] leading-relaxed">{step.sub}</p>
-              </motion.div>
-            ))}
+            <div className="grid grid-cols-5 gap-4 relative z-10">
+              {STEPS.map((step, i) => {
+                const Icon = step.icon
+                return (
+                  <motion.div
+                    key={step.n}
+                    initial={{ opacity: 0, y: 32 }}
+                    animate={processView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.15 + i * 0.12, duration: 0.52, ease }}
+                    className="group flex flex-col items-center text-center cursor-default"
+                  >
+                    {/* Icon node */}
+                    <div className="relative mb-6">
+                      {/* Outer ring */}
+                      <div className="w-[4.5rem] h-[4.5rem] rounded-2xl
+                                      bg-white border-2 border-slate-200
+                                      group-hover:border-gold-500
+                                      group-hover:shadow-[0_0_0_5px_rgba(226,31,47,0.08),0_8px_24px_rgba(226,31,47,0.14)]
+                                      flex items-center justify-center
+                                      shadow-sm transition-all duration-350 ease-out">
+                        <Icon
+                          size={24}
+                          className="text-slate-400 group-hover:text-gold-500
+                                     transition-colors duration-300"
+                        />
+                      </div>
+                      {/* Step badge */}
+                      <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full
+                                       bg-gold-500 text-white text-[9px] font-mono font-bold
+                                       flex items-center justify-center shadow-[0_2px_8px_rgba(226,31,47,0.4)]
+                                       group-hover:scale-110 transition-transform duration-250">
+                        {step.n}
+                      </span>
+                    </div>
+
+                    {/* Text */}
+                    <p className="text-slate-900 font-bold text-sm mb-1
+                                  group-hover:text-gold-500 transition-colors duration-250">
+                      {step.title}
+                    </p>
+                    <p className="text-gold-500/70 text-[10px] font-semibold uppercase
+                                  tracking-[0.16em] mb-2">
+                      {step.sub}
+                    </p>
+                    {/* Detail — revealed on hover */}
+                    <p className="text-slate-400 text-[11px] leading-relaxed
+                                  max-w-[140px] opacity-0 group-hover:opacity-100
+                                  translate-y-1 group-hover:translate-y-0
+                                  transition-all duration-300 ease-out">
+                      {step.detail}
+                    </p>
+                  </motion.div>
+                )
+              })}
+            </div>
           </div>
-        </motion.div>
+
+          {/* ── Mobile: vertical timeline ── */}
+          <div className="lg:hidden relative pl-10">
+            {/* Vertical track */}
+            <div className="absolute left-[1.4rem] top-0 bottom-0 w-px bg-slate-200" />
+            {processView && (
+              <motion.div
+                className="absolute left-[1.4rem] top-0 w-px bg-gold-500/50 origin-top"
+                style={{ height: '100%' }}
+                initial={{ scaleY: 0 }}
+                animate={{ scaleY: 1 }}
+                transition={{ duration: 1.6, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              />
+            )}
+
+            <div className="space-y-6">
+              {STEPS.map((step, i) => {
+                const Icon = step.icon
+                return (
+                  <motion.div
+                    key={step.n}
+                    initial={{ opacity: 0, x: 24 }}
+                    animate={processView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ delay: 0.1 + i * 0.1, duration: 0.48, ease }}
+                    className="flex gap-5 items-start group cursor-default"
+                  >
+                    {/* Node */}
+                    <div className="relative z-10 -ml-10 shrink-0">
+                      <div className="w-11 h-11 rounded-xl bg-white border-2 border-slate-200
+                                      group-hover:border-gold-500 shadow-sm
+                                      group-hover:shadow-[0_0_0_4px_rgba(226,31,47,0.08)]
+                                      flex items-center justify-center
+                                      transition-all duration-300">
+                        <Icon size={18} className="text-slate-400 group-hover:text-gold-500
+                                                    transition-colors duration-250" />
+                      </div>
+                      <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full
+                                       bg-gold-500 text-white text-[8px] font-mono font-bold
+                                       flex items-center justify-center">
+                        {step.n}
+                      </span>
+                    </div>
+
+                    {/* Text */}
+                    <div className="pt-2 pb-2">
+                      <p className="text-slate-900 font-bold text-sm mb-0.5
+                                    group-hover:text-gold-500 transition-colors duration-250">
+                        {step.title}
+                      </p>
+                      <p className="text-gold-500/70 text-[10px] font-semibold uppercase
+                                    tracking-wider mb-1.5">
+                        {step.sub}
+                      </p>
+                      <p className="text-slate-400 text-xs leading-relaxed">{step.detail}</p>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
 
         {/* ── CTA row ────────────────────────────────────────────────────── */}
         <motion.div
