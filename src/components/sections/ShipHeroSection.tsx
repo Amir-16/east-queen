@@ -20,7 +20,7 @@ import { ease } from '@/lib/motion'
 // ─── Stats ────────────────────────────────────────────────────────────────────
 const STATS = [
   { n: '42+',  l: 'Years'            },
-  { n: '500+', l: 'Vessels Recycled' },
+  { n: '150+', l: 'Vessels Recycled' },
   { n: '500+', l: 'Employees'        },
   { n: '20+',  l: 'Countries'        },
 ]
@@ -252,7 +252,7 @@ export default function ShipHeroSection() {
   return (
     <section
       className="relative min-h-screen overflow-hidden flex flex-col"
-      aria-label="East Queen Group — Bangladesh's premier ship recycling enterprise"
+      aria-label="East Queen Group — Global Export Import and Sourcing Solutions"
     >
 
       {/* ════════════════════════════════════════════════════════
@@ -339,37 +339,45 @@ export default function ShipHeroSection() {
           <motion.div variants={item} className="flex items-center gap-3 mb-5">
             <span className="h-[2px] w-8 bg-gold-500 rounded-full shrink-0" />
             <span className="text-gold-400 text-[11px] font-semibold uppercase tracking-[0.28em]">
-              Ship Recycling & Industrial Group · Est. 1982
+              East Queen Group · Est. 1982 · Chittagong, Bangladesh
             </span>
           </motion.div>
 
-          {/* Brand headline */}
+          {/* Main headline — split at natural break so each line stays readable */}
           <motion.h1
-            className="font-playfair font-bold leading-[1.04] mb-3"
-            style={{ fontSize: 'clamp(3.2rem, 7.2vw, 5.8rem)' }}
+            className="font-playfair font-bold leading-[1.06] mb-3"
+            style={{ fontSize: 'clamp(2.6rem, 5.8vw, 4.8rem)' }}
             variants={wCont}
           >
+            {/* Line 1 */}
             <span className="block">
-              {['East', 'Queen'].map((w, i) => (
+              {['Global', 'Export', 'Import'].map((w, i) => (
                 <motion.span key={i} variants={wAnim} className="inline-block mr-[0.18em] text-white">
                   {w}
                 </motion.span>
               ))}
             </span>
+            {/* Line 2 — last word accented in gold */}
             <span className="block">
-              <motion.span variants={wAnim} className="inline-block text-gold-500">
-                Group
-              </motion.span>
+              {['&', 'Sourcing', 'Solutions'].map((w, i, arr) => (
+                <motion.span
+                  key={i}
+                  variants={wAnim}
+                  className={`inline-block mr-[0.18em] ${i === arr.length - 1 ? 'text-gold-500' : 'text-white'}`}
+                >
+                  {w}
+                </motion.span>
+              ))}
             </span>
           </motion.h1>
 
-          {/* Descriptor */}
+          {/* Partner tagline */}
           <motion.p
             variants={item}
-            className="text-white/58 text-sm sm:text-base font-semibold uppercase
-                       tracking-[0.18em] mb-6 max-w-[420px]"
+            className="text-white/60 text-sm sm:text-base font-semibold uppercase
+                       tracking-[0.18em] mb-6 max-w-[480px]"
           >
-            Bangladesh's Premier Ship Recycling Enterprise
+            Your Partner for Global Business &amp; Sourcing
           </motion.p>
 
           {/* Body */}
@@ -377,21 +385,21 @@ export default function ShipHeroSection() {
             variants={item}
             className="text-white/80 text-base sm:text-lg leading-relaxed mb-9 max-w-[490px]"
           >
-            Four decades of safe, sustainable ship breaking at Sitakunda —
-            converting end-of-life vessels into high-grade steel that powers
-            Bangladesh's construction and manufacturing industries.
+            From Chittagong to markets across four continents — East Queen Group
+            delivers end-to-end export, import, and sourcing solutions across
+            commodities, materials, and industrial goods since 1982.
           </motion.p>
 
           {/* CTAs */}
           <motion.div variants={item} className="flex flex-wrap gap-3 mb-10">
             <Link
-              to="/ship-breaking"
+              to="/export"
               className="group inline-flex items-center gap-2.5 px-7 py-3.5
                          bg-gold-500 hover:bg-gold-400 text-white font-bold
                          rounded-lg text-sm tracking-wide transition-all duration-200
                          hover:shadow-gold-glow"
             >
-              Our Recycling Yard
+              Explore Our Services
               <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform duration-200" />
             </Link>
             <a
@@ -482,7 +490,7 @@ export default function ShipHeroSection() {
                    text-[11px] font-semibold text-white/65 tracking-wide select-none"
       >
         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-        HKC Certified · ISO Compliant
+        Trusted Globally · Est. 1982
       </motion.div>
 
       {/* ── Scroll cue ────────────────────────────────────────────────────────── */}

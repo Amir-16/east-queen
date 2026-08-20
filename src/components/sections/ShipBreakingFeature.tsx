@@ -7,7 +7,7 @@ import { ease, stagger, fadeUp } from '@/lib/motion'
 const highlights = [
   { icon: Anchor,  stat: '40+',         unit: 'Years',           detail: 'Maritime Experience'        },
   { icon: Shield,  stat: 'HKC',         unit: 'Certified',       detail: 'International Compliance'   },
-  { icon: Recycle, stat: '500+',        unit: 'Vessels',         detail: 'Safely Recycled'            },
+  { icon: Recycle, stat: '150+',        unit: 'Vessels',         detail: 'Safely Recycled'            },
 ]
 
 export default function ShipBreakingFeature() {

@@ -63,7 +63,7 @@ const slides = [
   },
   {
     image:   '/images/gallery/ship-breaking/yard-wide-1.jpeg',
-    label:   '500+ Vessels Recycled',
+    label:   '150+ Vessels Recycled',
     line1:   'Pioneers of',
     line2:   'Ship Recycling',
     to:      '/ship-breaking',

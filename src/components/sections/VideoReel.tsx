@@ -4,12 +4,6 @@ import { Play, ArrowRight } from 'lucide-react'
 
 const reels = [
   {
-    video:  '/videos/operations/ops-2.mp4',
-    label:  'Operations',
-    sub:    'Gateway to Global Business',
-    poster: '/images/operations/facility-1.jpeg',
-  },
-  {
     video:  '/videos/ship-breaking/yard-1.mp4',
     label:  'Ship Breaking',
     sub:    'Sitakunda Yard',
