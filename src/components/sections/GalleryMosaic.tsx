@@ -13,7 +13,6 @@ const tiles = [
   { src: '/images/operations/facility-5.jpeg',                 alt: 'Business Facility',    style: '' },
   { src: '/images/operations/facility-6.jpeg',                 alt: 'Global Operations',    style: '' },
   { src: '/images/gallery/mill-scale/mill-1.jpeg',             alt: 'Mill Scale',           style: '' },
-  { src: '/images/gallery/fisheries/farm-1.jpeg',              alt: 'Syedpur Farm',         style: '' },
   { src: '/images/shipping/tristar-prosperity.jpeg',           alt: 'Tristar vessel',       style: 'col-span-2' },
 ]
 
