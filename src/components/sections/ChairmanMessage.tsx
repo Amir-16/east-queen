@@ -9,7 +9,6 @@ const CHAIRMAN = {
   quote:
     'What began as a single ship-breaking yard on the shores of Chittagong has grown into a family of companies built on trust, discipline, and a deep belief in Bangladesh\'s industrial future. We don\'t just trade commodities — we build relationships that last generations.',
   photo: '/images/team/chairman.jpeg',
-  signature: '/images/team/chairman-signature.png',
 }
 
 function ClipRevealText({ text, inView }: { text: string; inView: boolean }) {
@@ -133,17 +132,6 @@ export default function ChairmanMessage() {
               <p className="text-slate-500 text-sm mt-0.5">{CHAIRMAN.title}</p>
             </motion.div>
 
-            {/* Signature */}
-            <motion.img
-              src={CHAIRMAN.signature}
-              alt="Chairman's signature"
-              initial={{ opacity: 0, scale: 0.85, y: 8 }}
-              animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
-              transition={{ delay: 0.9, duration: 0.55, ease: ease.snappy }}
-              className="h-12 object-contain object-left"
-              loading="lazy"
-              decoding="async"
-            />
           </motion.div>
 
         </div>

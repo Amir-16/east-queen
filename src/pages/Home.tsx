@@ -6,7 +6,6 @@ import HeroSection from '@/components/sections/HeroSection'
 import MarqueeStrip from '@/components/sections/MarqueeStrip'
 import AboutSnippet from '@/components/sections/AboutSnippet'
 import ChairmanMessage from '@/components/sections/ChairmanMessage'
-import VideoReel from '@/components/sections/VideoReel'
 import CompaniesPreview from '@/components/sections/CompaniesPreview'
 import ShipBreakingFeature from '@/components/sections/ShipBreakingFeature'
 import ProductsHighlight from '@/components/sections/ProductsHighlight'
@@ -26,7 +25,6 @@ export default function Home() {
       <MarqueeStrip />
       <AboutSnippet />
       <ChairmanMessage />
-      <VideoReel />
       <CompaniesPreview />
       <ShipBreakingFeature />
       <ProductsHighlight />

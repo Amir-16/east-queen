@@ -17,15 +17,9 @@ const reels = [
   },
   {
     video:  '/videos/operations/ops-1.mp4',
-    label:  'Operations',
-    sub:    'Port & Yard',
+    label:  'Port & Yard',
+    sub:    'Chittagong Operations',
     poster: '/images/gallery/coal/hold-aerial.jpeg',
-  },
-  {
-    video:  '/videos/exports/export-ops-1.mp4',
-    label:  'Export Ops',
-    sub:    'Commodity Trade',
-    poster: '/images/products/exports/mill-scale/mill-1.jpeg',
   },
   {
     video:  '/videos/fisheries/fisheries-1.mp4',

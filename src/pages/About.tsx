@@ -484,13 +484,6 @@ export default function About() {
                   </p>
                 </div>
               </div>
-              <div className="mt-5 flex justify-center">
-                <img
-                  src="/images/team/chairman-signature.png"
-                  alt="Chairman's signature"
-                  className="h-14 object-contain opacity-80 mix-blend-multiply"
-                />
-              </div>
             </motion.div>
 
             {/* Message column */}

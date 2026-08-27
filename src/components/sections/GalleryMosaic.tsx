@@ -3,18 +3,17 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Images } from 'lucide-react'
 
 const tiles = [
-  { src: '/images/gallery/ship-breaking/bbg-master.jpeg',      alt: 'BBG Master',        style: 'col-span-2 row-span-2' },
-  { src: '/images/gallery/mill-scale/mill-1.jpeg',             alt: 'Mill Scale',         style: '' },
-  { src: '/images/gallery/jute/jute-1.jpeg',                   alt: 'Jute',               style: '' },
-  { src: '/images/gallery/coal/hold-aerial.jpeg',              alt: 'Coal hold aerial',   style: 'row-span-2' },
-  { src: '/images/gallery/aggregate/gabbro-1.jpeg',            alt: 'Gabbro aggregate',   style: '' },
-  { src: '/images/gallery/pet-flakes/bales-outdoor.jpeg',      alt: 'PET Flakes',         style: '' },
-  { src: '/images/gallery/ship-breaking/yard-wide-1.jpeg',     alt: 'Yard panorama',      style: 'col-span-2' },
-  { src: '/images/gallery/fisheries/farm-1.jpeg',              alt: 'Syedpur Farm',       style: '' },
-  { src: '/images/gallery/leather/wallet-1.jpeg',              alt: 'Leather goods',      style: '' },
-  { src: '/images/products/exports/frozen-fish/frozen-1.jpeg', alt: 'Frozen fish',        style: '' },
-  { src: '/images/products/exports/vegetables/produce-1.jpeg', alt: 'Fresh produce',      style: '' },
-  { src: '/images/shipping/tristar-prosperity.jpeg',           alt: 'Tristar vessel',     style: 'col-span-2' },
+  { src: '/images/gallery/ship-breaking/bbg-master.jpeg',      alt: 'BBG Master',          style: 'col-span-2 row-span-2' },
+  { src: '/images/operations/facility-1.jpeg',                 alt: 'Operations Facility',  style: '' },
+  { src: '/images/operations/facility-2.jpeg',                 alt: 'Facility Overview',    style: '' },
+  { src: '/images/gallery/coal/hold-aerial.jpeg',              alt: 'Coal hold aerial',     style: 'row-span-2' },
+  { src: '/images/operations/facility-3.jpeg',                 alt: 'Site Operations',      style: '' },
+  { src: '/images/operations/facility-4.jpeg',                 alt: 'Operational Hub',      style: '' },
+  { src: '/images/gallery/ship-breaking/yard-wide-1.jpeg',     alt: 'Yard panorama',        style: 'col-span-2' },
+  { src: '/images/operations/facility-5.jpeg',                 alt: 'Business Facility',    style: '' },
+  { src: '/images/operations/facility-6.jpeg',                 alt: 'Global Operations',    style: '' },
+  { src: '/images/gallery/mill-scale/mill-1.jpeg',             alt: 'Mill Scale',           style: '' },
+  { src: '/images/shipping/tristar-prosperity.jpeg',           alt: 'Tristar vessel',       style: 'col-span-2' },
 ]
 
 export default function GalleryMosaic() {

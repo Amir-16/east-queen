@@ -1,210 +1,153 @@
 /**
  * ShipHeroSection
- * ─ Real Odyssey-of-the-Seas photo as full-bleed background
- * ─ Ship + scene gently float (y-bob + subtle sway)
- * ─ Canvas-based realistic ocean — superimposed sine waves approximate
- *   a JONSWAP spectrum (swell + wind sea + chop) without a physics engine
- * ─ Web Audio ocean sound
- * ─ Respects prefers-reduced-motion throughout
+ * Visual stack (bottom → top):
+ *   video (Ken Burns) → vignette gradients → radial edge vignette
+ *   → scan lines → film grain canvas → dust motes → spark particles
+ *   → content → UI chrome
+ *
+ * Audio: Web Audio industrial wind synthesiser (user-toggled)
+ *   Brown noise → lowpass + bandpass → windGain
+ *   LFO₁ (0.07 Hz) → slow gusts  |  LFO₂ (0.38 Hz) → turbulence
+ *   windGain → compressor → masterGain → output
  */
 import { useRef, useEffect, useState, useCallback } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { useReducedMotion, motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Phone, Volume2, VolumeX, ChevronDown } from 'lucide-react'
+import { ArrowRight, Phone, ChevronDown, Wind, VolumeX } from 'lucide-react'
 import { CONTACT } from '@/lib/constants'
 import { ease } from '@/lib/motion'
 
 // ─── Stats ────────────────────────────────────────────────────────────────────
 const STATS = [
-  { n: '42+',  l: 'Years'     },
-  { n: '6',    l: 'Companies' },
-  { n: '500+', l: 'Employees' },
-  { n: '20+',  l: 'Countries' },
+  { n: '42+',  l: 'Years'            },
+  { n: '150+', l: 'Vessels Recycled' },
+  { n: '500+', l: 'Employees'        },
+  { n: '20+',  l: 'Countries'        },
 ]
 
-// ─── Ocean layer definitions (back → front) ───────────────────────────────────
-// Each layer is a sum of three sine components (swell / wind sea / chop).
-// Colors are dark-navy ocean hues — no white fills → looks like real water.
-const OCEAN_LAYERS = [
-  {
-    baseY: 0.82, r: 2,  g: 7,  b: 24, alpha: 1.00, foam: false,
-    comps: [
-      { amp: 0.018, freq: 1.1, speed: 0.19, phase: 0.0 },
-      { amp: 0.008, freq: 3.2, speed: 0.52, phase: 1.8 },
-      { amp: 0.004, freq: 7.0, speed: 1.15, phase: 0.5 },
-    ],
-  },
-  {
-    baseY: 0.70, r: 4,  g: 15, b: 48, alpha: 0.97, foam: false,
-    comps: [
-      { amp: 0.024, freq: 0.9, speed: 0.16, phase: 0.7 },
-      { amp: 0.011, freq: 2.9, speed: 0.66, phase: 2.4 },
-      { amp: 0.005, freq: 6.6, speed: 1.32, phase: 0.3 },
-    ],
-  },
-  {
-    baseY: 0.56, r: 6,  g: 27, b: 72, alpha: 0.93, foam: false,
-    comps: [
-      { amp: 0.030, freq: 1.2, speed: 0.25, phase: 1.5 },
-      { amp: 0.014, freq: 2.6, speed: 0.78, phase: 3.1 },
-      { amp: 0.007, freq: 7.4, speed: 1.62, phase: 1.6 },
-    ],
-  },
-  // Surface layer — fastest, most varied, has foam
-  {
-    baseY: 0.42, r: 9,  g: 43, b: 96, alpha: 0.88, foam: true,
-    comps: [
-      { amp: 0.046, freq: 1.0, speed: 0.30, phase: 2.2 },
-      { amp: 0.020, freq: 2.4, speed: 0.92, phase: 0.6 },
-      { amp: 0.010, freq: 7.9, speed: 1.95, phase: 2.8 },
-    ],
-  },
-] as const
-
-type OceanLayer = typeof OCEAN_LAYERS[number]
-
-// ─────────────────────────────────────────────────────────────────────────────
-// OceanWaves — requestAnimationFrame canvas, smooth mid-point Bézier curves
-// ─────────────────────────────────────────────────────────────────────────────
-function OceanWaves({ reduced }: { reduced: boolean | null }) {
+// ─── Film grain — canvas-based, 15 fps ───────────────────────────────────────
+function FilmGrain({ reduced }: { reduced: boolean | null }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef    = useRef<number>(0)
-  const timeRef   = useRef(0)
-  const lastTsRef = useRef(0)
 
   useEffect(() => {
+    if (reduced) return
     const canvas = canvasRef.current
     if (!canvas) return
-
-    const ctx = canvas.getContext('2d', { alpha: true })!
-    let W = 0, H = 0, dpr = 1
+    const ctx = canvas.getContext('2d')!
 
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2)
-      const rect = canvas.getBoundingClientRect()
-      W = rect.width
-      H = rect.height
-      canvas.width  = Math.round(W * dpr)
-      canvas.height = Math.round(H * dpr)
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      // Low-res grain then CSS-scaled = performant + convincing
+      canvas.width  = Math.round(canvas.offsetWidth  / 2)
+      canvas.height = Math.round(canvas.offsetHeight / 2)
     }
     resize()
-
     const ro = new ResizeObserver(resize)
     ro.observe(canvas)
 
-    // Sample the composite wave height at a given x position and time
-    const sampleY = (
-      layer: OceanLayer,
-      x: number,
-      t: number,
-    ): number => {
-      let y = layer.baseY * H
-      for (const c of layer.comps) {
-        y += Math.sin((x / W) * c.freq * Math.PI * 2 + t * c.speed + c.phase) * c.amp * H
-      }
-      return y
-    }
-
-    const drawLayer = (layer: OceanLayer, t: number) => {
-      // ~4 px per sample gives a smooth curve at any viewport width
-      const N  = Math.max(Math.ceil(W / 4), 100)
-      const ys = new Float32Array(N + 1)
-      for (let i = 0; i <= N; i++) ys[i] = sampleY(layer, (i / N) * W, t)
-
-      // Find the minimum Y (wave crest) for the gradient top anchor
-      let minY = ys[0]
-      for (let i = 1; i <= N; i++) if (ys[i] < minY) minY = ys[i]
-
-      const { r, g, b, alpha } = layer
-      const grad = ctx.createLinearGradient(0, minY, 0, H)
-      // Lighter at the wave crest (catches light), darker in the trough
-      grad.addColorStop(0,    `rgba(${Math.min(r+20,255)},${Math.min(g+32,255)},${Math.min(b+55,255)},${(alpha * 0.78).toFixed(2)})`)
-      grad.addColorStop(0.30, `rgba(${r},${g},${b},${alpha})`)
-      grad.addColorStop(1,    `rgba(${Math.max(r-1,0)},${Math.max(g-4,0)},${Math.max(b-10,0)},${alpha})`)
-
-      // ── Wave fill (mid-point quadratic Bézier — smooth through all samples) ──
-      ctx.beginPath()
-      ctx.moveTo(0, ys[0])
-      for (let i = 1; i < N; i++) {
-        const xp = ((i - 1) / N) * W
-        const xc = (i       / N) * W
-        ctx.quadraticCurveTo(xp, ys[i - 1], (xp + xc) / 2, (ys[i - 1] + ys[i]) / 2)
-      }
-      // Final segment ends exactly at the last sample
-      ctx.quadraticCurveTo(((N - 1) / N) * W, ys[N - 1], W, ys[N])
-      ctx.lineTo(W, H)
-      ctx.lineTo(0, H)
-      ctx.closePath()
-      ctx.fillStyle = grad
-      ctx.fill()
-
-      // ── Foam / whitecap line on the foremost layer only ─────────────────────
-      if (layer.foam) {
-        ctx.beginPath()
-        ctx.moveTo(0, ys[0])
-        for (let i = 1; i < N; i++) {
-          const xp = ((i - 1) / N) * W
-          const xc = (i       / N) * W
-          ctx.quadraticCurveTo(xp, ys[i - 1], (xp + xc) / 2, (ys[i - 1] + ys[i]) / 2)
-        }
-        ctx.quadraticCurveTo(((N - 1) / N) * W, ys[N - 1], W, ys[N])
-
-        // Double-stroke: soft glow + sharp edge
-        ctx.strokeStyle = 'rgba(185, 215, 255, 0.20)'
-        ctx.lineWidth   = 5
-        ctx.stroke()
-        ctx.strokeStyle = 'rgba(220, 238, 255, 0.50)'
-        ctx.lineWidth   = 1.5
-        ctx.stroke()
-      }
-    }
-
-    // Reduced-motion: render a single static frame and stop
-    if (reduced) {
-      for (const layer of OCEAN_LAYERS) drawLayer(layer, 0)
-      return () => ro.disconnect()
-    }
+    let last = 0
+    const INTERVAL = 1000 / 15   // cap at 15 fps
 
     const tick = (ts: number) => {
-      const dt = lastTsRef.current
-        ? Math.min((ts - lastTsRef.current) / 1000, 0.05)
-        : 0
-      lastTsRef.current  = ts
-      timeRef.current   += dt
-
-      ctx.clearRect(0, 0, W, H)
-      for (const layer of OCEAN_LAYERS) drawLayer(layer, timeRef.current)
-
+      if (ts - last >= INTERVAL) {
+        last = ts
+        const { width: W, height: H } = canvas
+        const img = ctx.createImageData(W, H)
+        const d   = img.data
+        for (let i = 0; i < d.length; i += 4) {
+          const v = (Math.random() * 255) | 0
+          d[i] = d[i + 1] = d[i + 2] = v
+          d[i + 3] = 22    // very low alpha — subtle grit
+        }
+        ctx.putImageData(img, 0, 0)
+      }
       rafRef.current = requestAnimationFrame(tick)
     }
-
     rafRef.current = requestAnimationFrame(tick)
 
-    return () => {
-      cancelAnimationFrame(rafRef.current)
-      ro.disconnect()
-    }
+    return () => { cancelAnimationFrame(rafRef.current); ro.disconnect() }
   }, [reduced])
 
+  if (reduced) return null
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full"
-      style={{ display: 'block' }}
+      className="absolute inset-0 w-full h-full z-[5] pointer-events-none"
+      style={{ mixBlendMode: 'overlay', imageRendering: 'pixelated' }}
       aria-hidden="true"
     />
   )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// useOceanSound
-// Audio graph: pink noise → lowpass → [swell gain] → compressor → [master] → out
-//              bandpass ↗
-//   LFO → lfoGain → swellGain.gain  (amplitude modulation ~9 s per swell)
-//   master gain is ONLY touched by toggle — never by the LFO
-// ─────────────────────────────────────────────────────────────────────────────
-function useOceanSound() {
+// ─── Dust motes — slow-drifting industrial atmosphere ────────────────────────
+const MOTES = Array.from({ length: 22 }, (_, i) => ({
+  id:    i,
+  x:     (i * 137.508) % 100,           // golden-angle spread
+  y:     (i * 53.1)    % 100,
+  size:  1.5 + (i % 4) * 0.9,
+  dur:   12 + (i % 7) * 2.5,
+  delay: (i * 0.6)     % 8,
+  dx:    (i % 2 === 0 ? 1 : -1) * (6 + (i % 5) * 3),
+  dy:    -(8 + (i % 6) * 4),
+}))
+
+function DustMotes({ reduced }: { reduced: boolean | null }) {
+  if (reduced) return null
+  return (
+    <div className="absolute inset-0 z-[6] pointer-events-none overflow-hidden" aria-hidden="true">
+      {MOTES.map(m => (
+        <motion.div
+          key={m.id}
+          className="absolute rounded-full bg-white"
+          style={{ left: `${m.x}%`, top: `${m.y}%`, width: m.size, height: m.size, opacity: 0 }}
+          animate={{ x: [0, m.dx, m.dx * 0.5, 0], y: [0, m.dy, m.dy * 1.6, m.dy * 0.8], opacity: [0, 0.22, 0.14, 0] }}
+          transition={{ duration: m.dur, delay: m.delay, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// ─── Sparks — rising bright flecks like yard cutting sparks ──────────────────
+const SPARKS = Array.from({ length: 14 }, (_, i) => ({
+  id:    i,
+  x:     35 + (i * 43.7) % 45,          // clustered right-centre (where yard action is)
+  size:  1 + (i % 3) * 0.8,
+  dur:   1.0 + (i % 5) * 0.35,
+  delay: (i * 0.55) % 5,
+  drift: (i % 2 === 0 ? 1 : -1) * (4 + (i % 4) * 3),
+}))
+
+function Sparks({ reduced }: { reduced: boolean | null }) {
+  if (reduced) return null
+  return (
+    <div className="absolute inset-0 z-[7] pointer-events-none overflow-hidden" aria-hidden="true">
+      {SPARKS.map(s => (
+        <motion.div
+          key={s.id}
+          className="absolute rounded-full"
+          style={{
+            left:       `${s.x}%`,
+            bottom:     '25%',
+            width:       s.size,
+            height:      s.size,
+            background: 'radial-gradient(circle, #fff 0%, #f5c518 55%, transparent 100%)',
+          }}
+          animate={{
+            y:       [0, -(80 + s.id * 12), -(130 + s.id * 8)],
+            x:       [0, s.drift, s.drift * 1.4],
+            opacity: [0, 0.9, 0],
+            scale:   [0.5, 1, 0.3],
+          }}
+          transition={{ duration: s.dur, delay: s.delay, repeat: Infinity, ease: 'easeOut' }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// ─── Industrial wind — Web Audio synthesiser ─────────────────────────────────
+function useWindSound() {
   const ctxRef     = useRef<AudioContext | null>(null)
   const masterRef  = useRef<GainNode    | null>(null)
   const startedRef = useRef(false)
@@ -216,59 +159,59 @@ function useOceanSound() {
       const ctx = new AudioContext()
       const sr  = ctx.sampleRate
 
-      // Pink noise (Paul Kellet) — 4-second looping buffer
-      const buf = ctx.createBuffer(2, sr * 4, sr)
+      // Brown noise (deeper / windier than pink noise)
+      const buf = ctx.createBuffer(2, sr * 6, sr)
       for (let ch = 0; ch < 2; ch++) {
         const d = buf.getChannelData(ch)
-        let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0
+        let last = 0
         for (let i = 0; i < d.length; i++) {
-          const w = Math.random() * 2 - 1
-          b0=0.99886*b0+w*0.0555179; b1=0.99332*b1+w*0.0750759
-          b2=0.96900*b2+w*0.1538520; b3=0.86650*b3+w*0.3104856
-          b4=0.55000*b4+w*0.5329522; b5=-0.7616*b5-w*0.0168980
-          d[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.18
-          b6=w*0.115926
+          const white = Math.random() * 2 - 1
+          d[i] = (last + 0.02 * white) / 1.02
+          last  = d[i]
+          d[i] *= 3.8
         }
       }
       const src = ctx.createBufferSource()
       src.buffer = buf; src.loop = true
 
+      // Lowpass — removes high hiss, keeps low wind rumble
       const lp = ctx.createBiquadFilter()
-      lp.type = 'lowpass'; lp.frequency.value = 800; lp.Q.value = 0.5
+      lp.type = 'lowpass'; lp.frequency.value = 720; lp.Q.value = 0.4
 
+      // Bandpass — adds the howling mid-frequency "wind through steel" character
       const bp = ctx.createBiquadFilter()
-      bp.type = 'bandpass'; bp.frequency.value = 160; bp.Q.value = 0.4
+      bp.type = 'bandpass'; bp.frequency.value = 340; bp.Q.value = 0.55
 
-      const swellGain = ctx.createGain()
-      swellGain.gain.value = 0.75
+      const windGain = ctx.createGain()
+      windGain.gain.value = 0.65
 
-      const lfo = ctx.createOscillator()
-      lfo.type = 'sine'; lfo.frequency.value = 0.11
-      const lfoAmp = ctx.createGain()
-      lfoAmp.gain.value = 0.25
-      lfo.connect(lfoAmp); lfoAmp.connect(swellGain.gain)
+      // LFO₁ — slow gusts (~14 s period)
+      const lfo1 = ctx.createOscillator(); lfo1.type = 'sine'; lfo1.frequency.value = 0.07
+      const lg1  = ctx.createGain();       lg1.gain.value = 0.38
+      lfo1.connect(lg1); lg1.connect(windGain.gain)
+
+      // LFO₂ — faster turbulence (~2.6 s period)
+      const lfo2 = ctx.createOscillator(); lfo2.type = 'sine'; lfo2.frequency.value = 0.38
+      const lg2  = ctx.createGain();       lg2.gain.value = 0.14
+      lfo2.connect(lg2); lg2.connect(windGain.gain)
 
       const comp = ctx.createDynamicsCompressor()
-      comp.threshold.value = -18; comp.knee.value = 30
-      comp.ratio.value = 8; comp.attack.value = 0.01; comp.release.value = 0.3
+      comp.threshold.value = -20; comp.knee.value = 28
+      comp.ratio.value = 7;       comp.attack.value = 0.02; comp.release.value = 0.4
 
-      const master = ctx.createGain()
-      master.gain.value = 0
+      const master = ctx.createGain(); master.gain.value = 0
 
       src.connect(lp); src.connect(bp)
-      lp.connect(swellGain); bp.connect(swellGain)
-      swellGain.connect(comp)
-      comp.connect(master)
+      lp.connect(windGain); bp.connect(windGain)
+      windGain.connect(comp); comp.connect(master)
       master.connect(ctx.destination)
 
-      src.start(); lfo.start()
+      src.start(); lfo1.start(); lfo2.start()
 
-      ctxRef.current   = ctx
+      ctxRef.current  = ctx
       masterRef.current = master
       return ctx
-    } catch {
-      return null
-    }
+    } catch { return null }
   }, [])
 
   const toggle = useCallback(() => {
@@ -278,12 +221,12 @@ function useOceanSound() {
       const master = masterRef.current!
       if (!startedRef.current) {
         startedRef.current = true
-        master.gain.setTargetAtTime(0.9, ctx.currentTime, 1.5)
+        master.gain.setTargetAtTime(0.85, ctx.currentTime, 1.8)
         setPlaying(true)
       } else {
         setPlaying(prev => {
           const next = !prev
-          master.gain.setTargetAtTime(next ? 0.9 : 0, ctx.currentTime, next ? 1.5 : 0.6)
+          master.gain.setTargetAtTime(next ? 0.85 : 0, ctx.currentTime, next ? 1.8 : 0.8)
           return next
         })
       }
@@ -295,214 +238,235 @@ function useOceanSound() {
   return { playing, toggle }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Spray / mist particles rising at the waterline
-// ─────────────────────────────────────────────────────────────────────────────
-const SPRAY = Array.from({ length: 18 }, (_, i) => ({
-  id: i, x: (i * 137.5) % 95,
-  delay: (i * 0.38) % 4.5,
-  dur:   2.5 + (i % 5) * 0.5,
-  size:  1.5 + (i % 3) * 1.2,
-  drift: i % 2 === 0 ? 7 : -7,
-}))
+// ─── Framer motion variants ───────────────────────────────────────────────────
+const cont  = { hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.3 } } }
+const item  = { hidden: { opacity: 0, y: 26 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: ease.smooth } } }
+const wCont = { hidden: {}, visible: { transition: { staggerChildren: 0.08, delayChildren: 0.45 } } }
+const wAnim = { hidden: { opacity: 0, y: 44, skewY: 4 }, visible: { opacity: 1, y: 0, skewY: 0, transition: { duration: 0.6, ease: ease.smooth } } }
 
-function SprayParticles({ reduced }: { reduced: boolean | null }) {
-  if (reduced) return null
-  return (
-    <div className="absolute left-0 right-0 overflow-hidden pointer-events-none"
-         style={{ bottom: '34%', height: 60 }}>
-      {SPRAY.map(p => (
-        <motion.div key={p.id}
-          className="absolute rounded-full"
-          style={{ left: `${p.x}%`, bottom: 0, width: p.size, height: p.size, background: 'rgba(200,225,255,0.22)' }}
-          animate={{ y: [0, -35, -60], opacity: [0, 0.45, 0], x: [0, p.drift] }}
-          transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: 'easeOut' }}
-        />
-      ))}
-    </div>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Text entrance variants
-// ─────────────────────────────────────────────────────────────────────────────
-const txtCont  = { hidden:{}, visible:{ transition:{ staggerChildren:0.09, delayChildren:0.35 } } }
-const txtItem  = { hidden:{ opacity:0, y:28 }, visible:{ opacity:1, y:0, transition:{ duration:0.65, ease:ease.smooth } } }
-const wrdCont  = { hidden:{}, visible:{ transition:{ staggerChildren:0.07, delayChildren:0.5  } } }
-const wrdAnim  = { hidden:{ opacity:0, y:38, skewY:5 }, visible:{ opacity:1, y:0, skewY:0, transition:{ duration:0.55, ease:ease.smooth } } }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Main component
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── Main component ───────────────────────────────────────────────────────────
 export default function ShipHeroSection() {
   const reduced             = useReducedMotion()
-  const { playing, toggle } = useOceanSound()
+  const { playing, toggle } = useWindSound()
 
   return (
     <section
       className="relative min-h-screen overflow-hidden flex flex-col"
-      aria-label="East Queen Group hero"
+      aria-label="East Queen Group — Global Export Import and Sourcing Solutions"
     >
 
-      {/* ── Ship image — full-bleed, gently floating ───────────────────────── */}
-      <motion.div
-        className="absolute inset-0 z-0"
-        style={{ willChange: 'transform' }}
-        animate={reduced ? undefined : {
-          y:     [0, -12, 0, -7, 0],
-          scale: [1, 1.005, 1, 1.003, 1],
-          rotate:[0,  0.25, 0, -0.25, 0],
+      {/* ════════════════════════════════════════════════════════
+          LAYER 0 — Video (Ken Burns slow zoom)
+          filter: boost brightness/contrast/saturation to counteract
+          WhatsApp compression; sepia(0.06) adds warm industrial tone
+          ════════════════════════════════════════════════════════ */}
+      <motion.video
+        src="/videos/operations/ops-2.mp4"
+        poster="/images/operations/facility-1.jpeg"
+        autoPlay={!reduced}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        className="absolute inset-0 w-full h-full object-cover z-0"
+        style={{
+          filter:          'brightness(1.12) contrast(1.18) saturate(1.30) sepia(0.06)',
+          transform:       'scale(1.08)',
+          transformOrigin: 'center center',
         }}
-        transition={{
-          y:      { duration: 6,   repeat: Infinity, ease: 'easeInOut' },
-          scale:  { duration: 9,   repeat: Infinity, ease: 'easeInOut' },
-          rotate: { duration: 8.5, repeat: Infinity, ease: 'easeInOut' },
+        animate={reduced ? undefined : { scale: [1.08, 1.14, 1.08] }}
+        transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
+        aria-hidden="true"
+      />
+
+      {/* ════════════════════════════════════════════════════════
+          LAYER 1 — Top / bottom depth vignette
+          ════════════════════════════════════════════════════════ */}
+      <div
+        className="absolute inset-0 z-[1] pointer-events-none"
+        style={{ background: 'linear-gradient(180deg,rgba(4,10,24,.45) 0%,transparent 20%,transparent 58%,rgba(4,10,24,.92) 100%)' }}
+      />
+
+      {/* ════════════════════════════════════════════════════════
+          LAYER 2 — Left reading panel (fades to transparent right)
+          ════════════════════════════════════════════════════════ */}
+      <div
+        className="absolute inset-0 z-[2] pointer-events-none"
+        style={{ background: 'linear-gradient(100deg,rgba(4,10,24,.90) 0%,rgba(4,10,24,.78) 26%,rgba(4,10,24,.44) 50%,rgba(4,10,24,.10) 66%,transparent 80%)' }}
+      />
+
+      {/* ════════════════════════════════════════════════════════
+          LAYER 3 — Radial edge vignette (cinematic oval darkening)
+          ════════════════════════════════════════════════════════ */}
+      <div
+        className="absolute inset-0 z-[3] pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse 85% 80% at 50% 50%,transparent 40%,rgba(0,0,0,.55) 100%)' }}
+      />
+
+      {/* ════════════════════════════════════════════════════════
+          LAYER 4 — Horizontal scan lines (ultra-subtle CRT texture)
+          ════════════════════════════════════════════════════════ */}
+      <div
+        className="absolute inset-0 z-[4] pointer-events-none"
+        style={{
+          backgroundImage:  'repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px)',
+          backgroundSize:   '100% 4px',
         }}
-      >
-        <img
-          src="/images/hero/odyssey-hero.png"
-          alt="Odyssey of the Seas — East Queen Group maritime excellence"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '60% 52%' }}
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-        />
-      </motion.div>
+        aria-hidden="true"
+      />
 
-      {/* ── Overlays ─────────────────────────────────────────────────────────── */}
-      <div className="absolute inset-0 z-[1] pointer-events-none"
-           style={{ background: 'linear-gradient(180deg, rgba(5,14,30,0.28) 0%, rgba(5,14,30,0.04) 30%, rgba(5,14,30,0.12) 62%, rgba(4,12,26,0.92) 100%)' }} />
-      <div className="absolute inset-0 z-[2] pointer-events-none"
-           style={{ background: 'linear-gradient(105deg, rgba(4,10,24,0.94) 0%, rgba(4,10,24,0.84) 26%, rgba(4,10,24,0.50) 48%, rgba(4,10,24,0.12) 64%, transparent 80%)' }} />
-      <div className="absolute top-0 right-0 z-[2] pointer-events-none"
-           style={{ width:'42%', height:'38%', background:'radial-gradient(ellipse at 85% 8%, rgba(190,225,255,0.10) 0%, transparent 65%)' }} />
+      {/* LAYER 5 — Film grain canvas */}
+      <FilmGrain reduced={reduced} />
 
-      {/* ── Main content ─────────────────────────────────────────────────────── */}
-      <div className="relative z-10 flex-1 flex items-center max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-[37vh]">
+      {/* LAYER 6 — Dust motes */}
+      <DustMotes reduced={reduced} />
+
+      {/* LAYER 7 — Rising sparks */}
+      <Sparks reduced={reduced} />
+
+      {/* ════════════════════════════════════════════════════════
+          MAIN CONTENT
+          ════════════════════════════════════════════════════════ */}
+      <div className="relative z-10 flex-1 flex items-center max-w-7xl mx-auto w-full
+                      px-4 sm:px-6 lg:px-8 pt-24 pb-28">
         <motion.div
-          className="w-full lg:w-[52%] xl:w-[46%]"
-          variants={txtCont}
+          className="w-full lg:w-[56%] xl:w-[50%]"
+          variants={cont}
           initial="hidden"
           animate="visible"
         >
-          <motion.div variants={txtItem} className="flex items-center gap-3 mb-6">
-            <span className="h-[2px] w-8 bg-gold-500 rounded-full flex-shrink-0" />
+          {/* Eyebrow */}
+          <motion.div variants={item} className="flex items-center gap-3 mb-5">
+            <span className="h-[2px] w-8 bg-gold-500 rounded-full shrink-0" />
             <span className="text-gold-400 text-[11px] font-semibold uppercase tracking-[0.28em]">
-              Est. 1982 · Chittagong, Bangladesh
+              East Queen Group · Est. 1982 · Chittagong, Bangladesh
             </span>
           </motion.div>
 
+          {/* Main headline — split at natural break so each line stays readable */}
           <motion.h1
-            className="font-playfair font-bold text-display text-white leading-[1.06] mb-1"
-            variants={wrdCont}
+            className="font-playfair font-bold leading-[1.06] mb-3"
+            style={{ fontSize: 'clamp(2.6rem, 5.8vw, 4.8rem)' }}
+            variants={wCont}
           >
-            {['Where','Ships'].map((w,i) => (
-              <motion.span key={i} variants={wrdAnim} className="inline-block mr-[0.22em]">{w}</motion.span>
-            ))}
+            {/* Line 1 */}
+            <span className="block">
+              {['Global', 'Export', 'Import'].map((w, i) => (
+                <motion.span key={i} variants={wAnim} className="inline-block mr-[0.18em] text-white">
+                  {w}
+                </motion.span>
+              ))}
+            </span>
+            {/* Line 2 — last word accented in gold */}
+            <span className="block">
+              {['&', 'Sourcing', 'Solutions'].map((w, i, arr) => (
+                <motion.span
+                  key={i}
+                  variants={wAnim}
+                  className={`inline-block mr-[0.18em] ${i === arr.length - 1 ? 'text-gold-500' : 'text-white'}`}
+                >
+                  {w}
+                </motion.span>
+              ))}
+            </span>
           </motion.h1>
 
-          <motion.h1
-            className="font-playfair font-bold text-display leading-[1.06] mb-8"
-            variants={wrdCont}
+          {/* Partner tagline */}
+          <motion.p
+            variants={item}
+            className="text-white/60 text-sm sm:text-base font-semibold uppercase
+                       tracking-[0.18em] mb-6 max-w-[480px]"
           >
-            {['Meet','the','World'].map((w,i,arr) => (
-              <motion.span key={i} variants={wrdAnim}
-                className={`inline-block mr-[0.22em] ${i===arr.length-1?'text-gold-500':'text-white'}`}>
-                {w}
-              </motion.span>
-            ))}
-          </motion.h1>
-
-          <motion.p variants={txtItem}
-            className="text-white/68 text-base sm:text-lg leading-relaxed mb-9 max-w-[460px]">
-            Four decades of maritime excellence — ship breaking, LPG energy,
-            fisheries, and international commodity trade from the shores of Chittagong.
+            Your Partner for Global Business &amp; Sourcing
           </motion.p>
 
-          <motion.div variants={txtItem} className="flex flex-wrap gap-3 mb-10">
-            <Link to="/companies"
+          {/* Body */}
+          <motion.p
+            variants={item}
+            className="text-white/80 text-base sm:text-lg leading-relaxed mb-9 max-w-[490px]"
+          >
+            From Chittagong to markets across four continents — East Queen Group
+            delivers end-to-end export, import, and sourcing solutions across
+            commodities, materials, and industrial goods since 1982.
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div variants={item} className="flex flex-wrap gap-3 mb-10">
+            <Link
+              to="/export"
               className="group inline-flex items-center gap-2.5 px-7 py-3.5
                          bg-gold-500 hover:bg-gold-400 text-white font-bold
                          rounded-lg text-sm tracking-wide transition-all duration-200
-                         hover:shadow-gold-glow">
-              Our Portfolio
+                         hover:shadow-gold-glow"
+            >
+              Explore Our Services
               <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform duration-200" />
             </Link>
-            <a href={`tel:${CONTACT.phones[0].replace(/\s/g,'')}`}
+            <a
+              href={`tel:${CONTACT.phones[0].replace(/\s/g, '')}`}
               className="inline-flex items-center gap-2 px-7 py-3.5
                          bg-white/10 hover:bg-white/18 border border-white/25
                          hover:border-gold-500/60 text-white font-semibold
-                         rounded-lg text-sm tracking-wide transition-all duration-200">
+                         rounded-lg text-sm tracking-wide transition-all duration-200"
+            >
               <Phone size={14} />
               Call Us
             </a>
           </motion.div>
 
-          <motion.div variants={txtItem} className="flex flex-wrap gap-6 pt-6 border-t border-white/12">
-            {STATS.map(({ n, l }) => (
-              <div key={l} className="flex flex-col items-center">
-                <span className="font-mono font-bold text-gold-400 text-[1.65rem] leading-none">{n}</span>
-                <span className="text-white/48 text-[10px] uppercase tracking-[0.22em] mt-1">{l}</span>
+          {/* Stats strip */}
+          <motion.div
+            variants={item}
+            className="flex flex-wrap items-center gap-6 sm:gap-8 pt-6 border-t border-white/15"
+          >
+            {STATS.map(({ n, l }, i) => (
+              <div key={l} className="flex items-center gap-5 sm:gap-6">
+                <div className="text-center">
+                  <span className="block font-mono font-black text-gold-400 text-2xl leading-none">{n}</span>
+                  <span className="block text-white/50 text-[9px] uppercase tracking-[0.22em] mt-1">{l}</span>
+                </div>
+                {i < STATS.length - 1 && (
+                  <div className="hidden sm:block h-7 w-px bg-white/12" />
+                )}
               </div>
             ))}
           </motion.div>
         </motion.div>
       </div>
 
-      {/* ══════════════════════════════════════════════════════════
-          REALISTIC OCEAN — canvas-based wave simulation
-          ══════════════════════════════════════════════════════════ */}
-      <div
-        className="absolute bottom-0 left-0 right-0 z-[5]"
-        style={{ height: '36vh', minHeight: 180 }}
-        aria-hidden="true"
-      >
-        {/* Deep water base — blends photo ocean into canvas waves */}
-        <div className="absolute inset-0"
-             style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(3,10,28,0.6) 30%, #02071a 70%)' }} />
-
-        <OceanWaves reduced={reduced} />
-        <SprayParticles reduced={reduced} />
-
-        {/* Soft horizon blend — photo waterline → canvas ocean */}
-        <div className="absolute top-0 left-0 right-0 pointer-events-none"
-             style={{ height: 100, background: 'linear-gradient(to bottom, transparent 0%, rgba(3,9,26,0.45) 55%, rgba(2,7,22,0.78) 100%)' }} />
-      </div>
-
-      {/* ── Sound toggle ─────────────────────────────────────────────────────── */}
+      {/* ── Wind sound toggle ─────────────────────────────────────────────────── */}
       <motion.button
         onClick={toggle}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.8, duration: 0.5 }}
-        whileHover={{ scale: 1.06 }}
+        whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.93 }}
-        className="absolute z-30 flex items-center gap-2.5
-                   px-4 py-2.5 rounded-full backdrop-blur-md
-                   border bg-black/30 hover:bg-black/45
-                   text-[11px] font-semibold tracking-wide
-                   transition-colors duration-200 cursor-pointer select-none"
+        className="absolute z-20 bottom-10 right-6 sm:right-10
+                   flex items-center gap-2.5 px-4 py-2.5 rounded-full
+                   backdrop-blur-md border transition-colors duration-200 cursor-pointer select-none
+                   text-[11px] font-semibold tracking-wide"
         style={{
-          right:        20,
-          bottom:       'calc(36vh + 18px)',
-          borderColor:  playing ? 'rgba(226,31,47,0.5)' : 'rgba(255,255,255,0.18)',
-          color:        playing ? '#F76169'              : 'rgba(255,255,255,0.72)',
+          borderColor: playing ? 'rgba(245,193,50,0.5)' : 'rgba(255,255,255,0.18)',
+          background:  playing ? 'rgba(245,193,50,0.12)' : 'rgba(0,0,0,0.35)',
+          color:       playing ? '#f5c932'                : 'rgba(255,255,255,0.72)',
         }}
-        aria-label={playing ? 'Mute ocean sound' : 'Play ocean sound'}
+        aria-label={playing ? 'Mute wind sound' : 'Play wind sound'}
       >
         {playing ? (
           <>
-            <motion.div animate={{ scale:[1,1.25,1] }} transition={{ duration:1.1, repeat:Infinity }}>
-              <Volume2 size={13} />
+            <motion.div animate={{ rotate: [0, 8, -8, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+              <Wind size={13} />
             </motion.div>
-            <span className="hidden sm:inline">Sound On</span>
+            <span className="hidden sm:inline">Wind On</span>
+            {/* Equaliser bars */}
             <span className="hidden sm:flex items-end gap-[2px] h-3">
-              {[1,2,3].map(i => (
-                <motion.span key={i}
+              {[1, 2, 3].map(i => (
+                <motion.span
+                  key={i}
                   className="w-[2px] rounded-full bg-current"
-                  animate={{ height:['4px','10px','4px'] }}
-                  transition={{ duration:0.6, repeat:Infinity, delay:i*0.12 }}
+                  animate={{ height: ['4px', '10px', '4px'] }}
+                  transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.15 }}
                 />
               ))}
             </span>
@@ -510,24 +474,38 @@ export default function ShipHeroSection() {
         ) : (
           <>
             <VolumeX size={13} />
-            <span className="hidden sm:inline">Ocean Sound</span>
+            <span className="hidden sm:inline">Wind Sound</span>
           </>
         )}
       </motion.button>
 
-      {/* ── Scroll cue ───────────────────────────────────────────────────────── */}
+      {/* ── HKC badge ─────────────────────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 2.0, duration: 0.5 }}
+        className="absolute z-20 bottom-10 left-6 sm:left-10
+                   flex items-center gap-2.5 px-4 py-2.5 rounded-full
+                   backdrop-blur-md border border-white/14 bg-black/30
+                   text-[11px] font-semibold text-white/65 tracking-wide select-none"
+      >
+        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+        Trusted Globally · Est. 1982
+      </motion.div>
+
+      {/* ── Scroll cue ────────────────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2.4 }}
-        className="absolute left-1/2 -translate-x-1/2 z-20
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20
                    flex flex-col items-center gap-1.5 text-white/38"
-        style={{ bottom: 'calc(36vh + 18px)' }}
+        aria-hidden="true"
       >
         <span className="text-[9px] uppercase tracking-[0.38em]">Scroll</span>
         <motion.div
-          animate={reduced ? undefined : { y:[0,5,0] }}
-          transition={{ duration:1.6, repeat:Infinity, ease:'easeInOut' }}
+          animate={reduced ? undefined : { y: [0, 6, 0] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
         >
           <ChevronDown size={14} />
         </motion.div>

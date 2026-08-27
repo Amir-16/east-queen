@@ -30,7 +30,7 @@ import { stagger, fadeUp, fadeLeft, fadeRight, ease } from '@/lib/motion'
 
 const stats = [
   { value: 40,   suffix: '+',   label: 'Years Experience',     decimals: 0 },
-  { value: 500,  suffix: '+',   label: 'Vessels Recycled',     decimals: 0 },
+  { value: 150,  suffix: '+',   label: 'Vessels Recycled',     decimals: 0 },
   { value: 100,  suffix: '%',   label: 'HKC Compliance',       decimals: 0 },
   { value: 1000, suffix: '+ MT',label: 'Scrap / Year',         decimals: 0 },
 ]
