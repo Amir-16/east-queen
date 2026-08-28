@@ -1,0 +1,56 @@
+export const NAV_ITEMS = [
+  { label: 'Home', href: '/' },
+  { label: 'About', href: '/about' },
+  {
+    label: 'Companies',
+    href: '/companies',
+    children: [
+      { label: 'Ariko International',       href: '/con-ariko-international',   desc: 'International Trading & Export'   },
+      { label: 'East Queen Shipping Ltd.',   href: '/con-east-queen-shipping',   desc: 'Maritime & Ship Breaking'         },
+      { label: 'Bay Gas Ltd.',               href: '/con-bay-gas',               desc: 'LPG Energy Distribution'          },
+      { label: 'Syedpur Fisheries & Farms',  href: '/con-syedpur-fisheries',     desc: 'Fisheries & Agriculture'          },
+      { label: 'BSC Limited',               href: '/con-bsc-limited',           desc: 'Construction Materials'           },
+      { label: 'Marinona Foodstaff Trading', href: '/con-marinona-foodstaff',    desc: 'Food & Commodity Trading'         },
+    ],
+  },
+  {
+    label: 'Export',
+    href: '/export',
+    children: [
+      { label: 'Mill Scale',                  href: '/export-mill-scale'                  },
+      { label: 'Zinc Oxide',                  href: '/export-zinc-oxide'                  },
+      { label: 'PET Flakes',                  href: '/export-pet-flakes'                  },
+      { label: 'Fresh Vegetables & Fruits',   href: '/export-fresh-vegetables-and-fruits' },
+      { label: 'Leather Goods',               href: '/export-leather-goods'               },
+      { label: 'Jute Made Products',          href: '/export-jute-made-products'          },
+    ],
+  },
+  {
+    label: 'Import',
+    href: '/import',
+    children: [
+      { label: 'Aggregate / Gabbro',        href: '/import-aggregate'              },
+      { label: 'Coal',                      href: '/import-coal'                   },
+      { label: 'Steel Scraps',              href: '/import-steel-scraps'           },
+      { label: 'Automobile Spare Parts',    href: '/import-automobile-spare-parts' },
+      { label: 'Lime Stone / Clinker',      href: '/import-lime-stone'             },
+    ],
+  },
+  { label: 'Ship Breaking', href: '/ship-breaking' },
+  { label: 'Gallery',       href: '/gallery'        },
+  { label: 'Contact',       href: '/contact-us'     },
+]
+
+export const STATS = [
+  { value: 100, suffix: '+', label: 'Happy Clients'       },
+  { value: 500, suffix: '+', label: 'Employees'           },
+  { value: 400, suffix: '+', label: 'Complete Deliveries' },
+  { value: 42,  suffix: '+', label: 'Years Established'   },
+]
+
+export const CONTACT = {
+  phones:  ['+880 1713 042261', '+880 1723 870250'],
+  emails:  ['shahrear@eastqueengroup.com', 'contact@eastqueengroup.com'],
+  address: 'Dhaka, Bangladesh',
+  hours:   'Sunday – Thursday, 9:00 AM – 5:00 PM (BST)',
+}
