@@ -1,0 +1,70 @@
+import {
+  TrophyIcon,
+  Square3Stack3DIcon,
+  ShieldCheckIcon,
+  BeakerIcon,
+  BuildingOffice2Icon,
+  WrenchScrewdriverIcon,
+  ArrowPathIcon,
+  SparklesIcon,
+  StarIcon,
+  ClockIcon,
+  CurrencyDollarIcon,
+  HeartIcon,
+  LightBulbIcon,
+  RocketLaunchIcon,
+  CheckCircleIcon,
+  CheckBadgeIcon,
+  CalendarDaysIcon,
+  FaceSmileIcon,
+  UserGroupIcon,
+} from '@heroicons/react/24/outline'
+
+const iconMap = {
+  // PascalCase names (stored in why_choose_items, core_values)
+  TrophyIcon,
+  Square3Stack3DIcon,
+  ShieldCheckIcon,
+  BeakerIcon,
+  BuildingOffice2Icon,
+  WrenchScrewdriverIcon,
+  ArrowPathIcon,
+  SparklesIcon,
+  StarIcon,
+  ClockIcon,
+  CurrencyDollarIcon,
+  HeartIcon,
+  LightBulbIcon,
+  RocketLaunchIcon,
+  CheckCircleIcon,
+  CheckBadgeIcon,
+  CalendarDaysIcon,
+  FaceSmileIcon,
+  UserGroupIcon,
+
+  // kebab-case names (stored in stats, services)
+  'trophy':              TrophyIcon,
+  'square-3-stack-3d':   Square3Stack3DIcon,
+  'shield-check':        ShieldCheckIcon,
+  'beaker':              BeakerIcon,
+  'building-office-2':   BuildingOffice2Icon,
+  'wrench-screwdriver':  WrenchScrewdriverIcon,
+  'arrow-path':          ArrowPathIcon,
+  'sparkles':            SparklesIcon,
+  'star':                StarIcon,
+  'clock':               ClockIcon,
+  'currency-dollar':     CurrencyDollarIcon,
+  'heart':               HeartIcon,
+  'light-bulb':          LightBulbIcon,
+  'rocket-launch':       RocketLaunchIcon,
+  'check-circle':        CheckCircleIcon,
+  'check-badge':         CheckBadgeIcon,
+  'calendar':            CalendarDaysIcon,
+  'face-smile':          FaceSmileIcon,
+  'users':               UserGroupIcon,
+}
+
+export default function HeroIcon({ name, className = 'w-6 h-6' }) {
+  const Icon = iconMap[name] ?? TrophyIcon
+  return <Icon className={className} />
+}
