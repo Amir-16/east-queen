@@ -6,7 +6,6 @@ import { createInertiaApp } from '@inertiajs/react'
 import { createRoot }        from 'react-dom/client'
 import { useEffect }         from 'react'
 import Lenis                 from 'lenis'
-import AdminLayout           from './components/admin/AdminLayout'
 import PublicLayout          from './components/public/layout/PublicLayout'
 
 function LenisProvider({ children }) {
@@ -30,11 +29,7 @@ createInertiaApp({
     const pages = import.meta.glob('./pages/**/*.jsx')
     const page = await pages[`./pages/${name}.jsx`]()
 
-    if (name.startsWith('Admin/')) {
-      if (page.default.layout === undefined) {
-        page.default.layout = (p) => <AdminLayout>{p}</AdminLayout>
-      }
-    } else {
+    if (!name.startsWith('Admin/')) {
       if (page.default.layout === undefined) {
         page.default.layout = (p) => <LenisProvider><PublicLayout>{p}</PublicLayout></LenisProvider>
       }
