@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react'
 
-export default function Login() {
+function Login() {
   const { data, setData, post, processing, errors } = useForm({
     email:    '',
     password: '',
@@ -186,3 +186,7 @@ export default function Login() {
     </>
   )
 }
+
+Login.layout = null
+
+export default Login

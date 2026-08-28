@@ -31,11 +31,13 @@ createInertiaApp({
     const page = await pages[`./pages/${name}.jsx`]()
 
     if (name.startsWith('Admin/')) {
-      page.default.layout = page.default.layout
-        ?? ((page) => <AdminLayout>{page}</AdminLayout>)
+      if (page.default.layout === undefined) {
+        page.default.layout = (p) => <AdminLayout>{p}</AdminLayout>
+      }
     } else {
-      page.default.layout = page.default.layout
-        ?? ((page) => <LenisProvider><PublicLayout>{page}</PublicLayout></LenisProvider>)
+      if (page.default.layout === undefined) {
+        page.default.layout = (p) => <LenisProvider><PublicLayout>{p}</PublicLayout></LenisProvider>
+      }
     }
     return page
   },
