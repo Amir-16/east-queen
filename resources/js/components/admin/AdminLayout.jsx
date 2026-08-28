@@ -10,13 +10,13 @@ export default function AdminLayout({ title = '', subtitle = '', children }) {
   const toggleSidebar = useCallback(() => setSidebarOpen((o) => !o), [])
 
   return (
-    <div className="flex h-screen overflow-hidden font-body text-gray-900" style={{ background: '#F4F6F4' }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: '#F1F5F9', fontFamily: 'Inter, sans-serif' }}>
       <AdminSidebar open={sidebarOpen} onClose={closeSidebar} />
 
-      {/* Mobile overlay — tap to close sidebar */}
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden backdrop-blur-sm"
           aria-hidden="true"
           onClick={closeSidebar}
         />
@@ -25,7 +25,7 @@ export default function AdminLayout({ title = '', subtitle = '', children }) {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <AdminHeader title={title} subtitle={subtitle} onMenuToggle={toggleSidebar} />
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6" style={{ background: '#F4F6F4' }}>
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-7">
           {children}
         </main>
       </div>
@@ -36,9 +36,7 @@ export default function AdminLayout({ title = '', subtitle = '', children }) {
         richColors
         expand={false}
         duration={4000}
-        toastOptions={{
-          style: { fontFamily: 'Inter, sans-serif' },
-        }}
+        toastOptions={{ style: { fontFamily: 'Inter, sans-serif', borderRadius: '12px' } }}
       />
     </div>
   )
