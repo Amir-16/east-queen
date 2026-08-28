@@ -148,11 +148,11 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-5 md:mb-6">
         <StatCard
           icon={FolderOpenIcon}
-          label="Active Projects"
-          value={stats?.projects}
-          subtext="in portfolio"
+          label="Companies"
+          value={stats?.companies}
+          subtext="group companies"
           color="gold"
-          href="/admin/projects"
+          href="/admin/companies"
         />
         <StatCard
           icon={ChartBarSquareIcon}
@@ -164,11 +164,11 @@ export default function Dashboard() {
         />
         <StatCard
           icon={UserGroupIcon}
-          label="Team Members"
-          value={stats?.teamContacts}
+          label="Associates"
+          value={stats?.associates}
           subtext="currently active"
           color="green"
-          href="/admin/team"
+          href="/admin/associates"
         />
         <StatCard
           icon={ChatBubbleLeftEllipsisIcon}
