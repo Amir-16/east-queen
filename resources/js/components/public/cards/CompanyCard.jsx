@@ -30,7 +30,7 @@ export default function CompanyCard({ company, className }) {
           style={{ backfaceVisibility: 'hidden' }}
         >
           {/* Gradient header + logo */}
-          <div className={cn('relative h-[170px] bg-gradient-to-br p-3', company.color)}>
+          <div className="relative h-[170px] p-3" style={{ backgroundColor: company.color ?? '#1e3a5f' }}>
             <div className="w-full h-full bg-white rounded-xl shadow-sm overflow-hidden flex items-center justify-center">
               <img
                 src={company.logo}
@@ -80,11 +80,8 @@ export default function CompanyCard({ company, className }) {
 
         {/* BACK */}
         <div
-          className={cn(
-            'absolute inset-0 rounded-2xl overflow-hidden flex flex-col bg-gradient-to-br',
-            company.color,
-          )}
-          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+          className="absolute inset-0 rounded-2xl overflow-hidden flex flex-col"
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', backgroundColor: company.color ?? '#1e3a5f' }}
         >
           {/* Header */}
           <div className="px-6 pt-6 pb-4 flex items-start justify-between gap-3">

@@ -54,3 +54,13 @@ export const CONTACT = {
   address: 'Dhaka, Bangladesh',
   hours:   'Sunday – Thursday, 9:00 AM – 5:00 PM (BST)',
 }
+
+export const INDUSTRY_COLORS = {
+  shipping:     'bg-slate-100 text-slate-700',
+  energy:       'bg-gold-100  text-gold-700',
+  fisheries:    'bg-teal-50   text-teal-700',
+  food:         'bg-gold-50   text-gold-600',
+  construction: 'bg-navy-800  text-slate-200',
+  trading:      'bg-slate-100 text-slate-700',
+  maritime:     'bg-slate-100 text-slate-700',
+}
