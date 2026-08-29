@@ -1,9 +1,58 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { Link } from '@inertiajs/react'
 import { stagger, fadeUp } from '@/lib/motion'
 import { companies } from '@/data/companies'
 import { associates } from '@/data/associates'
 
-function LogoCard({ name, initials, color, delay = 0 }) {
+
+
+function CompanyLogoCard({ company, delay = 0 }) {
+  const [imgError, setImgError] = useState(false)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ delay, duration: 0.4 }}
+      whileHover={{ y: -4, scale: 1.03, transition: { duration: 0.2 } }}
+    >
+      <Link
+        href={`/companies/${company.id}`}
+        className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col items-center gap-3 shadow-card hover:shadow-hover hover:border-gold-200 transition-all duration-300 group block"
+      >
+        <div className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center bg-white border border-slate-100 shadow-sm">
+          {company.logo && !imgError ? (
+            <img
+              src={company.logo}
+              alt={company.name}
+              className="w-full h-full object-contain p-1"
+              loading="lazy"
+              decoding="async"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center text-white font-mono font-bold text-sm"
+              style={{ backgroundColor: company.color ?? '#1e3a5f' }}
+            >
+              {company.name.slice(0, 2).toUpperCase()}
+            </div>
+          )}
+        </div>
+        <p className="text-slate-700 group-hover:text-navy-900 font-semibold text-xs text-center leading-snug transition-colors">
+          {company.name}
+        </p>
+      </Link>
+    </motion.div>
+  )
+}
+
+function AssociateLogoCard({ associate, delay = 0 }) {
+  const [imgError, setImgError] = useState(false)
+  const showLogo = associate.logo && !imgError
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -13,13 +62,26 @@ function LogoCard({ name, initials, color, delay = 0 }) {
       whileHover={{ y: -4, scale: 1.03, transition: { duration: 0.2 } }}
       className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col items-center gap-3 shadow-card hover:shadow-hover hover:border-gold-200 transition-all duration-300 cursor-default"
     >
-      <div
-        className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-mono font-bold text-sm"
-        style={{ backgroundColor: color ?? '#1e3a5f' }}
-      >
-        {initials}
+      <div className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center bg-white border border-slate-100 shadow-sm">
+        {showLogo ? (
+          <img
+            src={associate.logo}
+            alt={associate.name}
+            className="w-full h-full object-contain p-1"
+            loading="lazy"
+            decoding="async"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div
+            className="w-full h-full flex items-center justify-center text-white font-mono font-bold text-sm"
+            style={{ backgroundColor: associate.color ?? '#1e3a5f' }}
+          >
+            {associate.initials}
+          </div>
+        )}
       </div>
-      <p className="text-slate-700 font-semibold text-xs text-center leading-snug">{name}</p>
+      <p className="text-slate-700 font-semibold text-xs text-center leading-snug">{associate.name}</p>
     </motion.div>
   )
 }
@@ -48,13 +110,7 @@ export default function AssociatesTeaser({ companiesData = companies, associates
           </motion.div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {companiesData.map((c, i) => (
-              <LogoCard
-                key={c.id}
-                name={c.name}
-                initials={c.name.slice(0, 2).toUpperCase()}
-                color={c.color}
-                delay={i * 0.06}
-              />
+              <CompanyLogoCard key={c.id} company={c} delay={i * 0.06} />
             ))}
           </div>
         </div>
@@ -78,13 +134,7 @@ export default function AssociatesTeaser({ companiesData = companies, associates
           </motion.div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {associatesData.map((a, i) => (
-              <LogoCard
-                key={a.id}
-                name={a.name}
-                initials={a.initials}
-                color={a.color}
-                delay={i * 0.06}
-              />
+              <AssociateLogoCard key={a.id} associate={a} delay={i * 0.06} />
             ))}
           </div>
         </div>
