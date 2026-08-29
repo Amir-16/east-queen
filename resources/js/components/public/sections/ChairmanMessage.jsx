@@ -4,8 +4,8 @@ import { Quote } from 'lucide-react'
 import { ease } from '@/lib/motion'
 
 const CHAIRMAN = {
-  name:  'Md. Shahrear Islam',
-  title: 'Chairman & Managing Director · East Queen Group · Est. 1982',
+  name:  'Our Founder & Chairman',
+  title: 'East Queen Group · Est. 1982',
   quote:
     "What began as a single ship-breaking yard on the shores of Chittagong has grown into a family of companies built on trust, discipline, and a deep belief in Bangladesh's industrial future. We don't just trade commodities — we build relationships that last generations.",
   photo: '/images/team/chairman.jpeg',
