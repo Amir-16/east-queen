@@ -3,13 +3,12 @@ import { Link } from '@inertiajs/react'
 import { motion, useInView } from 'framer-motion'
 import CountUp from 'react-countup'
 import { ArrowRight, Eye, Target, Flame } from 'lucide-react'
-import { pageTransition, staggerSlow, fadeDown, fadeLeft, scaleIn } from '@/lib/motion'
+import { pageTransition, fadeLeft, staggerSlow, fadeDown, scaleIn } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
 import SectionHeader from '@/components/public/ui/SectionHeader'
-import ChairmanMessage from '@/components/public/sections/ChairmanMessage'
 import { timelineEvents } from '@/data/timeline'
 
-/* ── RainText — word-by-word spring drop from above ─────────────────────── */
+/* ── Spring rain — words drop from above and snap into place ────────────── */
 const rainWord = {
   hidden:  { opacity: 0, y: -72 },
   visible: {
@@ -22,7 +21,6 @@ const rainWord = {
 function RainText({ text, className, delay = 0, stagger = 0.018 }) {
   const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '0px 0px -40px 0px' })
-
   return (
     <motion.p
       ref={ref}
@@ -43,7 +41,7 @@ function RainText({ text, className, delay = 0, stagger = 0.018 }) {
   )
 }
 
-/* ── Timeline card entry directions (index → direction) ─────────────────── */
+/* ── Timeline card entry directions ─────────────────────────────────────── */
 const CARD_DIRS = [
   { x: 0,    y: -100 },
   { x: 100,  y: 0    },
@@ -80,7 +78,6 @@ function CardContent({ event }) {
 function DesktopCard({ event, dir, delay = 0 }) {
   const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '0px 0px -60px 0px' })
-
   return (
     <motion.div
       ref={ref}
@@ -99,7 +96,6 @@ function DesktopCard({ event, dir, delay = 0 }) {
 function MobileCard({ event, dir }) {
   const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '0px 0px -40px 0px' })
-
   return (
     <motion.div
       ref={ref}
@@ -107,7 +103,7 @@ function MobileCard({ event, dir }) {
       animate={inView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: dir.x, y: dir.y }}
       transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
       className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden
-                 hover:border-gold-200 transition-colors duration-300"
+                 hover:border-gold-200 hover:shadow-hover transition-colors duration-300"
     >
       <CardContent event={event} />
     </motion.div>
@@ -116,10 +112,10 @@ function MobileCard({ event, dir }) {
 
 /* ── Page-level data ─────────────────────────────────────────────────────── */
 const glanceStats = [
-  { end: 42,  start: 0, suffix: '+', label: 'Years of Operation' },
-  { end: 6,   start: 0, suffix: '',  label: 'Group Companies'    },
-  { end: 500, start: 0, suffix: '+', label: 'People Employed'    },
-  { end: 20,  start: 0, suffix: '+', label: 'Countries Reached'  },
+  { end: 1982, start: 1974, suffix: '',  label: 'Year Founded'        },
+  { end: 42,   start: 0,    suffix: '+', label: 'Years of Excellence' },
+  { end: 6,    start: 0,    suffix: '',  label: 'Group Companies'     },
+  { end: 4,    start: 0,    suffix: '',  label: 'Continents Served'   },
 ]
 
 const differentiators = [
@@ -131,12 +127,12 @@ const differentiators = [
   {
     title: 'International Compliance & Quality',
     body:  'We comply with HKC standards, phytosanitary requirements, SGS inspections, and all relevant international trade regulations. Our quality control processes are documented and auditable.',
-    img:   '/images/ship-breaking/scrap-yard-1.jpeg',
+    img:   '/images/products/exports/mill-scale/mill-1.jpeg',
   },
   {
     title: 'Full-Service Logistics Support',
     body:  'From Letter of Credit to final delivery, we handle all documentation, third-party inspections, customs clearance, and logistics coordination — offering complete peace of mind.',
-    img:   '/images/shipping/vessel-1.jpeg',
+    img:   '/images/products/imports/aggregate/aggregate-3.jpeg',
   },
 ]
 
@@ -149,12 +145,20 @@ const principleLinks = [
     tag:   '01',
   },
   {
-    label: 'Core Values',
+    label: 'Our Core Values',
     sub:   'The principles we live by — not just talk about.',
     href:  '/core-values',
     img:   '/images/shipping/harmonia-arrival.jpeg',
     tag:   '02',
   },
+]
+
+const CHAIRMAN_PARAS = [
+  'As Chairman, it gives me great pleasure to witness how far we have come in our journey — from humble beginnings on the shores of Chittagong to a diversified conglomerate with strong foundations in ship recycling, international commodity trading, energy, fisheries, and more.',
+  'At East Queen Group, our mission is clear: to deliver quality, reliability, and integrity across every sector we operate in. Through companies like Ariko International, we have established a significant presence in the export of mill scale, zinc ash, PET flakes, and fresh agricultural produce, as well as the import of aggregate, coal, steel scrap, and industrial raw materials.',
+  'Our long-standing business relationships across Asia, the Middle East, and Europe reflect our global outlook and trustworthy reputation. Our success is driven by the trust of our partners, the hard work of our people, and our unwavering values — honesty, innovation, and sustainability.',
+  'As industries evolve, we remain committed to adapting through modern logistics and environmentally conscious practices that ensure long-term growth. This is more than a business — it is a legacy we are proud to grow.',
+  'I invite you to explore our companies, connect with our team, and partner with us as we continue building a story of strength and excellence through East Queen Group.',
 ]
 
 /* ── Page ────────────────────────────────────────────────────────────────── */
@@ -166,9 +170,9 @@ export default function About({ chairman, timeline = timelineEvents }) {
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
       <PageHero
         title="About East Queen Group"
-        subtitle="Four decades of industrial excellence — from a single ship-breaking yard to a diversified conglomerate serving global markets."
-        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'About' }]}
-        image="/images/ship-breaking/yard-wide-1.jpeg"
+        subtitle="Four decades of industrial excellence, ethical trade, and sustainable growth — proudly rooted in Chittagong since 1982."
+        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'About Us' }]}
+        image="/images/shipping/tristar-prosperity.jpeg"
       />
 
       {/* ── Company Overview ─────────────────────────────────────────────── */}
@@ -179,7 +183,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
 
         <div className="section-container relative">
 
-          {/* Eyebrow + heading */}
+          {/* Eyebrow + title fall from top */}
           <motion.div
             variants={staggerSlow}
             initial="hidden"
@@ -197,19 +201,19 @@ export default function About({ chairman, timeline = timelineEvents }) {
               variants={fadeDown}
               className="font-playfair font-bold text-h1 text-slate-900 leading-tight"
             >
-              Built on the Shores of<br />
-              <span className="text-gradient-gold">Chittagong</span>
+              One of Bangladesh's Leading &<br />
+              <span className="text-gradient-gold">Most Trusted Conglomerates</span>
             </motion.h2>
           </motion.div>
 
-          {/* Body paragraphs — word-by-word spring rain */}
+          {/* Body paragraphs — word-by-word rain */}
           <div className="max-w-3xl mb-10 sm:mb-16 space-y-4">
             <RainText
-              text="East Queen Group was founded in 1982 by a visionary entrepreneur who saw the potential in Bangladesh's strategic maritime location. Starting with ship-breaking operations on the Chittagong coast, the Group has steadily expanded into a six-company conglomerate spanning maritime, trading, energy, fisheries, construction materials, and food sectors."
+              text="East Queen Group is one of Bangladesh's most respected industrial conglomerates, proudly rooted in Chittagong since 1982. With over four decades of experience, we have established ourselves as pioneers in multiple sectors — including ship recycling, international trade, energy, fisheries, construction materials, and food industries."
               className="text-slate-600 text-lg leading-relaxed"
             />
             <RainText
-              text="Today, East Queen Group operates across Bangladesh and serves international markets in Asia, the Middle East, and Europe — guided by the same values of integrity, quality, and community that defined the company's earliest days."
+              text="Founded by a visionary entrepreneur, East Queen Group has grown through resilience, integrity, and strategic foresight. Today we are known not only for being one of Bangladesh's most established ship recyclers but also for our dynamic expansion into new industries and global markets."
               className="text-slate-600 leading-relaxed"
             />
           </div>
@@ -241,17 +245,20 @@ export default function About({ chairman, timeline = timelineEvents }) {
                                flex items-center justify-center mb-6
                                group-hover:bg-gold-500 group-hover:border-gold-500
                                transition-all duration-300 shadow-sm">
-                  <Eye
-                    size={22}
-                    className="text-gold-500 group-hover:text-white group-hover:scale-110 transition-all duration-300"
-                  />
+                  <Eye size={22} className="text-gold-500 group-hover:text-white group-hover:scale-110 transition-all duration-300" />
                 </div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gold-500 mb-2">Our Vision</p>
                 <div className="h-[1.5px] w-7 bg-gold-300 rounded-full mb-6
                                 group-hover:w-16 group-hover:bg-gold-500 transition-all duration-500" />
-                <h3 className="font-playfair font-bold text-slate-900 text-[1.35rem] leading-snug mb-5">
+                <motion.h3
+                  initial={{ opacity: 0, y: -48 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '0px 0px -30px 0px' }}
+                  transition={{ type: 'spring', stiffness: 460, damping: 26 }}
+                  className="font-playfair font-bold text-slate-900 text-[1.35rem] leading-snug mb-5"
+                >
                   Leading Bangladesh's<br />Industrial Transformation
-                </h3>
+                </motion.h3>
                 <RainText
                   text="To lead Bangladesh's industrial transformation by delivering excellence, fostering innovation, and building global partnerships that create value for generations."
                   className="text-slate-500 leading-relaxed text-[0.9rem]"
@@ -283,17 +290,20 @@ export default function About({ chairman, timeline = timelineEvents }) {
                                flex items-center justify-center mb-6
                                group-hover:bg-gold-500 group-hover:border-gold-500
                                transition-all duration-300 shadow-sm">
-                  <Target
-                    size={22}
-                    className="text-gold-500 group-hover:text-white group-hover:scale-110 transition-all duration-300"
-                  />
+                  <Target size={22} className="text-gold-500 group-hover:text-white group-hover:scale-110 transition-all duration-300" />
                 </div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gold-500 mb-2">Our Mission</p>
                 <div className="h-[1.5px] w-7 bg-gold-300 rounded-full mb-6
                                 group-hover:w-16 group-hover:bg-gold-500 transition-all duration-500" />
-                <h3 className="font-playfair font-bold text-slate-900 text-[1.35rem] leading-snug mb-5">
+                <motion.h3
+                  initial={{ opacity: 0, y: -48 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '0px 0px -30px 0px' }}
+                  transition={{ type: 'spring', stiffness: 460, damping: 26 }}
+                  className="font-playfair font-bold text-slate-900 text-[1.35rem] leading-snug mb-5"
+                >
                   A National &<br />International Benchmark
-                </h3>
+                </motion.h3>
                 <RainText
                   text="To be recognized as a national and international benchmark in exporting, importing, manufacturing, and infrastructure development — through consistent performance, transparency, and customer satisfaction."
                   className="text-slate-500 leading-relaxed text-[0.9rem]"
@@ -302,7 +312,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
             </motion.div>
           </div>
 
-          {/* Our Spirit — full-width dark card */}
+          {/* Our Spirit — full-width dark card, slides from left */}
           <motion.div
             initial={{ opacity: 0, x: -110 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -319,6 +329,8 @@ export default function About({ chairman, timeline = timelineEvents }) {
                             bg-gold-500/10 blur-3xl pointer-events-none" />
             <div className="absolute -bottom-10 -right-10 w-44 h-44 rounded-full
                             border border-white/[0.04] pointer-events-none" />
+            <div className="absolute -bottom-18 -right-18 w-64 h-64 rounded-full
+                            border border-white/[0.025] pointer-events-none" />
 
             <div className="relative flex flex-col sm:flex-row items-center gap-8 p-8 md:p-12">
               <div className="shrink-0 relative">
@@ -353,16 +365,116 @@ export default function About({ chairman, timeline = timelineEvents }) {
         </div>
       </section>
 
-      {/* ── Chairman's Message ──────────────────────────────────────────── */}
-      <ChairmanMessage chairman={chairman} />
+      {/* ── Chairman's Message ───────────────────────────────────────────────── */}
+      <section id="chairman_message" className="section-padding bg-slate-50 relative overflow-hidden">
+        <div className="absolute inset-0 bg-dots-pattern pointer-events-none" />
+        <div className="section-container relative">
+          <div className="grid lg:grid-cols-[280px_1fr] gap-8 lg:gap-12 xl:gap-20 items-start">
 
-      {/* ── At A Glance ──────────────────────────────────────────────────── */}
+            {/* Portrait — sticky on desktop */}
+            <motion.div
+              variants={fadeLeft}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-80px' }}
+              className="lg:sticky lg:top-28"
+            >
+              <div className="relative rounded-2xl overflow-hidden shadow-deep border border-gold-500/15">
+                <img
+                  src="/images/team/chairman.jpeg"
+                  alt="Chairman of East Queen Group"
+                  className="w-full aspect-[3/4] object-cover object-top"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="absolute top-0 left-0 right-0 h-[3px] bg-gold-500" />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t
+                                from-navy-900 via-navy-900/80 to-transparent px-6 pt-12 pb-5">
+                  <p className="font-playfair font-bold text-white text-lg leading-snug">
+                    Md. Shahrear Islam
+                  </p>
+                  <p className="text-gold-500 text-sm font-semibold tracking-wide mt-1">
+                    Chairman &amp; Managing Director
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Message column */}
+            <div>
+              <motion.div
+                variants={staggerSlow}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-80px' }}
+              >
+                <motion.div variants={fadeDown} className="flex items-center gap-3 mb-4">
+                  <div className="gold-rule" />
+                  <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">
+                    Chairman's Message
+                  </span>
+                </motion.div>
+
+                <motion.h2
+                  variants={fadeDown}
+                  className="font-playfair font-bold text-h2 text-slate-900 mb-8"
+                >
+                  A Word From Our Chairman
+                </motion.h2>
+
+                <motion.div variants={fadeDown} className="relative mb-8">
+                  <span className="absolute -top-6 -left-2 text-[7rem] leading-none text-gold-500/10
+                                   font-playfair font-bold select-none pointer-events-none">
+                    "
+                  </span>
+                  <p className="font-playfair italic text-slate-700 text-xl leading-relaxed
+                                pl-5 border-l-4 border-gold-500 relative">
+                    Welcome to East Queen Group.
+                  </p>
+                </motion.div>
+              </motion.div>
+
+              <div className="space-y-5">
+                {CHAIRMAN_PARAS.map((para, i) => (
+                  <RainText
+                    key={i}
+                    text={para}
+                    className="text-slate-600 leading-loose"
+                    stagger={0.032}
+                  />
+                ))}
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: -16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="mt-10 pt-7 border-t border-slate-200"
+              >
+                <p className="text-slate-500 text-sm mb-1">Warm regards,</p>
+                <p className="font-playfair font-bold text-slate-900 text-xl leading-tight">
+                  Md. Shahrear Islam
+                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="gold-rule" style={{ width: '1.5rem' }} />
+                  <p className="text-gold-500 text-sm font-semibold tracking-wide">
+                    Chairman &amp; Managing Director, East Queen Group
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── At A Glance ──────────────────────────────────────────────────────── */}
       <section className="section-padding bg-white relative overflow-hidden">
         <div className="absolute inset-0 bg-light-grid pointer-events-none opacity-60" />
         <div className="section-container relative">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 xl:gap-24 items-center">
 
-            {/* Left — heading + CountUp stat cards */}
+            {/* Left — text from above */}
             <motion.div
               variants={staggerSlow}
               initial="hidden"
@@ -380,10 +492,10 @@ export default function About({ chairman, timeline = timelineEvents }) {
                 className="font-playfair font-bold text-h1 text-slate-900 leading-tight mb-6"
               >
                 A Legacy Built on<br />
-                <span className="text-gradient-gold">Trust & Trade</span>
+                <span className="text-gradient-gold">Trust &amp; Trade</span>
               </motion.h2>
               <RainText
-                text="East Queen Group is one of Bangladesh's leading diversified conglomerates, spanning ship-breaking, international commodity trading, energy distribution, agri-business, and more. Since 1982, we have connected Bangladesh's industrial strength with global demand across multiple continents."
+                text="East Queen Group is one of Bangladesh's leading diversified conglomerates, spanning ship-breaking, international commodity trading, energy distribution, agri-business, and more. Since 1982, we have connected Bangladesh's industrial strength with global demand across four continents."
                 className="text-slate-600 text-lg leading-relaxed"
                 stagger={0.036}
               />
@@ -402,15 +514,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
                   >
                     <p className="font-mono font-black text-3xl text-slate-900 leading-none mb-1">
                       {statsInView
-                        ? (
-                          <CountUp
-                            start={s.start}
-                            end={s.end}
-                            duration={2.2}
-                            delay={0.2 + i * 0.1}
-                            separator=","
-                          />
-                        )
+                        ? <CountUp start={s.start} end={s.end} duration={2.2} delay={0.2 + i * 0.1} separator="," />
                         : String(s.start)
                       }
                       <span className="text-gold-500">{s.suffix}</span>
@@ -421,7 +525,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
               </div>
             </motion.div>
 
-            {/* Right — image with floating stat badges */}
+            {/* Right — image */}
             <motion.div
               variants={scaleIn}
               initial="hidden"
@@ -454,7 +558,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.65, duration: 0.4, type: 'spring', stiffness: 300 }}
                   viewport={{ once: true }}
-                  className="absolute top-4 right-4 bg-gold-500 rounded-xl px-4 py-3"
+                  className="absolute top-4 right-4 bg-gold-500 rounded-xl px-4 py-3 shadow-gold-glow"
                 >
                   <p className="font-mono font-black text-white text-2xl leading-none">42+</p>
                   <p className="text-white/80 text-[10px] font-semibold uppercase tracking-wider mt-0.5">
@@ -467,7 +571,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
         </div>
       </section>
 
-      {/* ── Explore Our Principles ───────────────────────────────────────── */}
+      {/* ── Explore Our Principles ───────────────────────────────────────────── */}
       <section className="section-padding bg-slate-50">
         <div className="section-container">
           <motion.div
@@ -483,7 +587,10 @@ export default function About({ chairman, timeline = timelineEvents }) {
                 Our Principles
               </span>
             </motion.div>
-            <motion.h2 variants={fadeDown} className="font-playfair font-bold text-h2 text-slate-900">
+            <motion.h2
+              variants={fadeDown}
+              className="font-playfair font-bold text-h2 text-slate-900"
+            >
               What We Believe In
             </motion.h2>
           </motion.div>
@@ -500,8 +607,8 @@ export default function About({ chairman, timeline = timelineEvents }) {
               >
                 <Link
                   href={href}
-                  className="group relative flex h-72 rounded-2xl overflow-hidden
-                             shadow-card hover:shadow-hover transition-shadow duration-300 block"
+                  className="group relative flex h-72 rounded-2xl overflow-hidden shadow-card
+                             hover:shadow-hover transition-shadow duration-300 block"
                 >
                   <img
                     src={img}
@@ -512,7 +619,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
                   <div className="absolute inset-0 bg-gradient-to-t
                                  from-navy-950/95 via-navy-900/60 to-navy-900/20
                                  group-hover:from-navy-950 transition-all duration-500" />
-                  <div className="absolute top-5 left-5 bg-gold-500 rounded-lg px-3 py-1.5">
+                  <div className="absolute top-5 left-5 bg-gold-500 rounded-lg px-3 py-1.5 shadow-gold-glow">
                     <span className="font-mono font-black text-white text-xs">{tag}</span>
                   </div>
                   <div className="absolute inset-0 flex flex-col justify-end p-7">
@@ -533,7 +640,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
         </div>
       </section>
 
-      {/* ── Our Journey (Timeline) ───────────────────────────────────────── */}
+      {/* ── Our Journey (Timeline) ───────────────────────────────────────────── */}
       <section id="timeline" className="section-padding bg-slate-50 relative overflow-hidden">
         <div className="absolute inset-0 bg-dots-pattern pointer-events-none" />
         <div className="absolute top-0 left-0 right-0 h-[3px]
@@ -550,7 +657,6 @@ export default function About({ chairman, timeline = timelineEvents }) {
 
           {/* Desktop alternating timeline */}
           <div className="relative hidden lg:block">
-            {/* Animated spine growing from top */}
             <motion.div
               initial={{ scaleY: 0 }}
               whileInView={{ scaleY: 1 }}
@@ -563,13 +669,12 @@ export default function About({ chairman, timeline = timelineEvents }) {
 
             {timeline.map((event, i) => {
               const isLeft = i % 2 === 0
-              const dir    = CARD_DIRS[i] ?? { x: 0, y: 0 }
+              const dir    = CARD_DIRS[i % CARD_DIRS.length]
               return (
                 <div
                   key={event.year}
                   className="relative grid grid-cols-2 items-center mb-10 last:mb-0"
                 >
-                  {/* Left column */}
                   <div className="pr-12 flex justify-end">
                     {isLeft
                       ? <DesktopCard event={event} dir={dir} />
@@ -592,8 +697,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
                     }
                   </div>
 
-                  {/* Center pulsing dot */}
-                  <div className="absolute left-1/2 -translate-x-1/2 z-10">
+                  <div className="absolute left-1/2 -translate-x-1/2 z-10 flex items-center justify-center">
                     <motion.div
                       initial={{ scale: 0, opacity: 0 }}
                       whileInView={{ scale: 1, opacity: 1 }}
@@ -610,7 +714,6 @@ export default function About({ chairman, timeline = timelineEvents }) {
                     </motion.div>
                   </div>
 
-                  {/* Right column */}
                   <div className="pl-12 flex justify-start">
                     {!isLeft
                       ? <DesktopCard event={event} dir={dir} />
@@ -650,7 +753,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
             />
             <div className="space-y-5 pl-14">
               {timeline.map((event, i) => {
-                const dir = CARD_DIRS[i] ?? { x: 0, y: 0 }
+                const dir = CARD_DIRS[i % CARD_DIRS.length]
                 return (
                   <div key={event.year} className="relative">
                     <div className="absolute -left-[38px] top-5 z-10">
@@ -678,7 +781,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
         </div>
       </section>
 
-      {/* ── What Sets Us Apart ──────────────────────────────────────────── */}
+      {/* ── What Sets Us Apart ───────────────────────────────────────────────── */}
       <section className="section-padding bg-white">
         <div className="section-container">
           <SectionHeader
