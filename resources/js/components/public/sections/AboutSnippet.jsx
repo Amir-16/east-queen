@@ -7,7 +7,7 @@ import CountUp from 'react-countup'
 const imageGrid = [
   { src: '/images/shipping/bbg-master-night.jpeg',           alt: 'BBG Master vessel at night',    span: 'row-span-2' },
   { src: '/images/products/exports/mill-scale/mill-1.jpeg', alt: 'Mill scale operations',          span: '' },
-  { src: '/images/companies/syedpur/farm-1.jpeg',           alt: 'Syedpur farm and fisheries',     span: '' },
+  { src: '/images/companies/syedpur/pond-1.jpeg',           alt: 'Syedpur fisheries pond',         span: '' },
   { src: '/images/ship-breaking/yard-wide-1.jpeg',          alt: 'Ship-breaking yard panorama',    span: 'col-span-2' },
 ]
 
