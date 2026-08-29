@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react'
 import { toast } from 'sonner'
-import { router } from '@inertiajs/react'
+import { Head, router } from '@inertiajs/react'
 import { pageTransition, stagger, fadeUp, fadeLeft, fadeRight } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
 import { CONTACT } from '@/lib/constants'
@@ -44,6 +44,7 @@ export default function Contact({ contact = CONTACT }) {
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+      <Head title="Contact Us | East Queen Group" />
       <PageHero
         title="Contact Us"
         subtitle="We'd love to hear from you. Reach out for export, import, partnership, or general inquiries."
@@ -167,6 +168,17 @@ export default function Contact({ contact = CONTACT }) {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Staff Webmail */}
+              <div className="bg-slate-50 border border-slate-100 rounded-xl p-5 text-center">
+                <p className="text-slate-500 text-xs mb-2">Staff access</p>
+                <a
+                  href="mailto:contact@eastqueengroup.com"
+                  className="text-gold-500 hover:text-gold-600 text-sm font-semibold transition-colors"
+                >
+                  Staff Webmail Login →
+                </a>
               </div>
             </motion.div>
           </div>

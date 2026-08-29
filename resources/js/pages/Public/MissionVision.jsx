@@ -1,32 +1,34 @@
 import { motion } from 'framer-motion'
-import { pageTransition, stagger, fadeUp, fadeLeft, fadeRight } from '@/lib/motion'
+import { pageTransition, staggerSlow, fadeDown, scaleIn } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
 
-const PILLARS = [
+const pillars = [
   {
-    tag:   'Mission',
-    title: 'Why We Exist',
-    body:  "To build enduring business relationships by delivering industrial excellence, reliable trade solutions, and sustainable practices — creating real value for our clients, employees, and the communities we serve across Bangladesh and global markets.",
-    image: '/images/ship-breaking/workers-2.jpeg',
-    bg:    'bg-navy-950',
-    text:  'text-white',
+    num: '01',
+    label: 'Mission',
+    heading: 'Excellence Through Integrity',
+    body: 'Delivering industrial excellence through ethical, reliable trade and service that creates lasting value for clients, employees, and communities.',
+    detail:
+      'Every shipment, contract, and handshake is guided by the same commitment: to do what we say, deliver what we promise, and stand behind our work unconditionally. This commitment has defined us since 1982.',
+    img: '/images/shipping/tristar-prosperity.jpeg',
   },
   {
-    tag:   'Vision',
-    title: 'Where We Are Going',
-    body:  "To become the most trusted and diversified industrial conglomerate in South Asia — expanding our ship recycling, energy, export, and food businesses while upholding the highest standards of environmental responsibility and corporate governance.",
-    image: '/images/ship-breaking/coastal-view.jpeg',
-    bg:    'bg-slate-50',
-    text:  'text-navy-900',
-    reverse: true,
+    num: '02',
+    label: 'Vision',
+    heading: 'The Most Trusted Conglomerate in South Asia',
+    body: 'To be the most trusted diversified conglomerate in South Asian markets, setting standards in quality, compliance, and international partnership.',
+    detail:
+      'We envision a future where East Queen Group is synonymous with reliability — a partner of choice for businesses from Chittagong to Chicago, Tokyo to London. Every decision we make today is a step toward that future.',
+    img: '/images/shipping/vessel-1.jpeg',
   },
   {
-    tag:   'Purpose',
-    title: 'What Drives Us',
-    body:  "We believe that business growth and community uplift are inseparable. Every ship we recycle creates hundreds of livelihoods. Every ton of produce we export carries Bangladesh's agricultural potential to the world. Every gallon of gas we distribute powers homes and factories. That ripple effect — from Chittagong to the globe — is our purpose.",
-    image: '/images/ship-breaking/yard-wide-1.jpeg',
-    bg:    'bg-navy-900',
-    text:  'text-white',
+    num: '03',
+    label: 'Purpose',
+    heading: "Connecting Bangladesh to the World",
+    body: "To connect Bangladesh's industrial strength with global demand — driving economic growth while upholding the highest standards of integrity.",
+    detail:
+      "Bangladesh has enormous industrial potential. Our purpose is to be the bridge — creating pathways for this strength to reach global markets and returning tangible value to the communities that power our operations.",
+    img: '/images/products/exports/mill-scale/mill-1.jpeg',
   },
 ]
 
@@ -35,43 +37,140 @@ export default function MissionVision() {
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
       <PageHero
         title="Mission, Vision & Purpose"
-        subtitle="The strategic direction and long-term commitments that guide everything we do."
-        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'About', href: '/about' }, { label: 'Mission & Vision' }]}
-        image="/images/ship-breaking/yard-wide-1.jpeg"
+        subtitle="The three pillars that define who we are, where we are going, and why it matters."
+        breadcrumbs={[
+          { label: 'Home', href: '/' },
+          { label: 'About Us', href: '/about-east-queen' },
+          { label: 'Mission & Vision' },
+        ]}
+        image="/images/shipping/vessel-1.jpeg"
       />
 
-      {PILLARS.map(({ tag, title, body, image, bg, text, reverse }, i) => (
-        <section key={tag} className={`${bg} section-padding overflow-hidden`}>
-          <div className="section-container">
-            <div className={`grid lg:grid-cols-2 gap-12 items-center ${reverse ? 'lg:grid-flow-col-dense' : ''}`}>
-              <motion.div
-                variants={reverse ? fadeRight : fadeLeft}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-60px' }}
-                className={reverse ? 'lg:col-start-2' : ''}
-              >
-                <p className={`text-[11px] font-bold uppercase tracking-[0.35em] mb-3 ${i === 1 ? 'text-gold-500' : 'text-gold-400'}`}>{tag}</p>
-                <div className="h-[2px] w-10 bg-gold-500 rounded-full mb-6" />
-                <h2 className={`font-playfair font-bold text-h2 mb-6 ${text}`}>{title}</h2>
-                <p className={`leading-relaxed text-body-lg ${i === 1 ? 'text-slate-600' : 'text-white/60'}`}>{body}</p>
-              </motion.div>
+      {pillars.map(({ num, label, heading, body, detail, img }, i) => {
+        const isEven = i % 2 === 0
+        return (
+          <section
+            key={label}
+            className={`section-padding relative overflow-hidden ${isEven ? 'bg-white' : 'bg-slate-50'}`}
+          >
+            {isEven && (
+              <div className="absolute inset-0 bg-light-grid pointer-events-none opacity-50" />
+            )}
 
-              <motion.div
-                variants={reverse ? fadeLeft : fadeRight}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-60px' }}
-                className={reverse ? 'lg:col-start-1 lg:row-start-1' : ''}
+            <div className="section-container relative">
+              <div
+                className={`grid lg:grid-cols-2 gap-8 lg:gap-14 xl:gap-24 items-center ${
+                  !isEven ? 'lg:[&>*:first-child]:order-2' : ''
+                }`}
               >
-                <div className="rounded-2xl overflow-hidden aspect-[4/3] shadow-deep">
-                  <img src={image} alt={tag} className="w-full h-full object-cover" />
-                </div>
-              </motion.div>
+                {/* Image */}
+                <motion.div
+                  variants={scaleIn}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: '-80px' }}
+                  className="relative"
+                >
+                  <div className="relative rounded-2xl overflow-hidden shadow-hover">
+                    <img
+                      src={img}
+                      alt={label}
+                      className="w-full aspect-[4/3] object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-navy-900/30 to-transparent" />
+
+                    <div className="absolute top-5 left-5 bg-gold-500 rounded-xl px-4 py-3 shadow-gold-glow">
+                      <p className="font-mono font-black text-white text-xl leading-none">{num}</p>
+                    </div>
+
+                    <div className="absolute bottom-5 right-5 bg-white/10 backdrop-blur-sm
+                                    border border-white/20 rounded-lg px-4 py-2">
+                      <p className="text-white text-xs font-semibold uppercase tracking-widest">{label}</p>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Text */}
+                <motion.div
+                  variants={staggerSlow}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: '-80px' }}
+                >
+                  <motion.div variants={fadeDown} className="flex items-center gap-3 mb-5">
+                    <div className="gold-rule" />
+                    <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">
+                      {num} · {label}
+                    </span>
+                  </motion.div>
+
+                  <motion.h2
+                    variants={fadeDown}
+                    className="font-playfair font-bold text-h1 text-slate-900 leading-tight mb-6"
+                  >
+                    {heading}
+                  </motion.h2>
+
+                  <motion.p variants={fadeDown} className="text-slate-600 text-lg leading-relaxed mb-5">
+                    {body}
+                  </motion.p>
+
+                  <motion.p variants={fadeDown} className="text-slate-500 leading-relaxed">
+                    {detail}
+                  </motion.p>
+
+                  <motion.div variants={fadeDown} className="mt-8 pt-6 border-t border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <div className="gold-rule" />
+                      <span className="text-slate-400 text-sm">East Queen Group · Since 1982</span>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              </div>
             </div>
-          </div>
-        </section>
-      ))}
+          </section>
+        )
+      })}
+
+      {/* Bottom dark accent bar */}
+      <section className="py-20 bg-navy-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-60 pointer-events-none" />
+        <div className="absolute top-0 left-0 right-0 h-[3px]
+                        bg-gradient-to-r from-transparent via-gold-500 to-transparent" />
+        <div className="section-container relative">
+          <motion.div
+            variants={staggerSlow}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+            className="max-w-2xl mx-auto text-center"
+          >
+            <motion.span
+              variants={fadeDown}
+              className="block font-playfair font-black text-[6rem] leading-none
+                         text-gold-500/15 select-none -mb-4"
+            >
+              "
+            </motion.span>
+            <motion.p
+              variants={fadeDown}
+              className="font-playfair italic text-white/75 text-xl sm:text-2xl leading-relaxed mb-8"
+            >
+              These are not aspirational statements — they are the principles
+              we have lived by for over four decades.
+            </motion.p>
+            <motion.div variants={fadeDown} className="flex flex-col items-center gap-2">
+              <div className="gold-rule" />
+              <p className="text-gold-500 text-sm font-semibold uppercase tracking-wider mt-3">
+                A K M Abu Taher BSc.
+              </p>
+              <p className="text-white/40 text-xs uppercase tracking-widest">
+                Chairman, East Queen Group
+              </p>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
     </motion.div>
   )
 }

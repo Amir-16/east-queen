@@ -1,13 +1,30 @@
-import { motion } from 'framer-motion'
-import { Link } from '@inertiajs/react'
-import { ArrowRight, ExternalLink } from 'lucide-react'
-import { pageTransition, stagger, fadeUp } from '@/lib/motion'
+import { useState } from 'react'
+import { Head } from '@inertiajs/react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { pageTransition } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
+import SectionHeader from '@/components/public/ui/SectionHeader'
+import CompanyCard from '@/components/public/cards/CompanyCard'
 import { companies as defaultCompanies } from '@/data/companies'
 
+const FILTERS = [
+  { label: 'All',          value: 'all'          },
+  { label: 'Shipping',     value: 'shipping'     },
+  { label: 'Energy',       value: 'energy'       },
+  { label: 'Fisheries',    value: 'fisheries'    },
+  { label: 'Food',         value: 'food'         },
+  { label: 'Construction', value: 'construction' },
+  { label: 'Trading',      value: 'trading'      },
+]
+
 export default function Companies({ companies = defaultCompanies }) {
+  const [active, setActive] = useState('all')
+
+  const filtered = active === 'all' ? companies : companies.filter((c) => c.industry === active)
+
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+      <Head title="Our Companies | East Queen Group" />
       <PageHero
         title="Our Companies"
         subtitle="Six specialised entities working together across Bangladesh's industrial, trading, and maritime landscape."
@@ -17,67 +34,55 @@ export default function Companies({ companies = defaultCompanies }) {
 
       <section className="section-padding bg-slate-50">
         <div className="section-container">
-          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mb-12">
-            <motion.p variants={fadeUp} className="text-gold-500 text-[11px] font-bold uppercase tracking-[0.35em] mb-3">Group Members</motion.p>
-            <motion.div variants={fadeUp} className="h-[2px] w-10 bg-gold-500 rounded-full mb-5" />
-            <motion.h2 variants={fadeUp} className="font-playfair font-bold text-h2 text-navy-900">The East Queen Group</motion.h2>
-          </motion.div>
+          <SectionHeader
+            eyebrow="Our Portfolio"
+            title="Six Companies. One Vision."
+            subtitle="From maritime operations to agricultural exports, our portfolio spans the most strategic sectors of industrial Bangladesh."
+            align="center"
+            className="mb-12"
+          />
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {companies.map((company, i) => (
-              <motion.div
-                key={company.id}
-                initial={{ opacity: 0, y: 32 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.07, duration: 0.5 }}
-                className="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-navy-300 hover:shadow-hover transition-all duration-300"
+          {/* Filter bar */}
+          <div className="flex flex-wrap justify-center gap-2 mb-12">
+            {FILTERS.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setActive(f.value)}
+                className={`relative px-5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  active === f.value
+                    ? 'text-white shadow-card'
+                    : 'bg-white text-slate-600 hover:text-navy-900 border border-slate-200 hover:border-navy-900/30'
+                }`}
               >
-                {/* Cover image */}
-                <div className="relative h-44 overflow-hidden">
-                  <img
-                    src={company.coverImage}
-                    alt={company.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                {active === f.value && (
+                  <motion.span
+                    layoutId="filter-active"
+                    className="absolute inset-0 bg-navy-900 rounded-xl"
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 to-transparent" />
-                  {company.logo && (
-                    <div className="absolute bottom-4 left-5 w-10 h-10 rounded-xl overflow-hidden bg-white shadow-card">
-                      <img src={company.logo} alt={company.name + ' logo'} className="w-full h-full object-contain p-1.5" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-6">
-                  <p className="text-[10px] text-gold-500 uppercase tracking-widest font-semibold mb-1.5">{company.industry}</p>
-                  <h3 className="font-playfair font-bold text-xl text-navy-900 mb-2 group-hover:text-navy-700 transition-colors">{company.name}</h3>
-                  <p className="text-slate-500 text-sm leading-relaxed mb-5 line-clamp-3">{company.description}</p>
-
-                  {company.services?.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-5">
-                      {company.services.slice(0, 3).map((s) => (
-                        <span key={s} className="px-2.5 py-1 bg-slate-100 text-slate-600 text-[10px] rounded-full font-medium">{s}</span>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <Link
-                      href={`/companies/${company.id}`}
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-navy-900 hover:text-gold-500 transition-colors"
-                    >
-                      View Details <ArrowRight size={14} />
-                    </Link>
-                    {company.website && (
-                      <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-navy-700 transition-colors">
-                        <ExternalLink size={14} />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
+                )}
+                <span className="relative">{f.label}</span>
+              </button>
             ))}
           </div>
+
+          {/* Companies grid */}
+          <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatePresence mode="popLayout">
+              {filtered.map((company) => (
+                <motion.div
+                  key={company.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.92 }}
+                  transition={{ duration: 0.28 }}
+                >
+                  <CompanyCard company={company} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </section>
     </motion.div>

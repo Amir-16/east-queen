@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Associate;
+use App\Models\Company;
 use App\Models\Contact;
-use App\Models\Project;
 use App\Models\Stat;
-use App\Models\TeamContact;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,9 +16,9 @@ class DashboardController extends Controller
     {
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
-                'projects'      => Project::active()->count(),
+                'companies'     => Company::active()->count(),
                 'stats'         => Stat::count(),
-                'teamContacts'  => TeamContact::active()->count(),
+                'associates'    => Associate::active()->count(),
                 'newContacts'   => Contact::where('status', 'new')->count(),
                 'totalContacts' => Contact::count(),
             ],

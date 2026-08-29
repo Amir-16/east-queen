@@ -1,100 +1,86 @@
 import { Link, router, usePage } from '@inertiajs/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
 import {
   HomeIcon,
-  FolderOpenIcon,
-  UserGroupIcon,
-  ChatBubbleLeftEllipsisIcon,
-  Cog6ToothIcon,
-  ChartBarSquareIcon,
-  ArrowRightOnRectangleIcon,
-  GlobeAltIcon,
-  ArrowTopRightOnSquareIcon,
-  BanknotesIcon,
-  ClockIcon,
-  CpuChipIcon,
-  PhotoIcon,
-  LinkIcon,
   FilmIcon,
   BuildingOffice2Icon,
   CubeIcon,
+  UserGroupIcon,
   ArrowPathIcon,
   QueueListIcon,
+  ChartBarSquareIcon,
+  ClockIcon,
+  PhotoIcon,
+  ChatBubbleLeftEllipsisIcon,
+  Cog6ToothIcon,
+  ArrowRightOnRectangleIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline'
 
-const DEEP_GREEN  = '#1A3D1A'
-const LIGHT_GREEN = '#EBF4E8'
-const TEXT_DARK   = '#1C2B1C'
-const TEXT_MID    = '#4B6B4B'
-const TEXT_LABEL  = '#8FAF8F'
-
-const NAV_GROUPS = [
+const NAV = [
   {
-    label: 'Overview',
+    group: 'Overview',
     items: [
-      { label: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon },
+      { label: 'Dashboard',     href: '/admin/dashboard',     icon: HomeIcon },
     ],
   },
   {
-    label: 'Content',
+    group: 'Content',
     items: [
-      { label: 'Hero Slides',    href: '/admin/hero-slides',    icon: FilmIcon },
-      { label: 'Companies',      href: '/admin/companies',      icon: BuildingOffice2Icon },
-      { label: 'Products',       href: '/admin/products',       icon: CubeIcon },
-      { label: 'Associates',     href: '/admin/associates',     icon: UserGroupIcon },
-      { label: 'Process Steps',  href: '/admin/process-steps',  icon: ArrowPathIcon },
-      { label: 'Marquee Items',  href: '/admin/marquee',        icon: QueueListIcon },
-      { label: 'Stats',          href: '/admin/stats',          icon: ChartBarSquareIcon },
-      { label: 'Timeline',       href: '/admin/timeline',       icon: ClockIcon },
-      { label: 'Gallery',        href: '/admin/gallery',        icon: PhotoIcon },
+      { label: 'Hero Slides',   href: '/admin/hero-slides',   icon: FilmIcon },
+      { label: 'Companies',     href: '/admin/companies',     icon: BuildingOffice2Icon },
+      { label: 'Products',      href: '/admin/products',      icon: CubeIcon },
+      { label: 'Associates',    href: '/admin/associates',    icon: UserGroupIcon },
+      { label: 'Process Steps', href: '/admin/process-steps', icon: ArrowPathIcon },
+      { label: 'Marquee Items', href: '/admin/marquee',       icon: QueueListIcon },
+      { label: 'Stats',         href: '/admin/stats',         icon: ChartBarSquareIcon },
+      { label: 'Timeline',      href: '/admin/timeline',      icon: ClockIcon },
+      { label: 'Gallery',       href: '/admin/gallery',       icon: PhotoIcon },
     ],
   },
   {
-    label: 'Inbox',
+    group: 'Inbox',
     items: [
-      { label: 'Inquiries', href: '/admin/contacts', icon: ChatBubbleLeftEllipsisIcon, badge: true },
+      { label: 'Inquiries',     href: '/admin/contacts',      icon: ChatBubbleLeftEllipsisIcon, badge: true },
     ],
   },
   {
-    label: 'Configuration',
+    group: 'System',
     items: [
-      { label: 'Settings',    href: '/admin/settings', icon: Cog6ToothIcon },
-      { label: 'Admin Users', href: '/admin/users',    icon: UserGroupIcon },
+      { label: 'Settings',      href: '/admin/settings',      icon: Cog6ToothIcon },
+      { label: 'Admin Users',   href: '/admin/users',         icon: UserGroupIcon },
     ],
   },
 ]
 
-function isActive(currentUrl, href) {
-  const path = currentUrl.split('?')[0]
+function isActive(url, href) {
+  const path = url.split('?')[0]
   return path === href || path.startsWith(href + '/')
 }
 
-function NavItem({ item, currentUrl, unreadCount, onNavigate }) {
+function NavItem({ item, url, unread, onClose }) {
   const Icon   = item.icon
-  const active = isActive(currentUrl, item.href)
+  const active = isActive(url, item.href)
 
   return (
     <Link
       href={item.href}
-      onClick={onNavigate}
-      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150"
+      onClick={onClose}
+      className="group flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 select-none"
       style={active
-        ? { background: DEEP_GREEN, color: '#ffffff', fontWeight: 700, boxShadow: '0 2px 12px rgba(26,61,26,0.25)' }
-        : { color: TEXT_DARK, fontWeight: 500 }
+        ? { background: 'linear-gradient(135deg, #C9A44C 0%, #E8C06B 100%)', color: '#0B1628', fontWeight: 600, boxShadow: '0 2px 10px rgba(201,164,76,0.30)' }
+        : { color: 'rgba(255,255,255,0.55)' }
       }
-      onMouseEnter={e => { if (!active) { e.currentTarget.style.background = LIGHT_GREEN; e.currentTarget.style.color = DEEP_GREEN } }}
-      onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = TEXT_DARK } }}
+      onMouseEnter={e => { if (!active) { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.07)' } }}
+      onMouseLeave={e => { if (!active) { e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; e.currentTarget.style.background = 'transparent' } }}
     >
       <Icon
-        className="w-[18px] h-[18px] flex-shrink-0 transition-colors"
-        style={{ color: active ? '#ffffff' : TEXT_MID }}
+        className="w-[17px] h-[17px] flex-shrink-0 transition-colors"
+        style={{ color: active ? '#0B1628' : 'rgba(255,255,255,0.35)' }}
       />
-      <span className="flex-1 truncate" style={{ fontFamily: 'Inter, sans-serif', letterSpacing: active ? '0.01em' : '0' }}>
-        {item.label}
-      </span>
-      {item.badge && unreadCount > 0 && (
-        <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
-          {unreadCount > 99 ? '99+' : unreadCount}
+      <span className="flex-1 truncate tracking-[0.01em]">{item.label}</span>
+      {item.badge && unread > 0 && (
+        <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+          {unread > 99 ? '99+' : unread}
         </span>
       )}
     </Link>
@@ -107,63 +93,62 @@ export default function AdminSidebar({ open = false, onClose }) {
   return (
     <aside
       className={[
-        // Base — always full height, fixed on mobile, static on desktop
-        'fixed inset-y-0 left-0 z-40 w-64 flex flex-col flex-shrink-0',
+        'fixed inset-y-0 left-0 z-40 w-[242px] flex flex-col flex-shrink-0',
         'transition-transform duration-300 ease-in-out',
-        // Desktop: static in flow, always visible
         'lg:static lg:translate-x-0 lg:z-auto lg:transition-none',
-        // Mobile: slide in/out
         open ? 'translate-x-0' : '-translate-x-full',
       ].join(' ')}
-      style={{ background: '#ffffff', borderRight: '1px solid #E2EBE2' }}
+      style={{ background: 'linear-gradient(180deg, #0B1628 0%, #0E1D36 100%)', borderRight: '1px solid rgba(255,255,255,0.06)' }}
     >
-      {/* Brand */}
+      {/* ── Brand ── */}
       <div
-        className="flex items-center justify-between gap-3 px-5 py-4 flex-shrink-0"
-        style={{ borderBottom: '1px solid #E2EBE2' }}
+        className="flex items-center justify-between gap-3 px-5 h-16 flex-shrink-0"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
       >
         <div className="flex items-center gap-3 min-w-0">
-          <img src="/eq-logo.png" alt="East Queen Group" className="h-9 w-auto flex-shrink-0" />
+          {/* Gold monogram */}
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, #C9A44C 0%, #A07830 100%)', boxShadow: '0 2px 12px rgba(201,164,76,0.35)' }}
+          >
+            <span className="font-black text-[11px] text-navy-950" style={{ fontFamily: 'Inter, sans-serif', color: '#0B1628' }}>
+              EQ
+            </span>
+          </div>
           <div className="min-w-0">
-            <p className="font-bold text-sm leading-tight truncate" style={{ color: TEXT_DARK, fontFamily: 'Plus Jakarta Sans, Inter, sans-serif' }}>
+            <p className="font-bold text-[13px] text-white leading-tight tracking-tight truncate" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               East Queen Group
             </p>
-            <p className="text-xs font-medium" style={{ color: DEEP_GREEN, fontFamily: 'Inter, sans-serif' }}>
+            <p className="text-[10px] font-medium tracking-[0.12em] uppercase" style={{ color: 'rgba(201,164,76,0.65)' }}>
               Admin Panel
             </p>
           </div>
         </div>
 
-        {/* Close button — mobile only */}
         <button
           type="button"
           onClick={onClose}
-          className="lg:hidden p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
+          className="lg:hidden p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors flex-shrink-0"
           aria-label="Close sidebar"
         >
-          <XMarkIcon className="w-5 h-5" />
+          <XMarkIcon className="w-4.5 h-4.5" />
         </button>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
-        {NAV_GROUPS.map((group) => (
-          <div key={group.label}>
+      {/* ── Navigation ── */}
+      <nav className="flex-1 px-3 py-5 space-y-6 overflow-y-auto scrollbar-none">
+        {NAV.map(({ group, items }) => (
+          <div key={group}>
             <p
-              className="px-3 mb-1.5 select-none"
-              style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: TEXT_LABEL, fontFamily: 'Inter, sans-serif' }}
+              className="px-3.5 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] select-none"
+              style={{ color: 'rgba(201,164,76,0.45)' }}
             >
-              {group.label}
+              {group}
             </p>
             <ul className="space-y-0.5">
-              {group.items.map((item) => (
+              {items.map((item) => (
                 <li key={item.href}>
-                  <NavItem
-                    item={item}
-                    currentUrl={url}
-                    unreadCount={unreadContacts}
-                    onNavigate={onClose}
-                  />
+                  <NavItem item={item} url={url} unread={unreadContacts} onClose={onClose} />
                 </li>
               ))}
             </ul>
@@ -171,31 +156,26 @@ export default function AdminSidebar({ open = false, onClose }) {
         ))}
       </nav>
 
-      {/* Bottom actions */}
-      <div className="px-3 py-4 space-y-0.5 flex-shrink-0" style={{ borderTop: '1px solid #E2EBE2' }}>
+      {/* ── Bottom actions ── */}
+      <div className="px-3 py-4 flex-shrink-0 space-y-0.5" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
         <a
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group"
-          style={{ color: TEXT_DARK, fontFamily: 'Inter, sans-serif' }}
-          onMouseEnter={e => { e.currentTarget.style.background = LIGHT_GREEN; e.currentTarget.style.color = DEEP_GREEN }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = TEXT_DARK }}
+          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-white/50 hover:text-white hover:bg-white/[0.07] transition-all duration-150"
         >
-          <GlobeAltIcon className="w-[18px] h-[18px] flex-shrink-0" style={{ color: TEXT_MID }} />
-          <span className="flex-1">View Site</span>
-          <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" style={{ color: TEXT_LABEL }} />
+          <svg className="w-[17px] h-[17px] flex-shrink-0 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          <span>View Website</span>
         </a>
 
         <button
           type="button"
           onClick={() => router.post('/admin/logout')}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group"
-          style={{ color: TEXT_DARK, fontFamily: 'Inter, sans-serif' }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#FEF2F2'; e.currentTarget.style.color = '#DC2626' }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = TEXT_DARK }}
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-white/50 hover:text-red-400 hover:bg-red-500/10 transition-all duration-150"
         >
-          <ArrowRightOnRectangleIcon className="w-[18px] h-[18px] flex-shrink-0" style={{ color: TEXT_MID }} />
+          <ArrowRightOnRectangleIcon className="w-[17px] h-[17px] flex-shrink-0" />
           Sign Out
         </button>
       </div>

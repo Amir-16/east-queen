@@ -1,98 +1,143 @@
-import { motion } from 'framer-motion'
+import { useRef } from 'react'
+import { motion, useInView } from 'framer-motion'
 import { Search, ShieldCheck, Hammer, BarChart3, PackageCheck } from 'lucide-react'
-import { stagger, fadeUp } from '@/lib/motion'
+import { ease, stagger, fadeUp } from '@/lib/motion'
+import SectionHeader from '@/components/public/ui/SectionHeader'
 
-const STEPS = [
-  { icon: Search,       label: 'Source', description: 'Global supplier network and market intelligence' },
-  { icon: ShieldCheck,  label: 'Inspect', description: 'Third-party quality verification at origin' },
-  { icon: Hammer,       label: 'Process', description: 'Value-added processing and preparation' },
-  { icon: BarChart3,    label: 'Trade', description: 'Documentation, financing, and customs clearance' },
-  { icon: PackageCheck, label: 'Deliver', description: 'Last-mile logistics to destination' },
+const steps = [
+  {
+    icon: Search,
+    step: '01',
+    title: 'Acquire',
+    description: 'Source end-of-life vessels from global shipping markets and owners.',
+  },
+  {
+    icon: ShieldCheck,
+    step: '02',
+    title: 'Survey',
+    description: 'Pre-purchase structural inspection, hazardous material audit, and HKC compliance check.',
+  },
+  {
+    icon: Hammer,
+    step: '03',
+    title: 'Recycle',
+    description: 'Safe dismantling at our Sitakunda yard under certified environmental and safety protocols.',
+  },
+  {
+    icon: BarChart3,
+    step: '04',
+    title: 'Process',
+    description: 'Grade and certify re-rollable scrap steel, spare parts, and recovered commodities.',
+  },
+  {
+    icon: PackageCheck,
+    step: '05',
+    title: 'Supply',
+    description: 'Deliver processed steel and materials to mills and industrial buyers across Bangladesh.',
+  },
 ]
 
-export default function ProcessStrip({ steps = STEPS }) {
+export default function ProcessStrip() {
+  const ref    = useRef(null)
+  const inView = useInView(ref, { once: true, margin: '-80px' })
+
   return (
-    <section className="section-padding bg-white">
-      <div className="section-container">
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
-          className="mb-12 text-center"
-        >
-          <motion.p variants={fadeUp} className="text-gold-500 text-[11px] font-bold uppercase tracking-[0.35em] mb-3">
-            How We Work
-          </motion.p>
-          <motion.div variants={fadeUp} className="h-[2px] w-10 bg-gold-500 rounded-full mb-5 mx-auto" />
-          <motion.h2 variants={fadeUp} className="font-playfair font-bold text-h2 text-navy-900">
-            Our Trade Process
-          </motion.h2>
-        </motion.div>
+    <section ref={ref} className="section-padding bg-slate-50 relative overflow-hidden">
+      <div className="absolute inset-0 bg-dots-pattern pointer-events-none opacity-60" />
 
-        {/* Desktop — horizontal */}
-        <div className="hidden md:flex items-start gap-0 relative">
-          {/* Dashed connector line */}
-          <svg
-            className="absolute top-8 left-[10%] right-[10%] w-[80%] h-px pointer-events-none"
-            style={{ zIndex: 0 }}
+      <div className="relative section-container">
+        <SectionHeader
+          eyebrow="How We Operate"
+          title="Ship Recycling, Done Right"
+          subtitle="Our five-stage process ensures every vessel is dismantled safely, sustainably, and in full compliance with international standards."
+          align="center"
+          className="mb-16"
+        />
+
+        {/* Desktop horizontal strip */}
+        <div className="hidden lg:block relative">
+          {/* Animated connector line */}
+          <div className="absolute top-[2.1rem] left-[10%] right-[10%] pointer-events-none" aria-hidden>
+            <svg viewBox="0 0 1000 4" preserveAspectRatio="none" className="w-full" height="4">
+              <path d="M 0 2 L 1000 2" stroke="#E2E6ED" strokeWidth="2" fill="none" />
+              <motion.path
+                d="M 0 2 L 1000 2"
+                stroke="#E21F2F"
+                strokeWidth="2"
+                strokeDasharray="10 6"
+                fill="none"
+                initial={{ pathLength: 0 }}
+                animate={inView ? { pathLength: 1 } : { pathLength: 0 }}
+                transition={{ duration: 1.8, delay: 0.4, ease: ease.smooth }}
+              />
+            </svg>
+          </div>
+
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate={inView ? 'visible' : 'hidden'}
+            className="grid grid-cols-5 gap-4 relative z-10"
           >
-            <line
-              x1="0" y1="0" x2="100%" y2="0"
-              stroke="#e2c97e"
-              strokeWidth="1.5"
-              strokeDasharray="6 4"
-            />
-          </svg>
-
-          {steps.map((step, i) => {
-            const Icon = step.icon
-            return (
+            {steps.map(({ icon: Icon, step, title, description }) => (
               <motion.div
-                key={step.label}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                className="flex-1 flex flex-col items-center text-center relative z-10 px-4"
+                key={step}
+                variants={fadeUp}
+                className="group flex flex-col items-center text-center cursor-default"
               >
-                <div className="w-16 h-16 rounded-full bg-white border-2 border-gold-200 shadow-card flex items-center justify-center mb-4">
-                  <Icon size={22} className="text-gold-500" />
+                <div className="relative mb-6">
+                  <div className="w-[4.5rem] h-[4.5rem] rounded-full bg-white border-2 border-slate-200 group-hover:border-gold-500 group-hover:shadow-card flex items-center justify-center transition-all duration-300">
+                    <Icon size={22} className="text-slate-400 group-hover:text-gold-500 transition-colors duration-300" />
+                  </div>
+                  <span className="absolute -top-1 -right-1 w-[22px] h-[22px] rounded-full bg-gold-500 text-white text-[9px] font-mono font-bold flex items-center justify-center shadow-sm">
+                    {step}
+                  </span>
                 </div>
-                <p className="font-mono font-bold text-gold-500 text-[10px] tracking-[0.2em] uppercase mb-1">
-                  0{i + 1}
-                </p>
-                <p className="font-semibold text-navy-900 text-sm mb-1.5">{step.label}</p>
-                <p className="text-slate-500 text-xs leading-relaxed">{step.description}</p>
+                <h3 className="font-inter font-bold text-navy-900 text-base mb-2 group-hover:text-gold-500 transition-colors duration-200">
+                  {title}
+                </h3>
+                <p className="text-slate-500 text-xs leading-relaxed max-w-[140px]">{description}</p>
               </motion.div>
-            )
-          })}
+            ))}
+          </motion.div>
         </div>
 
-        {/* Mobile — vertical */}
-        <div className="md:hidden space-y-4">
-          {steps.map((step, i) => {
-            const Icon = step.icon
-            return (
+        {/* Mobile vertical strip */}
+        <div className="lg:hidden relative pl-12">
+          <div className="absolute left-[1.65rem] top-0 bottom-0 w-px bg-slate-200 overflow-hidden">
+            <motion.div
+              className="absolute top-0 left-0 w-full bg-gold-500 origin-top"
+              style={{ height: '100%' }}
+              initial={{ scaleY: 0 }}
+              animate={inView ? { scaleY: 1 } : { scaleY: 0 }}
+              transition={{ duration: 2, delay: 0.2, ease: ease.smooth }}
+            />
+          </div>
+
+          <div className="space-y-9">
+            {steps.map(({ icon: Icon, step, title, description }, i) => (
               <motion.div
-                key={step.label}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.4 }}
-                className="flex items-start gap-4 p-4 bg-slate-50 border border-slate-200 rounded-xl"
+                key={step}
+                initial={{ opacity: 0, x: 28 }}
+                animate={inView ? { opacity: 1, x: 0 } : {}}
+                transition={{ delay: 0.1 + i * 0.11, duration: 0.55, ease: ease.smooth }}
+                className="flex gap-5 items-start"
               >
-                <div className="w-10 h-10 rounded-xl bg-white border border-gold-200 flex items-center justify-center shrink-0">
-                  <Icon size={18} className="text-gold-500" />
+                <div className="relative z-10 shrink-0 -ml-12">
+                  <div className="w-[3.25rem] h-[3.25rem] rounded-full bg-white border-2 border-slate-200 flex items-center justify-center shadow-sm">
+                    <Icon size={17} className="text-gold-500" />
+                  </div>
+                  <span className="absolute -top-1 -right-1 w-[18px] h-[18px] rounded-full bg-gold-500 text-white text-[8px] font-mono font-bold flex items-center justify-center">
+                    {step}
+                  </span>
                 </div>
-                <div>
-                  <p className="font-mono text-[10px] font-bold text-gold-500 tracking-widest uppercase mb-0.5">0{i + 1}</p>
-                  <p className="font-semibold text-navy-900 text-sm">{step.label}</p>
-                  <p className="text-slate-500 text-xs leading-relaxed mt-0.5">{step.description}</p>
+                <div className="pt-2.5">
+                  <h3 className="font-inter font-bold text-navy-900 text-base mb-1.5">{title}</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
                 </div>
               </motion.div>
-            )
-          })}
+            ))}
+          </div>
         </div>
       </div>
     </section>

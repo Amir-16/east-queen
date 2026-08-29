@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Link } from '@inertiajs/react'
+import { Head, Link } from '@inertiajs/react'
 import { ArrowLeft, ArrowRight, ChevronRight, Tag } from 'lucide-react'
 import { pageTransition, stagger, fadeUp, fadeLeft, fadeRight } from '@/lib/motion'
 import { exportProducts } from '@/data/exports'
@@ -19,7 +19,7 @@ const NAV_SECTIONS = ['Overview', 'Specifications', 'Use Cases', 'Markets', 'Enq
 
 export default function ProductDetail({ slug, type = 'export', exportData = exportProducts, importData = importProducts }) {
   const allProducts = type === 'import' ? importData : exportData
-  const product = allProducts.find((p) => p.id === slug) || allProducts[0]
+  const product = allProducts.find((p) => p.id === slug)
   const [activeSection, setActiveSection] = useState('Overview')
   const [galleryIdx, setGalleryIdx] = useState(0)
   const sectionRefs = useRef({})
@@ -41,7 +41,7 @@ export default function ProductDetail({ slug, type = 'export', exportData = expo
   const listHref = type === 'import' ? '/import' : '/export'
   const listLabel = type === 'import' ? 'Import Products' : 'Export Products'
 
-  const gallery = product.gallery?.length ? product.gallery : [product.image].filter(Boolean)
+  const gallery = product.galleryImages?.length ? product.galleryImages : [product.image].filter(Boolean)
   const specs = product.specs || {}
   const useCases = product.useCases || product.uses || []
   const markets = product.markets || product.origins || []
@@ -49,6 +49,7 @@ export default function ProductDetail({ slug, type = 'export', exportData = expo
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+      <Head title={`${product.name} | East Queen Group`} />
       {/* Hero */}
       <div className="relative bg-navy-950 overflow-hidden">
         {gallery[0] && (
@@ -129,6 +130,14 @@ export default function ProductDetail({ slug, type = 'export', exportData = expo
                   >
                     Get a Quote
                   </Link>
+                  <a
+                    href="https://wa.me/+8801713042261"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl text-sm font-semibold transition-all duration-200 mb-3"
+                  >
+                    WhatsApp Us
+                  </a>
                   <Link href={listHref} className="text-white/40 text-xs hover:text-white/70 transition-colors">
                     ← Back to {listLabel}
                   </Link>
@@ -243,12 +252,22 @@ export default function ProductDetail({ slug, type = 'export', exportData = expo
               >
                 <h2 className="font-playfair font-bold text-2xl text-white mb-3">Interested in {product.name}?</h2>
                 <p className="text-white/50 text-sm mb-6 max-w-sm mx-auto">Contact our trade team for pricing, minimum order quantities, and documentation requirements.</p>
-                <Link
-                  href="/contact-us"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-gold-500 hover:bg-gold-400 text-white rounded-xl font-bold transition-colors"
-                >
-                  Enquire Now <ArrowRight size={14} />
-                </Link>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Link
+                    href="/contact-us"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-gold-500 hover:bg-gold-400 text-white rounded-xl font-bold transition-colors"
+                  >
+                    Enquire Now <ArrowRight size={14} />
+                  </Link>
+                  <a
+                    href="https://wa.me/+8801713042261"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl font-bold transition-all duration-200"
+                  >
+                    WhatsApp Us
+                  </a>
+                </div>
               </section>
             </motion.div>
           </div>

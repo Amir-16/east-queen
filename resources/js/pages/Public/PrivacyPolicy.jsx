@@ -1,111 +1,114 @@
-import { pageTransition } from '@/lib/motion'
-import { motion } from 'framer-motion'
 import LegalLayout from '@/components/public/ui/LegalLayout'
+
+const CONTACT_EMAIL = 'contact@eastqueengroup.com'
 
 const sections = [
   {
-    id:      'introduction',
-    title:   'Introduction',
+    id: 'introduction',
+    title: 'Our Commitment to Privacy',
+    content: (
+      <p>
+        East Queen Group is committed to protecting your privacy. This Privacy Policy outlines
+        how we collect, use, and safeguard your personal information when you visit our website
+        (www.eastqueengroup.com). By using our site you agree to the terms described below.
+      </p>
+    ),
+  },
+  {
+    id: 'interpretation',
+    title: 'Interpretation & Definitions',
     content: (
       <>
-        <p>East Queen Group ("we", "us", or "our") is committed to protecting your personal information. This Privacy Policy explains what data we collect, how we use it, and the choices available to you when you visit our website or contact us.</p>
-        <p>By using our website you agree to the collection and use of information in accordance with this policy. If you disagree, please refrain from using our services.</p>
+        <p>
+          The words of which the initial letter is capitalised have meanings defined under the
+          following conditions. These definitions shall have the same meaning regardless of
+          whether they appear in singular or plural.
+        </p>
+
+        <div className="mt-6 grid gap-3">
+          {[
+            { term: 'Account',       def: 'A unique account created for You to access our Service or parts of our Service.' },
+            { term: 'Affiliate',     def: 'An entity that controls, is controlled by, or is under common control with a party — where "control" means ownership of 50% or more of the shares, equity interest, or other voting securities.' },
+            { term: 'Company',       def: 'Referred to as "the Company", "We", "Us" or "Our" in this Agreement — refers to East Queen Group.' },
+            { term: 'Cookies',       def: 'Small files placed on Your computer, mobile device, or any other device by a website, containing browsing history details.' },
+            { term: 'Country',       def: 'Refers to Bangladesh.' },
+            { term: 'Device',        def: 'Any device that can access the Service — such as a computer, a cellphone, or a digital tablet.' },
+            { term: 'Personal Data', def: 'Any information that relates to an identified or identifiable individual.' },
+            { term: 'Service',       def: 'Refers to the Website.' },
+          ].map(({ term, def }) => (
+            <div
+              key={term}
+              className="flex gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100
+                         hover:border-gold-200/60 transition-colors duration-200"
+            >
+              <span className="shrink-0 font-semibold text-slate-900 text-[13px] w-28">{term}</span>
+              <span className="text-slate-500 text-[14px] leading-relaxed">{def}</span>
+            </div>
+          ))}
+        </div>
       </>
     ),
   },
   {
-    id:      'data-collected',
-    title:   'Data We Collect',
+    id: 'information-collected',
+    title: 'Information We Collect',
+    content: (
+      <p>
+        We may collect personal information that you voluntarily provide when you contact us
+        through our website — including your name, email address, phone number, and message
+        content. We use this information solely to respond to your inquiries and do not collect
+        any data through automated tracking or analytics without your knowledge.
+      </p>
+    ),
+  },
+  {
+    id: 'how-we-use',
+    title: 'How We Use Your Information',
     content: (
       <>
-        <p>We may collect the following categories of information:</p>
-        <ul>
-          <li><strong>Contact Information</strong> – name, email address, phone number, and company name provided through our contact form.</li>
-          <li><strong>Usage Data</strong> – browser type, IP address, pages visited, and time spent on site via server logs and analytics tools.</li>
-          <li><strong>Communication Records</strong> – any messages you send us via email or our contact form.</li>
-        </ul>
-        <p>We do not collect sensitive personal data such as financial information, government IDs, or health records.</p>
+        <p>
+          We use the collected information to respond to your queries, improve our services,
+          and communicate with you about our products and offerings. We do not sell, trade,
+          or otherwise transfer your personal information to outside parties.
+        </p>
+        <div className="mt-5 grid sm:grid-cols-2 gap-3">
+          {[
+            'Respond to your inquiries promptly',
+            'Improve our website and services',
+            'Communicate about relevant offerings',
+            'Maintain accurate business records',
+          ].map((point) => (
+            <div
+              key={point}
+              className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200"
+            >
+              <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gold-500 shrink-0" />
+              <span className="text-slate-600 text-[13px] leading-snug">{point}</span>
+            </div>
+          ))}
+        </div>
       </>
     ),
   },
   {
-    id:      'how-we-use',
-    title:   'How We Use Your Data',
+    id: 'contact',
+    title: 'Contact Us',
     content: (
       <>
-        <p>Information collected is used for the following purposes:</p>
-        <ul>
-          <li>To respond to your enquiries and provide requested information.</li>
-          <li>To improve our website content and user experience.</li>
-          <li>To comply with legal and regulatory obligations.</li>
-          <li>To send occasional service updates if you have opted in.</li>
-        </ul>
-        <p>We do not sell, trade, or rent your personal information to third parties for marketing purposes.</p>
-      </>
-    ),
-  },
-  {
-    id:      'cookies',
-    title:   'Cookies & Tracking',
-    content: (
-      <>
-        <p>Our website uses cookies to enhance your browsing experience. Cookies are small text files stored on your device. We use:</p>
-        <ul>
-          <li><strong>Essential Cookies</strong> – required for basic site functionality.</li>
-          <li><strong>Analytics Cookies</strong> – anonymous data about how visitors use the site (e.g., Google Analytics).</li>
-        </ul>
-        <p>You can disable cookies in your browser settings; however, some features may not function correctly as a result.</p>
-      </>
-    ),
-  },
-  {
-    id:      'third-parties',
-    title:   'Third-Party Services',
-    content: (
-      <>
-        <p>We may use trusted third-party services to operate our website. These include:</p>
-        <ul>
-          <li>Google Analytics for website usage statistics.</li>
-          <li>Google Maps for location display.</li>
-          <li>Hosting and infrastructure providers.</li>
-        </ul>
-        <p>Each third party is bound by its own privacy policy. We encourage you to review their terms.</p>
-      </>
-    ),
-  },
-  {
-    id:      'data-retention',
-    title:   'Data Retention',
-    content: (
-      <>
-        <p>We retain personal data only for as long as necessary to fulfil the purposes described in this policy or as required by applicable law. Contact form submissions are typically retained for 24 months unless a longer retention period is required for legal or business reasons.</p>
-      </>
-    ),
-  },
-  {
-    id:      'your-rights',
-    title:   'Your Rights',
-    content: (
-      <>
-        <p>Depending on your jurisdiction, you may have the right to:</p>
-        <ul>
-          <li>Access the personal data we hold about you.</li>
-          <li>Request correction of inaccurate data.</li>
-          <li>Request deletion of your data ("right to be forgotten").</li>
-          <li>Withdraw consent where processing is based on consent.</li>
-          <li>Lodge a complaint with a supervisory authority.</li>
-        </ul>
-        <p>To exercise any of these rights, please contact us at <strong>contact@eastqueengroup.com</strong>.</p>
-      </>
-    ),
-  },
-  {
-    id:      'changes',
-    title:   'Changes to This Policy',
-    content: (
-      <>
-        <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with a revised effective date. We encourage you to review this policy periodically. Continued use of the website following any changes constitutes acceptance of the revised policy.</p>
-        <p><strong>Effective Date:</strong> 1 January 2024</p>
+        <p>
+          If you have any questions about this Privacy Policy or how we handle your personal
+          data, please do not hesitate to reach out. We aim to respond to all privacy
+          enquiries within 2 business days.
+        </p>
+        <a
+          href={`mailto:${CONTACT_EMAIL}`}
+          className="mt-5 inline-flex items-center gap-3 px-5 py-3 rounded-xl
+                     bg-navy-950 text-white text-[13px] font-semibold
+                     hover:bg-navy-800 transition-colors duration-200 group"
+        >
+          <span className="w-2 h-2 rounded-full bg-gold-500" />
+          {CONTACT_EMAIL}
+        </a>
       </>
     ),
   },
@@ -113,13 +116,13 @@ const sections = [
 
 export default function PrivacyPolicy() {
   return (
-    <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
-      <LegalLayout
-        title="Privacy Policy"
-        subtitle="How East Queen Group collects, uses, and protects your personal information."
-        sections={sections}
-        otherPage={{ label: 'Terms & Conditions', href: '/terms' }}
-      />
-    </motion.div>
+    <LegalLayout
+      title="Privacy Policy"
+      eyebrow="Legal · Privacy"
+      date="Effective Date: June 2025"
+      description="East Queen Group is committed to protecting your privacy. Read how we collect, use, and safeguard the personal information you share with us."
+      sections={sections}
+      otherPage={{ label: 'View Terms & Conditions', href: '/terms-and-conditions' }}
+    />
   )
 }

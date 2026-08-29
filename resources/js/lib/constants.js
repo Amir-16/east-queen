@@ -5,12 +5,12 @@ export const NAV_ITEMS = [
     label: 'Companies',
     href: '/companies',
     children: [
-      { label: 'Ariko International',       href: '/con-ariko-international',   desc: 'International Trading & Export'   },
-      { label: 'East Queen Shipping Ltd.',   href: '/con-east-queen-shipping',   desc: 'Maritime & Ship Breaking'         },
-      { label: 'Bay Gas Ltd.',               href: '/con-bay-gas',               desc: 'LPG Energy Distribution'          },
-      { label: 'Syedpur Fisheries & Farms',  href: '/con-syedpur-fisheries',     desc: 'Fisheries & Agriculture'          },
-      { label: 'BSC Limited',               href: '/con-bsc-limited',           desc: 'Construction Materials'           },
-      { label: 'Marinona Foodstaff Trading', href: '/con-marinona-foodstaff',    desc: 'Food & Commodity Trading'         },
+      { label: 'Ariko International',       href: '/companies/ariko-international',   desc: 'International Trading & Export'   },
+      { label: 'East Queen Shipping Ltd.',   href: '/companies/east-queen-shipping',   desc: 'Maritime & Ship Breaking'         },
+      { label: 'Bay Gas Ltd.',               href: '/companies/bay-gas',               desc: 'LPG Energy Distribution'          },
+      { label: 'Syedpur Fisheries & Farms',  href: '/companies/syedpur-fisheries',     desc: 'Fisheries & Agriculture'          },
+      { label: 'BSC Limited',               href: '/companies/bsc-limited',           desc: 'Construction Materials'           },
+      { label: 'Marinona Foodstaff Trading', href: '/companies/marinona-foodstaff',    desc: 'Food & Commodity Trading'         },
     ],
   },
   {
@@ -53,4 +53,14 @@ export const CONTACT = {
   emails:  ['shahrear@eastqueengroup.com', 'contact@eastqueengroup.com'],
   address: 'Dhaka, Bangladesh',
   hours:   'Sunday – Thursday, 9:00 AM – 5:00 PM (BST)',
+}
+
+export const INDUSTRY_COLORS = {
+  shipping:     'bg-slate-100 text-slate-700',
+  energy:       'bg-gold-100  text-gold-700',
+  fisheries:    'bg-teal-50   text-teal-700',
+  food:         'bg-gold-50   text-gold-600',
+  construction: 'bg-navy-800  text-slate-200',
+  trading:      'bg-slate-100 text-slate-700',
+  maritime:     'bg-slate-100 text-slate-700',
 }

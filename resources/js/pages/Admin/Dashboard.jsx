@@ -1,16 +1,18 @@
 import { Head, Link, usePage } from '@inertiajs/react'
 import { format, formatDistanceToNow, parseISO } from 'date-fns'
 import {
-  ArrowRightIcon,
-  ChatBubbleLeftEllipsisIcon,
-  FolderOpenIcon,
-  ChartBarSquareIcon,
+  HomeIcon,
+  FilmIcon,
+  BuildingOffice2Icon,
+  CubeIcon,
   UserGroupIcon,
-  BanknotesIcon,
+  ArrowPathIcon,
+  QueueListIcon,
+  ChartBarSquareIcon,
   ClockIcon,
-  CpuChipIcon,
   PhotoIcon,
-  LinkIcon,
+  ChatBubbleLeftEllipsisIcon,
+  Cog6ToothIcon,
   ArrowTopRightOnSquareIcon,
   PlusIcon,
 } from '@heroicons/react/24/outline'
@@ -20,76 +22,63 @@ import InquiryChart from '@/components/admin/InquiryChart'
 import StatCard     from '@/components/admin/StatCard'
 import StatusBadge  from '@/components/admin/StatusBadge'
 
-/* ── Content section tiles ─────────────────────────────────────────────── */
-const CONTENT_SECTIONS = [
-  { label: 'Projects',     href: '/admin/projects',     icon: FolderOpenIcon,     bg: '#ECFDF5', color: '#059669', desc: 'Portfolio entries'    },
-  { label: 'Statistics',   href: '/admin/stats',        icon: ChartBarSquareIcon, bg: '#EFF6FF', color: '#2563EB', desc: 'Key metrics ticker'   },
-  { label: 'Financials',   href: '/admin/financials',   icon: BanknotesIcon,      bg: '#FFFBEB', color: '#D97706', desc: 'Financial data'        },
-  { label: 'Timeline',     href: '/admin/timeline',     icon: ClockIcon,          bg: '#F5F3FF', color: '#7C3AED', desc: 'Company milestones'   },
-  { label: 'Technologies', href: '/admin/technologies', icon: CpuChipIcon,        bg: '#ECFEFF', color: '#0891B2', desc: 'Tech & agri stack'    },
-  { label: 'Gallery',      href: '/admin/gallery',      icon: PhotoIcon,          bg: '#FFF1F2', color: '#E11D48', desc: 'Media & photos'       },
-  { label: 'Partnership',  href: '/admin/pillars',      icon: LinkIcon,           bg: '#EEF2FF', color: '#4F46E5', desc: 'Pillars & values'     },
-  { label: 'Team',         href: '/admin/team',         icon: UserGroupIcon,      bg: '#F0FDFA', color: '#0D9488', desc: 'Team members'         },
+const SECTIONS = [
+  { label: 'Hero Slides',   href: '/admin/hero-slides',   icon: FilmIcon,                  color: '#7C3AED', bg: '#F5F3FF' },
+  { label: 'Companies',     href: '/admin/companies',     icon: BuildingOffice2Icon,        color: '#0284C7', bg: '#F0F9FF' },
+  { label: 'Products',      href: '/admin/products',      icon: CubeIcon,                  color: '#0D9488', bg: '#F0FDFA' },
+  { label: 'Associates',    href: '/admin/associates',    icon: UserGroupIcon,             color: '#C9A44C', bg: '#FDF8EE' },
+  { label: 'Process Steps', href: '/admin/process-steps', icon: ArrowPathIcon,             color: '#E11D48', bg: '#FFF1F2' },
+  { label: 'Marquee Items', href: '/admin/marquee',       icon: QueueListIcon,             color: '#0B1628', bg: '#EEF2FF' },
+  { label: 'Stats',         href: '/admin/stats',         icon: ChartBarSquareIcon,        color: '#059669', bg: '#ECFDF5' },
+  { label: 'Timeline',      href: '/admin/timeline',      icon: ClockIcon,                 color: '#D97706', bg: '#FFFBEB' },
+  { label: 'Gallery',       href: '/admin/gallery',       icon: PhotoIcon,                 color: '#7C3AED', bg: '#F5F3FF' },
+  { label: 'Inquiries',     href: '/admin/contacts',      icon: ChatBubbleLeftEllipsisIcon, color: '#E11D48', bg: '#FFF1F2' },
+  { label: 'Settings',      href: '/admin/settings',      icon: Cog6ToothIcon,             color: '#64748B', bg: '#F8FAFC' },
+  { label: 'Admin Users',   href: '/admin/users',         icon: UserGroupIcon,             color: '#0B1628', bg: '#EEF2FF' },
 ]
 
-/* ── Quick actions ─────────────────────────────────────────────────────── */
-const QUICK_ACTIONS = [
-  { label: 'Add Project',  href: '/admin/projects/create', icon: FolderOpenIcon,     bg: '#ECFDF5', color: '#059669', border: '#6EE7B7' },
-  { label: 'Add Stat',     href: '/admin/stats/create',    icon: ChartBarSquareIcon, bg: '#EFF6FF', color: '#2563EB', border: '#BFDBFE' },
-  { label: 'Add Member',   href: '/admin/team/create',     icon: UserGroupIcon,      bg: '#F5F3FF', color: '#7C3AED', border: '#DDD6FE' },
-]
-
-/* ── Sub-components ────────────────────────────────────────────────────── */
-function ContentTile({ section }) {
-  const Icon = section.icon
+function SectionTile({ s }) {
+  const Icon = s.icon
   return (
     <Link
-      href={section.href}
-      className="group flex items-center gap-3.5 p-4 bg-white rounded-xl border border-gray-100 shadow-card
-                 hover:shadow-card-hover hover:border-gray-200 transition-all duration-200"
+      href={s.href}
+      className="group flex items-center gap-3 p-3.5 rounded-xl transition-all duration-150 hover:-translate-y-px"
+      style={{ background: '#fff', border: '1px solid #F1F5F9', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = s.color + '40'; e.currentTarget.style.boxShadow = `0 4px 16px ${s.color}15` }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#F1F5F9'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)' }}
     >
-      <div
-        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
-        style={{ background: section.bg }}
-      >
-        <Icon className="w-5 h-5" style={{ color: section.color }} />
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-150 group-hover:scale-105" style={{ background: s.bg }}>
+        <Icon className="w-4.5 h-4.5" style={{ color: s.color }} />
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-gray-800 font-body">{section.label}</p>
-        <p className="text-xs text-gray-400 font-body truncate">{section.desc}</p>
-      </div>
-      <ArrowRightIcon
-        className="w-3.5 h-3.5 text-gray-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-200 flex-shrink-0"
-      />
+      <span className="text-[13px] font-semibold text-slate-700 truncate" style={{ fontFamily: 'Inter, sans-serif' }}>
+        {s.label}
+      </span>
     </Link>
   )
 }
 
-function ContactRow({ contact }) {
-  let timeAgo = ''
-  try { timeAgo = formatDistanceToNow(parseISO(contact.created_at), { addSuffix: true }) }
-  catch { timeAgo = contact.created_at }
+function ContactRow({ c }) {
+  let ago = ''
+  try { ago = formatDistanceToNow(parseISO(c.created_at), { addSuffix: true }) } catch { ago = c.created_at }
 
   return (
     <Link
-      href={`/admin/contacts/${contact.id}`}
-      className="flex items-start justify-between gap-3 py-3 group hover:bg-gray-50 -mx-4 px-4 rounded-xl transition-colors"
+      href={`/admin/contacts/${c.id}`}
+      className="flex items-center justify-between gap-3 py-3 px-1 rounded-xl hover:bg-slate-50 -mx-1 transition-colors group"
     >
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-body font-semibold text-gray-800 group-hover:text-emerald-700 transition-colors truncate">
-          {contact.name}
+        <p className="text-[13px] font-semibold text-slate-700 group-hover:text-slate-900 truncate" style={{ fontFamily: 'Inter, sans-serif' }}>
+          {c.name}
         </p>
-        {contact.service && (
-          <p className="text-xs font-body text-gray-400 truncate">{contact.service}</p>
-        )}
-        <p className="text-xs font-body text-gray-400 mt-0.5">{timeAgo}</p>
+        <p className="text-[11px] text-slate-400 mt-0.5 truncate" style={{ fontFamily: 'Inter, sans-serif' }}>
+          {c.service ? `${c.service} · ` : ''}{ago}
+        </p>
       </div>
-      <StatusBadge status={contact.status} />
+      <StatusBadge status={c.status} />
     </Link>
   )
 }
 
-/* ── Page ──────────────────────────────────────────────────────────────── */
 export default function Dashboard() {
   const { stats, chartData, recentContacts, adminUser, unreadContacts = 0 } = usePage().props
   const today     = format(new Date(), 'EEEE, d MMMM yyyy')
@@ -97,34 +86,36 @@ export default function Dashboard() {
 
   return (
     <AdminLayout title="Dashboard" subtitle={today}>
-      <Head title="Dashboard — Admin" />
+      <Head title="Dashboard" />
 
-      {/* ── Welcome banner ─────────────────────────────────────────────── */}
+      {/* ── Welcome banner ─────────────────────────────────────────────────── */}
       <div
-        className="rounded-2xl p-4 sm:p-6 mb-5 md:mb-6 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #1A3D1A 0%, #265926 55%, #1A4A1A 100%)' }}
+        className="rounded-2xl p-5 sm:p-6 mb-6 relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #0B1628 0%, #162845 55%, #0E1D36 100%)' }}
       >
-        {/* Decorative blobs */}
-        <div className="absolute -right-10 -top-10 w-52 h-52 rounded-full bg-white/[0.06] pointer-events-none" />
-        <div className="absolute right-24 -bottom-14 w-36 h-36 rounded-full bg-white/[0.04] pointer-events-none" />
+        {/* Decorative orbs */}
+        <div className="absolute -right-8 -top-8 w-48 h-48 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(201,164,76,0.12) 0%, transparent 70%)' }} />
+        <div className="absolute right-20 -bottom-12 w-32 h-32 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(201,164,76,0.07) 0%, transparent 70%)' }} />
 
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <p className="text-white/50 text-[10px] font-body font-bold uppercase tracking-[0.15em] mb-1">
-              East Queen Group &mdash; Admin Panel
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-1.5" style={{ color: 'rgba(201,164,76,0.60)', fontFamily: 'Inter, sans-serif' }}>
+              East Queen Group · Admin Panel
             </p>
-            <h2 className="font-display font-black text-lg sm:text-xl text-white leading-tight">
+            <h2 className="font-bold text-xl text-white leading-tight" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
               Welcome back, {firstName}
             </h2>
-            <p className="text-white/55 text-xs sm:text-sm font-body mt-1">{today}</p>
+            <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.40)', fontFamily: 'Inter, sans-serif' }}>
+              {today}
+            </p>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             {unreadContacts > 0 && (
               <Link
                 href="/admin/contacts"
-                className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-white/25 bg-white/10
-                           hover:bg-white/18 transition-colors text-white text-xs sm:text-sm font-body font-semibold"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-semibold transition-all duration-150"
+                style={{ background: 'rgba(201,164,76,0.15)', color: '#C9A44C', border: '1px solid rgba(201,164,76,0.25)', fontFamily: 'Inter, sans-serif' }}
               >
                 <ChatBubbleLeftEllipsisIcon className="w-4 h-4" />
                 {unreadContacts} new {unreadContacts === 1 ? 'inquiry' : 'inquiries'}
@@ -134,8 +125,8 @@ export default function Dashboard() {
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl border border-white/20 bg-white/8
-                         hover:bg-white/15 transition-colors text-white/70 hover:text-white text-xs sm:text-sm font-body"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12px] font-medium transition-all duration-150"
+              style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.10)', fontFamily: 'Inter, sans-serif' }}
             >
               <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
               View Site
@@ -144,60 +135,22 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── KPI cards ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-5 md:mb-6">
-        <StatCard
-          icon={FolderOpenIcon}
-          label="Active Projects"
-          value={stats?.projects}
-          subtext="in portfolio"
-          color="gold"
-          href="/admin/projects"
-        />
-        <StatCard
-          icon={ChartBarSquareIcon}
-          label="Stats Ticker"
-          value={stats?.stats}
-          subtext="live metrics"
-          color="blue"
-          href="/admin/stats"
-        />
-        <StatCard
-          icon={UserGroupIcon}
-          label="Team Members"
-          value={stats?.teamContacts}
-          subtext="currently active"
-          color="green"
-          href="/admin/team"
-        />
-        <StatCard
-          icon={ChatBubbleLeftEllipsisIcon}
-          label="Inquiries"
-          value={stats?.totalContacts}
+      {/* ── KPI stat cards ─────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
+        <StatCard icon={BuildingOffice2Icon} label="Companies"   value={stats?.companies}     subtext="group companies"   color="navy"  href="/admin/companies" />
+        <StatCard icon={ChartBarSquareIcon}  label="Stats"       value={stats?.stats}         subtext="live metrics"      color="gold"  href="/admin/stats" />
+        <StatCard icon={UserGroupIcon}       label="Associates"  value={stats?.associates}    subtext="active partners"   color="teal"  href="/admin/associates" />
+        <StatCard icon={ChatBubbleLeftEllipsisIcon} label="Inquiries" value={stats?.totalContacts}
           subtext={stats?.newContacts > 0 ? `${stats.newContacts} unread` : 'all read'}
-          color={stats?.newContacts > 0 ? 'red' : 'blue'}
+          color={stats?.newContacts > 0 ? 'rose' : 'sky'}
           href="/admin/contacts"
         />
       </div>
 
-      {/* ── Content manager overview ────────────────────────────────────── */}
-      <div className="mb-5 md:mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-display font-bold text-gray-800 text-sm tracking-tight">Content Manager</h3>
-          <span className="text-[11px] text-gray-400 font-body font-medium">{CONTENT_SECTIONS.length} sections</span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3">
-          {CONTENT_SECTIONS.map((s) => <ContentTile key={s.href} section={s} />)}
-        </div>
-      </div>
-
-      {/* ── Chart + Recent inquiries ────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5 mb-4 md:mb-5">
+      {/* ── Chart + Recent inquiries ────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
         <div className="lg:col-span-2">
-          <FormCard
-            title="Inquiry Trend"
-            description="Incoming inquiries over the last 30 days"
-          >
+          <FormCard title="Inquiry Trend" description="Incoming inquiries — last 30 days">
             <InquiryChart data={chartData ?? []} />
           </FormCard>
         </div>
@@ -207,67 +160,34 @@ export default function Dashboard() {
           headerAction={
             <Link
               href="/admin/contacts"
-              className="inline-flex items-center gap-1 text-xs font-body font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+              className="text-[11px] font-semibold transition-colors"
+              style={{ color: '#C9A44C', fontFamily: 'Inter, sans-serif' }}
             >
-              View All <ArrowRightIcon className="w-3 h-3" />
+              View all →
             </Link>
           }
         >
           {!recentContacts?.length ? (
-            <p className="text-sm font-body text-gray-400 py-8 text-center">No inquiries yet.</p>
+            <p className="text-[13px] text-slate-400 py-8 text-center" style={{ fontFamily: 'Inter, sans-serif' }}>
+              No inquiries yet.
+            </p>
           ) : (
-            <div className="divide-y divide-gray-50 -my-2">
-              {recentContacts.map((c) => <ContactRow key={c.id} contact={c} />)}
+            <div className="divide-y divide-slate-50">
+              {recentContacts.map((c) => <ContactRow key={c.id} c={c} />)}
             </div>
           )}
         </FormCard>
       </div>
 
-      {/* ── Quick actions ───────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-4 md:p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display font-bold text-gray-800 text-sm tracking-tight">Quick Actions</h3>
+      {/* ── Content manager grid ────────────────────────────────────────────── */}
+      <FormCard
+        title="Content Manager"
+        description={`${SECTIONS.length} manageable sections`}
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+          {SECTIONS.map((s) => <SectionTile key={s.href} s={s} />)}
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 md:gap-3">
-          {QUICK_ACTIONS.map((action) => {
-            const Icon = action.icon
-            return (
-              <Link
-                key={action.href}
-                href={action.href}
-                className="group flex flex-col items-center justify-center gap-2.5 p-5 rounded-xl border-2 border-dashed
-                           transition-all duration-200 hover:border-solid"
-                style={{ borderColor: action.border, background: 'transparent' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = action.bg }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-              >
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
-                  style={{ background: action.bg }}
-                >
-                  <PlusIcon className="w-4 h-4" style={{ color: action.color }} />
-                </div>
-                <span className="text-xs font-body font-bold" style={{ color: action.color }}>
-                  {action.label}
-                </span>
-              </Link>
-            )
-          })}
-
-          <a
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex flex-col items-center justify-center gap-2.5 p-5 rounded-xl border-2 border-dashed
-                       border-gray-200 hover:border-solid hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
-          >
-            <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <ArrowTopRightOnSquareIcon className="w-4 h-4 text-gray-500" />
-            </div>
-            <span className="text-xs font-body font-bold text-gray-500">View Site</span>
-          </a>
-        </div>
-      </div>
+      </FormCard>
     </AdminLayout>
   )
 }
