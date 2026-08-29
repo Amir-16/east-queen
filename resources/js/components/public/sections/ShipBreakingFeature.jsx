@@ -51,7 +51,7 @@ export default function ShipBreakingFeature() {
                 Explore Division <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                href="/con-east-queen-shipping"
+                href="/companies/east-queen-shipping"
                 className="inline-flex items-center gap-2 glass-dark hover:bg-white/[0.1] text-white/70 hover:text-white font-semibold px-6 py-3 rounded-xl text-sm transition-all duration-200"
               >
                 About the Company

@@ -71,7 +71,7 @@ function CompaniesMegaMenu({ open, onClose }) {
                       transition={{ delay: i * 0.035 }}
                     >
                       <Link
-                        href={`/con-${c.id}`}
+                        href={`/companies/${c.id}`}
                         onClick={onClose}
                         className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl
                                    hover:bg-slate-50 transition-colors duration-150"

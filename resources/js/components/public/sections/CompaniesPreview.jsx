@@ -69,7 +69,7 @@ function CompanyCard({ company, className = '', size = 'sm' }) {
       whileHover={{ scale: 1.015, transition: { duration: 0.22 } }}
       className={`group relative overflow-hidden rounded-2xl cursor-pointer ${className}`}
     >
-      <Link href={`/con-${company.id}`} className="absolute inset-0 z-10" aria-label={company.name} />
+      <Link href={`/companies/${company.id}`} className="absolute inset-0 z-10" aria-label={company.name} />
 
       {/* Background image */}
       {company.coverImage ? (

@@ -1046,7 +1046,7 @@ export default function ShipBreaking() {
                 <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                href="/con-east-queen-shipping"
+                href="/companies/east-queen-shipping"
                 className="inline-flex items-center gap-2.5 glass-dark hover:bg-white/[0.1]
                            text-white/70 hover:text-white font-semibold px-8 py-4 rounded-lg text-sm
                            transition-all duration-200"

@@ -5,12 +5,12 @@ export const NAV_ITEMS = [
     label: 'Companies',
     href: '/companies',
     children: [
-      { label: 'Ariko International',       href: '/con-ariko-international',   desc: 'International Trading & Export'   },
-      { label: 'East Queen Shipping Ltd.',   href: '/con-east-queen-shipping',   desc: 'Maritime & Ship Breaking'         },
-      { label: 'Bay Gas Ltd.',               href: '/con-bay-gas',               desc: 'LPG Energy Distribution'          },
-      { label: 'Syedpur Fisheries & Farms',  href: '/con-syedpur-fisheries',     desc: 'Fisheries & Agriculture'          },
-      { label: 'BSC Limited',               href: '/con-bsc-limited',           desc: 'Construction Materials'           },
-      { label: 'Marinona Foodstaff Trading', href: '/con-marinona-foodstaff',    desc: 'Food & Commodity Trading'         },
+      { label: 'Ariko International',       href: '/companies/ariko-international',   desc: 'International Trading & Export'   },
+      { label: 'East Queen Shipping Ltd.',   href: '/companies/east-queen-shipping',   desc: 'Maritime & Ship Breaking'         },
+      { label: 'Bay Gas Ltd.',               href: '/companies/bay-gas',               desc: 'LPG Energy Distribution'          },
+      { label: 'Syedpur Fisheries & Farms',  href: '/companies/syedpur-fisheries',     desc: 'Fisheries & Agriculture'          },
+      { label: 'BSC Limited',               href: '/companies/bsc-limited',           desc: 'Construction Materials'           },
+      { label: 'Marinona Foodstaff Trading', href: '/companies/marinona-foodstaff',    desc: 'Food & Commodity Trading'         },
     ],
   },
   {

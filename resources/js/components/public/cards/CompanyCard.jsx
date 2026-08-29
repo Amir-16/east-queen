@@ -64,7 +64,7 @@ export default function CompanyCard({ company, className }) {
 
             {/* Touch CTA */}
             <Link
-              href={`/con-${company.id}`}
+              href={`/companies/${company.id}`}
               onClick={e => e.stopPropagation()}
               className="[@media(hover:none)]:flex hidden items-center gap-1.5 text-gold-500 text-sm font-semibold mt-auto"
             >
@@ -130,7 +130,7 @@ export default function CompanyCard({ company, className }) {
               </div>
             )}
             <Link
-              href={`/con-${company.id}`}
+              href={`/companies/${company.id}`}
               onClick={e => e.stopPropagation()}
               className="flex items-center justify-center gap-2 w-full bg-white/15 hover:bg-white/25
                          border border-white/20 text-white font-semibold text-sm px-4 py-2.5 rounded-xl

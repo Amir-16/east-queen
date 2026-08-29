@@ -301,7 +301,7 @@ export default function CompanyDetail({ slug, companies = defaultCompanies }) {
             {otherCompanies.map((c) => (
               <Link
                 key={c.id}
-                href={`/con-${c.id}`}
+                href={`/companies/${c.id}`}
                 className="group flex items-center gap-4 bg-white border border-slate-200 rounded-xl p-4 hover:border-gold-300 hover:shadow-card transition-all duration-200"
               >
                 <div className="w-10 h-10 rounded-xl bg-navy-900 group-hover:bg-gold-500 flex items-center justify-center shrink-0 transition-colors duration-200">

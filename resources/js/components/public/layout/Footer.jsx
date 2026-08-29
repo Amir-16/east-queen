@@ -119,7 +119,7 @@ export default function Footer() {
               {companies.map((c) => (
                 <li key={c.id}>
                   <Link
-                    href={`/con-${c.id}`}
+                    href={`/companies/${c.id}`}
                     className="text-slate-600 hover:text-gold-500 text-sm
                                transition-colors duration-200 flex items-center gap-2 group"
                   >

@@ -33,9 +33,6 @@ Route::prefix('companies')->name('companies.')->group(function () {
     Route::get('{slug}', [CompanyController::class, 'show'])->name('show');
 });
 
-// Short company URLs: /con-{slug} → same as /companies/{slug}
-Route::get('con-{slug}', [CompanyController::class, 'show'])->name('companies.con');
-
 // Trade
 Route::get('export', [ExportController::class, 'index'])->name('export');
 Route::get('import', [ImportController::class, 'index'])->name('import');
