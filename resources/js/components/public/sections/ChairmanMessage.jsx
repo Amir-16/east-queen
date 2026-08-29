@@ -2,10 +2,10 @@ import { motion } from 'framer-motion'
 import { stagger, fadeLeft, fadeRight } from '@/lib/motion'
 
 const CHAIRMAN = {
-  name: 'Mr. Shahrear Hussain',
-  title: 'Chairman & Founder, East Queen Group',
+  name: 'Md. Shahrear Islam',
+  title: 'Chairman & Managing Director',
   quote: `"From our first vessel on the shores of Chittagong, I knew that East Queen's journey would be defined not just by commerce, but by character. Four decades on, the values we began with — integrity, resilience, and a commitment to our people — remain the foundation of everything we do. We are proud of what this Group has become, and even more excited about the horizon ahead."`,
-  photo: '/images/chairman/chairman-1.jpeg',
+  photo: '/images/team/chairman.jpeg',
 }
 
 function WordReveal({ text, className, delay = 0 }) {
