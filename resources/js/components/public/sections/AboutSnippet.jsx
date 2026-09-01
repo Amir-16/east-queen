@@ -123,7 +123,7 @@ export default function AboutSnippet() {
               transition={{ duration: 0.6, delay: 0.34 }}
             >
               <Link
-                href="/about"
+                href="/about-east-queen"
                 className="group inline-flex items-center gap-2 text-gold-400 hover:text-gold-300 font-semibold text-sm transition-colors duration-200"
               >
                 Read the Full Story

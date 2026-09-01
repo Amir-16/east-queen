@@ -140,14 +140,14 @@ const principleLinks = [
   {
     label: 'Mission & Vision',
     sub:   'The strategic direction and long-term purpose that guides us.',
-    href:  '/mission-vision',
+    href:  '/mission-vision-purpose',
     img:   '/images/shipping/vessel-1.jpeg',
     tag:   '01',
   },
   {
     label: 'Our Core Values',
     sub:   'The principles we live by — not just talk about.',
-    href:  '/core-values',
+    href:  '/our-core-values',
     img:   '/images/shipping/harmonia-arrival.jpeg',
     tag:   '02',
   },

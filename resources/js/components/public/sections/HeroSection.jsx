@@ -15,7 +15,7 @@ const SLIDES = [
     label: 'Gateway to Global Business',
     line1: 'East Queen',
     line2: 'Group',
-    href:  '/about',
+    href:  '/about-east-queen',
   },
   {
     image: '/images/operations/facility-2.jpeg',
@@ -50,7 +50,7 @@ const SLIDES = [
     label: 'International Commerce',
     line1: 'Built on',
     line2: 'Industry',
-    href:  '/about',
+    href:  '/about-east-queen',
   },
   {
     image: '/images/ship-breaking/coastal-view.jpeg',
