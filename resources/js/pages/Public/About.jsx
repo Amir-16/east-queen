@@ -194,41 +194,36 @@ export default function About({ chairman, timeline = timelineEvents }) {
           {/* Vision + Mission cards */}
           <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-6">
 
-            {/* Vision — teal-themed, slides from left */}
+            {/* Vision — clean white editorial, slides from left */}
             <motion.div
               initial={{ opacity: 0, x: -110 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: 0.85, ease: EASE }}
-              whileHover={{ y: -8 }}
-              className="group relative bg-gradient-to-br from-teal-50/70 via-white to-white
-                         rounded-[32px] overflow-hidden border border-teal-100/80
-                         shadow-card hover:shadow-hover transition-all duration-300 cursor-default"
+              whileHover={{ y: -10, boxShadow: '0 24px 64px rgba(13,11,30,0.13)' }}
+              className="group relative bg-white rounded-[32px] overflow-hidden
+                         border border-slate-200 shadow-card cursor-default
+                         transition-[border-color] duration-300 hover:border-slate-300"
             >
-              {/* Teal top bar */}
-              <div className="h-1.5 bg-gradient-to-r from-teal-500 to-teal-400" />
-              {/* Left accent reveal on hover */}
-              <div className="absolute left-0 top-1.5 bottom-0 w-[3px]
-                              bg-gradient-to-b from-teal-400 to-teal-600
+              {/* Left gold accent — slides down from top on hover */}
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gold-500
                               scale-y-0 group-hover:scale-y-100 origin-top
-                              transition-transform duration-500 rounded-b-full" />
-              {/* Corner glow */}
-              <div className="absolute -top-8 -right-8 w-36 h-36 rounded-full
-                              bg-teal-400/10 blur-2xl pointer-events-none
-                              opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                              transition-transform duration-500 ease-out" />
 
-              <div className="relative p-8">
-                {/* Solid teal icon */}
-                <div className="w-14 h-14 rounded-2xl
-                               bg-gradient-to-br from-teal-500 to-teal-400
-                               flex items-center justify-center mb-6 shadow-sm
-                               group-hover:shadow-md transition-shadow duration-300">
-                  <Eye size={22} className="text-white" />
+              <div className="relative p-8 pt-9">
+                {/* Icon — navy square */}
+                <div className="w-12 h-12 rounded-xl bg-navy-900 flex items-center justify-center mb-6
+                               group-hover:bg-gold-500 transition-colors duration-300">
+                  <Eye size={20} className="text-white" />
                 </div>
 
-                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-teal-600 mb-2">Our Vision</p>
-                <div className="h-[2px] w-7 bg-teal-300 rounded-full mb-6
-                                group-hover:w-16 group-hover:bg-teal-500 transition-all duration-500" />
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400 mb-2">
+                  Our Vision
+                </p>
+                {/* Accent rule — grows on hover */}
+                <div className="h-[2px] w-6 bg-gold-500 rounded-full mb-6
+                                group-hover:w-14 transition-all duration-500 ease-out" />
+
                 <h3 className="font-playfair font-bold text-slate-900 text-[1.35rem] leading-snug mb-5">
                   Leading Bangladesh's<br />Industrial Transformation
                 </h3>
@@ -238,41 +233,35 @@ export default function About({ chairman, timeline = timelineEvents }) {
               </div>
             </motion.div>
 
-            {/* Mission — brand-red themed, slides from right */}
+            {/* Mission — clean white editorial, slides from right */}
             <motion.div
               initial={{ opacity: 0, x: 110 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: 0.85, ease: EASE, delay: 0.08 }}
-              whileHover={{ y: -8 }}
-              className="group relative bg-gradient-to-br from-gold-50/80 via-white to-white
-                         rounded-[32px] overflow-hidden border border-gold-100/70
-                         shadow-card hover:shadow-hover transition-all duration-300 cursor-default"
+              whileHover={{ y: -10, boxShadow: '0 24px 64px rgba(13,11,30,0.13)' }}
+              className="group relative bg-white rounded-[32px] overflow-hidden
+                         border border-slate-200 shadow-card cursor-default
+                         transition-[border-color] duration-300 hover:border-slate-300"
             >
-              {/* Red top bar */}
-              <div className="h-1.5 bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400" />
-              {/* Left accent */}
-              <div className="absolute left-0 top-1.5 bottom-0 w-[3px]
-                              bg-gradient-to-b from-gold-400 to-gold-600
+              {/* Left gold accent */}
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gold-500
                               scale-y-0 group-hover:scale-y-100 origin-top
-                              transition-transform duration-500 rounded-b-full" />
-              {/* Corner glow */}
-              <div className="absolute -top-8 -right-8 w-36 h-36 rounded-full
-                              bg-gold-500/[0.08] blur-2xl pointer-events-none
-                              opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                              transition-transform duration-500 ease-out" />
 
-              <div className="relative p-8">
-                {/* Solid red icon */}
-                <div className="w-14 h-14 rounded-2xl
-                               bg-gradient-to-br from-gold-500 to-gold-600
-                               flex items-center justify-center mb-6
-                               shadow-sm group-hover:shadow-gold-glow transition-shadow duration-300">
-                  <Target size={22} className="text-white" />
+              <div className="relative p-8 pt-9">
+                {/* Icon */}
+                <div className="w-12 h-12 rounded-xl bg-navy-900 flex items-center justify-center mb-6
+                               group-hover:bg-gold-500 transition-colors duration-300">
+                  <Target size={20} className="text-white" />
                 </div>
 
-                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gold-500 mb-2">Our Mission</p>
-                <div className="h-[2px] w-7 bg-gold-300 rounded-full mb-6
-                                group-hover:w-16 group-hover:bg-gold-500 transition-all duration-500" />
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400 mb-2">
+                  Our Mission
+                </p>
+                <div className="h-[2px] w-6 bg-gold-500 rounded-full mb-6
+                                group-hover:w-14 transition-all duration-500 ease-out" />
+
                 <h3 className="font-playfair font-bold text-slate-900 text-[1.35rem] leading-snug mb-5">
                   A National &<br />International Benchmark
                 </h3>
@@ -289,53 +278,42 @@ export default function About({ chairman, timeline = timelineEvents }) {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.85, ease: EASE, delay: 0.14 }}
-            className="relative rounded-[32px] overflow-hidden shadow-deep group cursor-default"
-            style={{
-              background: 'linear-gradient(135deg, #0D0B1E 0%, #16143E 50%, #231F5A 100%)',
-            }}
+            className="relative bg-navy-950 rounded-[32px] overflow-hidden shadow-deep
+                       group cursor-default border border-white/[0.06]"
           >
-            {/* Top accent bar — dual-tone gradient */}
-            <div className="absolute top-0 left-0 right-0 h-1.5
-                            bg-gradient-to-r from-teal-500 via-gold-500 to-gold-600" />
-            {/* Left side accent */}
-            <div className="absolute left-0 top-1.5 bottom-0 w-[3px] bg-teal-500/40
-                            group-hover:bg-teal-400 transition-colors duration-500" />
-            {/* Ambient glows */}
-            <div className="absolute inset-0 bg-gradient-to-br from-teal-500/[0.05] via-transparent to-gold-500/[0.05]
+            {/* Single brand-red top accent */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gold-500" />
+
+            {/* Subtle radial glow on hover */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_10%_50%,rgba(226,31,47,0.08),transparent)]
                             opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-            <div className="absolute -top-16 -left-16 w-56 h-56 rounded-full
-                            bg-teal-500/10 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-10 -right-10 w-44 h-44 rounded-full
-                            bg-gold-500/10 blur-3xl pointer-events-none" />
 
             <div className="relative flex flex-col sm:flex-row items-center gap-8 p-8 md:p-12">
-              <div className="shrink-0 relative">
-                <motion.div
-                  whileHover={{ rotate: [0, -8, 8, 0] }}
-                  transition={{ duration: 0.5 }}
-                  className="w-20 h-20 rounded-2xl
-                             bg-gradient-to-br from-teal-500/20 to-gold-500/20
-                             border border-white/10
-                             flex items-center justify-center
-                             group-hover:from-teal-500/30 group-hover:to-gold-500/30
-                             transition-all duration-300"
-                >
-                  <Flame size={34} className="text-gold-400 group-hover:text-gold-300 transition-colors duration-300" />
-                </motion.div>
-                <motion.div
-                  animate={{ scale: [1, 1.55, 1], opacity: [0.4, 0, 0.4] }}
-                  transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute inset-0 rounded-2xl border-2 border-teal-400 pointer-events-none"
-                />
+              {/* Icon */}
+              <div className="shrink-0">
+                <div className="w-16 h-16 rounded-2xl bg-white/[0.06] border border-white/10
+                               flex items-center justify-center
+                               group-hover:bg-gold-500/10 group-hover:border-gold-500/20
+                               transition-all duration-400">
+                  <Flame size={28} className="text-gold-400" />
+                </div>
               </div>
+
+              {/* Text */}
               <div className="text-center sm:text-left">
-                <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-teal-400/70 mb-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-3">
                   Our Spirit
                 </p>
-                <p className="font-playfair font-bold text-white text-3xl md:text-4xl leading-tight">
+                <p className="font-playfair font-bold text-white text-3xl md:text-[2.5rem] leading-tight">
                   Enterprise is our spirit.
                 </p>
               </div>
+
+              {/* Decorative right-side monogram */}
+              <span className="hidden md:block ml-auto font-playfair font-black text-[5rem]
+                               leading-none text-white/[0.04] select-none shrink-0">
+                EQ
+              </span>
             </div>
           </motion.div>
         </div>
