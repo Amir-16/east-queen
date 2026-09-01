@@ -3,58 +3,18 @@ import { Link } from '@inertiajs/react'
 import { motion, useInView } from 'framer-motion'
 import CountUp from 'react-countup'
 import { ArrowRight, Eye, Target, Flame } from 'lucide-react'
-import { pageTransition, staggerSlow, fadeDown, fadeLeft, scaleIn } from '@/lib/motion'
+import { pageTransition, fadeLeft, scaleIn } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
 import SectionHeader from '@/components/public/ui/SectionHeader'
-import ChairmanMessage from '@/components/public/sections/ChairmanMessage'
 import { timelineEvents } from '@/data/timeline'
 
-/* ── RainText — word-by-word spring drop from above ─────────────────────── */
-const rainWord = {
-  hidden:  { opacity: 0, y: -72 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 500, damping: 28, mass: 0.75 },
-  },
-}
+const EASE = [0.22, 1, 0.36, 1]
 
-function RainText({ text, className, delay = 0, stagger = 0.018 }) {
-  const ref    = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '0px 0px -40px 0px' })
-
-  return (
-    <motion.p
-      ref={ref}
-      initial="hidden"
-      animate={inView ? 'visible' : 'hidden'}
-      variants={{
-        hidden:  {},
-        visible: { transition: { staggerChildren: stagger, delayChildren: delay } },
-      }}
-      className={className}
-    >
-      {text.split(' ').map((word, i) => (
-        <motion.span key={i} variants={rainWord} className="inline-block mr-[0.28em] last:mr-0">
-          {word}
-        </motion.span>
-      ))}
-    </motion.p>
-  )
-}
-
-/* ── Timeline card entry directions (index → direction) ─────────────────── */
-const CARD_DIRS = [
-  { x: 0,    y: -100 },
-  { x: 100,  y: 0    },
-  { x: -100, y: 0    },
-  { x: 0,    y: 100  },
-]
-
+/* ── Timeline card ───────────────────────────────────────────────────────── */
 function CardContent({ event }) {
   return (
     <>
-      <div className="h-1 w-full bg-gradient-to-r from-gold-500 to-gold-400" />
+      <div className="h-1.5 w-full bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600" />
       <div className="p-6">
         <div className="flex items-center gap-3 mb-3">
           <span className="font-mono font-black text-gold-500 text-3xl leading-none">
@@ -63,7 +23,7 @@ function CardContent({ event }) {
           {event.milestone && (
             <span className="text-[10px] font-bold uppercase tracking-widest
                              text-gold-500 border border-gold-200 bg-gold-50
-                             rounded-full px-2 py-0.5">
+                             rounded-full px-2.5 py-1">
               Milestone
             </span>
           )}
@@ -77,18 +37,18 @@ function CardContent({ event }) {
   )
 }
 
-function DesktopCard({ event, dir, delay = 0 }) {
+function DesktopCard({ event, side, delay = 0 }) {
   const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '0px 0px -60px 0px' })
-
+  const xInit  = side === 'left' ? -80 : 80
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, x: dir.x, y: dir.y }}
-      animate={inView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: dir.x, y: dir.y }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay }}
-      whileHover={{ scale: 1.02, boxShadow: '0 18px 44px rgba(17,24,39,0.11)' }}
-      className="w-full max-w-[400px] bg-white rounded-2xl border border-slate-200
+      initial={{ opacity: 0, x: xInit }}
+      animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: xInit }}
+      transition={{ duration: 0.7, ease: EASE, delay }}
+      whileHover={{ scale: 1.02, boxShadow: '0 20px 48px rgba(13,11,30,0.13)' }}
+      className="w-full max-w-[400px] bg-white rounded-[28px] border border-slate-200
                  shadow-card cursor-default overflow-hidden"
     >
       <CardContent event={event} />
@@ -96,18 +56,17 @@ function DesktopCard({ event, dir, delay = 0 }) {
   )
 }
 
-function MobileCard({ event, dir }) {
+function MobileCard({ event }) {
   const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '0px 0px -40px 0px' })
-
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, x: dir.x, y: dir.y }}
-      animate={inView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: dir.x, y: dir.y }}
-      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-      className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden
-                 hover:border-gold-200 transition-colors duration-300"
+      initial={{ opacity: 0, x: -60 }}
+      animate={inView ? { opacity: 1, x: 0 } : {}}
+      transition={{ duration: 0.65, ease: EASE }}
+      className="bg-white rounded-[24px] border border-slate-200 shadow-card overflow-hidden
+                 hover:border-gold-200 hover:shadow-hover transition-colors duration-300"
     >
       <CardContent event={event} />
     </motion.div>
@@ -116,10 +75,10 @@ function MobileCard({ event, dir }) {
 
 /* ── Page-level data ─────────────────────────────────────────────────────── */
 const glanceStats = [
-  { end: 42,  start: 0, suffix: '+', label: 'Years of Operation' },
-  { end: 6,   start: 0, suffix: '',  label: 'Group Companies'    },
-  { end: 500, start: 0, suffix: '+', label: 'People Employed'    },
-  { end: 20,  start: 0, suffix: '+', label: 'Countries Reached'  },
+  { end: 1982, start: 1974, suffix: '',  label: 'Year Founded',        color: 'red'  },
+  { end: 42,   start: 0,    suffix: '+', label: 'Years of Excellence', color: 'red'  },
+  { end: 6,    start: 0,    suffix: '',  label: 'Group Companies',     color: 'teal' },
+  { end: 4,    start: 0,    suffix: '',  label: 'Continents Served',   color: 'teal' },
 ]
 
 const differentiators = [
@@ -127,16 +86,19 @@ const differentiators = [
     title: '40+ Years Proven Track Record',
     body:  'Founded in 1982, East Queen Group has weathered decades of market cycles, political shifts, and global trade disruptions — emerging stronger each time. Our longevity is our most compelling credential.',
     img:   '/images/shipping/bbg-master-night.jpeg',
+    chip:  'bg-gold-500',
   },
   {
     title: 'International Compliance & Quality',
     body:  'We comply with HKC standards, phytosanitary requirements, SGS inspections, and all relevant international trade regulations. Our quality control processes are documented and auditable.',
-    img:   '/images/ship-breaking/scrap-yard-1.jpeg',
+    img:   '/images/products/exports/mill-scale/mill-1.jpeg',
+    chip:  'bg-teal-500',
   },
   {
     title: 'Full-Service Logistics Support',
     body:  'From Letter of Credit to final delivery, we handle all documentation, third-party inspections, customs clearance, and logistics coordination — offering complete peace of mind.',
-    img:   '/images/shipping/vessel-1.jpeg',
+    img:   '/images/products/imports/aggregate/aggregate-3.jpeg',
+    chip:  'bg-navy-700',
   },
 ]
 
@@ -144,17 +106,25 @@ const principleLinks = [
   {
     label: 'Mission & Vision',
     sub:   'The strategic direction and long-term purpose that guides us.',
-    href:  '/mission-vision',
+    href:  '/mission-vision-purpose',
     img:   '/images/shipping/vessel-1.jpeg',
     tag:   '01',
   },
   {
-    label: 'Core Values',
+    label: 'Our Core Values',
     sub:   'The principles we live by — not just talk about.',
-    href:  '/core-values',
+    href:  '/our-core-values',
     img:   '/images/shipping/harmonia-arrival.jpeg',
     tag:   '02',
   },
+]
+
+const CHAIRMAN_PARAS = [
+  'As Chairman, it gives me great pleasure to witness how far we have come in our journey — from humble beginnings on the shores of Chittagong to a diversified conglomerate with strong foundations in ship recycling, international commodity trading, energy, fisheries, and more.',
+  'At East Queen Group, our mission is clear: to deliver quality, reliability, and integrity across every sector we operate in. Through companies like Ariko International, we have established a significant presence in the export of mill scale, zinc ash, PET flakes, and fresh agricultural produce, as well as the import of aggregate, coal, steel scrap, and industrial raw materials.',
+  'Our long-standing business relationships across Asia, the Middle East, and Europe reflect our global outlook and trustworthy reputation. Our success is driven by the trust of our partners, the hard work of our people, and our unwavering values — honesty, innovation, and sustainability.',
+  'As industries evolve, we remain committed to adapting through modern logistics and environmentally conscious practices that ensure long-term growth. This is more than a business — it is a legacy we are proud to grow.',
+  'I invite you to explore our companies, connect with our team, and partner with us as we continue building a story of strength and excellence through East Queen Group.',
 ]
 
 /* ── Page ────────────────────────────────────────────────────────────────── */
@@ -166,9 +136,9 @@ export default function About({ chairman, timeline = timelineEvents }) {
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
       <PageHero
         title="About East Queen Group"
-        subtitle="Four decades of industrial excellence — from a single ship-breaking yard to a diversified conglomerate serving global markets."
-        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'About' }]}
-        image="/images/ship-breaking/yard-wide-1.jpeg"
+        subtitle="Four decades of industrial excellence, ethical trade, and sustainable growth — proudly rooted in Chittagong since 1982."
+        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'About Us' }]}
+        image="/images/shipping/tristar-prosperity.jpeg"
       />
 
       {/* ── Company Overview ─────────────────────────────────────────────── */}
@@ -179,249 +149,346 @@ export default function About({ chairman, timeline = timelineEvents }) {
 
         <div className="section-container relative">
 
-          {/* Eyebrow + heading */}
+          {/* Eyebrow + title */}
           <motion.div
-            variants={staggerSlow}
+            variants={fadeLeft}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-80px' }}
             className="max-w-3xl mb-6"
           >
-            <motion.div variants={fadeDown} className="flex items-center gap-3 mb-5">
+            <div className="flex items-center gap-3 mb-5">
               <div className="gold-rule" />
               <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">
                 Established 1982 · Chittagong, Bangladesh
               </span>
-            </motion.div>
-            <motion.h2
-              variants={fadeDown}
-              className="font-playfair font-bold text-h1 text-slate-900 leading-tight"
-            >
-              Built on the Shores of<br />
-              <span className="text-gradient-gold">Chittagong</span>
-            </motion.h2>
+            </div>
+            <h2 className="font-playfair font-bold text-h1 text-slate-900 leading-tight">
+              One of Bangladesh's Leading &<br />
+              <span className="text-gradient-gold">Most Trusted Conglomerates</span>
+            </h2>
           </motion.div>
 
-          {/* Body paragraphs — word-by-word spring rain */}
+          {/* Body paragraphs */}
           <div className="max-w-3xl mb-10 sm:mb-16 space-y-4">
-            <RainText
-              text="East Queen Group was founded in 1982 by a visionary entrepreneur who saw the potential in Bangladesh's strategic maritime location. Starting with ship-breaking operations on the Chittagong coast, the Group has steadily expanded into a six-company conglomerate spanning maritime, trading, energy, fisheries, construction materials, and food sectors."
+            <motion.p
+              initial={{ opacity: 0, x: -56 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '0px 0px -40px 0px' }}
+              transition={{ duration: 0.7, ease: EASE }}
               className="text-slate-600 text-lg leading-relaxed"
-            />
-            <RainText
-              text="Today, East Queen Group operates across Bangladesh and serves international markets in Asia, the Middle East, and Europe — guided by the same values of integrity, quality, and community that defined the company's earliest days."
+            >
+              East Queen Group is one of Bangladesh's most respected industrial conglomerates, proudly rooted in Chittagong since 1982. With over four decades of experience, we have established ourselves as pioneers in multiple sectors — including ship recycling, international trade, energy, fisheries, construction materials, and food industries.
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, x: -56 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '0px 0px -40px 0px' }}
+              transition={{ duration: 0.7, ease: EASE, delay: 0.08 }}
               className="text-slate-600 leading-relaxed"
-            />
+            >
+              Founded by a visionary entrepreneur, East Queen Group has grown through resilience, integrity, and strategic foresight. Today we are known not only for being one of Bangladesh's most established ship recyclers but also for our dynamic expansion into new industries and global markets.
+            </motion.p>
           </div>
 
           {/* Vision + Mission cards */}
           <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-6">
 
-            {/* Vision — slides from left */}
+            {/* Vision — clean white editorial, slides from left */}
             <motion.div
               initial={{ opacity: 0, x: -110 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ y: -8 }}
-              className="group relative bg-white rounded-2xl overflow-hidden
-                         border border-slate-100 shadow-card hover:shadow-hover
-                         transition-all duration-300 cursor-default"
+              transition={{ duration: 0.85, ease: EASE }}
+              whileHover={{ y: -10, boxShadow: '0 24px 64px rgba(13,11,30,0.13)' }}
+              className="group relative bg-white rounded-[32px] overflow-hidden
+                         border border-slate-200 shadow-card cursor-default
+                         transition-[border-color] duration-300 hover:border-slate-300"
             >
-              <div className="h-1 bg-gold-500" />
-              <div className="absolute left-0 top-1 bottom-0 w-[3px] bg-gold-500
+              {/* Left gold accent — slides down from top on hover */}
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gold-500
                               scale-y-0 group-hover:scale-y-100 origin-top
-                              transition-transform duration-500 rounded-b-full" />
-              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full
-                              bg-gold-500/[0.05] blur-2xl pointer-events-none
-                              opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative p-8">
-                <div className="w-14 h-14 rounded-2xl
-                               bg-gradient-to-br from-gold-50 to-white border border-gold-100
-                               flex items-center justify-center mb-6
-                               group-hover:bg-gold-500 group-hover:border-gold-500
-                               transition-all duration-300 shadow-sm">
-                  <Eye
-                    size={22}
-                    className="text-gold-500 group-hover:text-white group-hover:scale-110 transition-all duration-300"
-                  />
+                              transition-transform duration-500 ease-out" />
+
+              <div className="relative p-8 pt-9">
+                {/* Icon — navy square */}
+                <div className="w-12 h-12 rounded-xl bg-navy-900 flex items-center justify-center mb-6
+                               group-hover:bg-gold-500 transition-colors duration-300">
+                  <Eye size={20} className="text-white" />
                 </div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gold-500 mb-2">Our Vision</p>
-                <div className="h-[1.5px] w-7 bg-gold-300 rounded-full mb-6
-                                group-hover:w-16 group-hover:bg-gold-500 transition-all duration-500" />
+
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400 mb-2">
+                  Our Vision
+                </p>
+                {/* Accent rule — grows on hover */}
+                <div className="h-[2px] w-6 bg-gold-500 rounded-full mb-6
+                                group-hover:w-14 transition-all duration-500 ease-out" />
+
                 <h3 className="font-playfair font-bold text-slate-900 text-[1.35rem] leading-snug mb-5">
                   Leading Bangladesh's<br />Industrial Transformation
                 </h3>
-                <RainText
-                  text="To lead Bangladesh's industrial transformation by delivering excellence, fostering innovation, and building global partnerships that create value for generations."
-                  className="text-slate-500 leading-relaxed text-[0.9rem]"
-                />
+                <p className="text-slate-500 leading-relaxed text-[0.9rem]">
+                  To lead Bangladesh's industrial transformation by delivering excellence, fostering innovation, and building global partnerships that create value for generations.
+                </p>
               </div>
             </motion.div>
 
-            {/* Mission — slides from right */}
+            {/* Mission — clean white editorial, slides from right */}
             <motion.div
               initial={{ opacity: 0, x: 110 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
-              whileHover={{ y: -8 }}
-              className="group relative bg-white rounded-2xl overflow-hidden
-                         border border-slate-100 shadow-card hover:shadow-hover
-                         transition-all duration-300 cursor-default"
+              transition={{ duration: 0.85, ease: EASE, delay: 0.08 }}
+              whileHover={{ y: -10, boxShadow: '0 24px 64px rgba(13,11,30,0.13)' }}
+              className="group relative bg-white rounded-[32px] overflow-hidden
+                         border border-slate-200 shadow-card cursor-default
+                         transition-[border-color] duration-300 hover:border-slate-300"
             >
-              <div className="h-1 bg-gold-500" />
-              <div className="absolute left-0 top-1 bottom-0 w-[3px] bg-gold-500
+              {/* Left gold accent */}
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gold-500
                               scale-y-0 group-hover:scale-y-100 origin-top
-                              transition-transform duration-500 rounded-b-full" />
-              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full
-                              bg-gold-500/[0.05] blur-2xl pointer-events-none
-                              opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative p-8">
-                <div className="w-14 h-14 rounded-2xl
-                               bg-gradient-to-br from-gold-50 to-white border border-gold-100
-                               flex items-center justify-center mb-6
-                               group-hover:bg-gold-500 group-hover:border-gold-500
-                               transition-all duration-300 shadow-sm">
-                  <Target
-                    size={22}
-                    className="text-gold-500 group-hover:text-white group-hover:scale-110 transition-all duration-300"
-                  />
+                              transition-transform duration-500 ease-out" />
+
+              <div className="relative p-8 pt-9">
+                {/* Icon */}
+                <div className="w-12 h-12 rounded-xl bg-navy-900 flex items-center justify-center mb-6
+                               group-hover:bg-gold-500 transition-colors duration-300">
+                  <Target size={20} className="text-white" />
                 </div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gold-500 mb-2">Our Mission</p>
-                <div className="h-[1.5px] w-7 bg-gold-300 rounded-full mb-6
-                                group-hover:w-16 group-hover:bg-gold-500 transition-all duration-500" />
+
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400 mb-2">
+                  Our Mission
+                </p>
+                <div className="h-[2px] w-6 bg-gold-500 rounded-full mb-6
+                                group-hover:w-14 transition-all duration-500 ease-out" />
+
                 <h3 className="font-playfair font-bold text-slate-900 text-[1.35rem] leading-snug mb-5">
                   A National &<br />International Benchmark
                 </h3>
-                <RainText
-                  text="To be recognized as a national and international benchmark in exporting, importing, manufacturing, and infrastructure development — through consistent performance, transparency, and customer satisfaction."
-                  className="text-slate-500 leading-relaxed text-[0.9rem]"
-                />
+                <p className="text-slate-500 leading-relaxed text-[0.9rem]">
+                  To be recognized as a national and international benchmark in exporting, importing, manufacturing, and infrastructure development — through consistent performance, transparency, and customer satisfaction.
+                </p>
               </div>
             </motion.div>
           </div>
 
-          {/* Our Spirit — full-width dark card */}
+          {/* Our Spirit — dark card, slides from left */}
           <motion.div
             initial={{ opacity: 0, x: -110 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.14 }}
-            className="relative bg-navy-900 rounded-2xl overflow-hidden shadow-deep group cursor-default"
+            transition={{ duration: 0.85, ease: EASE, delay: 0.14 }}
+            className="relative bg-navy-950 rounded-[32px] overflow-hidden shadow-deep
+                       group cursor-default border border-white/[0.06]"
           >
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gold-500" />
-            <div className="absolute left-0 top-1 bottom-0 w-[3px] bg-gold-500/40
-                            group-hover:bg-gold-500 transition-colors duration-500" />
-            <div className="absolute inset-0 bg-gradient-to-br from-gold-500/[0.06] via-transparent to-transparent
-                            opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-            <div className="absolute -top-16 -left-16 w-56 h-56 rounded-full
-                            bg-gold-500/10 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-10 -right-10 w-44 h-44 rounded-full
-                            border border-white/[0.04] pointer-events-none" />
+            {/* Single brand-red top accent */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gold-500" />
+
+            {/* Subtle radial glow on hover */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_10%_50%,rgba(226,31,47,0.08),transparent)]
+                            opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
             <div className="relative flex flex-col sm:flex-row items-center gap-8 p-8 md:p-12">
-              <div className="shrink-0 relative">
-                <motion.div
-                  whileHover={{ rotate: [0, -8, 8, 0] }}
-                  transition={{ duration: 0.5 }}
-                  className="w-20 h-20 rounded-2xl bg-gold-500/10 border border-gold-500/20
-                             flex items-center justify-center
-                             group-hover:bg-gold-500/20 group-hover:border-gold-500/40
-                             transition-all duration-300"
-                >
-                  <Flame size={34} className="text-gold-400 group-hover:text-gold-300 transition-colors duration-300" />
-                </motion.div>
-                <motion.div
-                  animate={{ scale: [1, 1.55, 1], opacity: [0.4, 0, 0.4] }}
-                  transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute inset-0 rounded-2xl border-2 border-gold-400 pointer-events-none"
-                />
+              {/* Icon */}
+              <div className="shrink-0">
+                <div className="w-16 h-16 rounded-2xl bg-white/[0.06] border border-white/10
+                               flex items-center justify-center
+                               group-hover:bg-gold-500/10 group-hover:border-gold-500/20
+                               transition-all duration-400">
+                  <Flame size={28} className="text-gold-400" />
+                </div>
               </div>
+
+              {/* Text */}
               <div className="text-center sm:text-left">
-                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gold-400/60 mb-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-3">
                   Our Spirit
                 </p>
-                <RainText
-                  text="Enterprise is our spirit."
-                  className="font-playfair font-bold text-white text-3xl md:text-4xl leading-tight"
-                  stagger={0.07}
-                />
+                <p className="font-playfair font-bold text-white text-3xl md:text-[2.5rem] leading-tight">
+                  Enterprise is our spirit.
+                </p>
               </div>
+
+              {/* Decorative right-side monogram */}
+              <span className="hidden md:block ml-auto font-playfair font-black text-[5rem]
+                               leading-none text-white/[0.04] select-none shrink-0">
+                EQ
+              </span>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* ── Chairman's Message ──────────────────────────────────────────── */}
-      <ChairmanMessage chairman={chairman} />
+      {/* ── Chairman's Message ───────────────────────────────────────────────── */}
+      <section id="chairman_message" className="section-padding bg-slate-50 relative overflow-hidden">
+        <div className="absolute inset-0 bg-dots-pattern pointer-events-none" />
+        <div className="section-container relative">
+          <div className="grid lg:grid-cols-[280px_1fr] gap-8 lg:gap-12 xl:gap-20 items-start">
 
-      {/* ── At A Glance ──────────────────────────────────────────────────── */}
+            {/* Portrait */}
+            <motion.div
+              variants={fadeLeft}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-80px' }}
+              className="lg:sticky lg:top-28"
+            >
+              <div className="relative rounded-[32px] overflow-hidden shadow-deep"
+                   style={{ boxShadow: '0 0 0 2px rgba(226,31,47,0.18), 0 24px 64px rgba(13,11,30,0.35)' }}>
+                <img
+                  src="/images/team/chairman.jpeg"
+                  alt="Chairman of East Queen Group"
+                  className="w-full aspect-[3/4] object-cover object-top"
+                  loading="lazy"
+                  decoding="async"
+                />
+                {/* Dual-tone top accent */}
+                <div className="absolute top-0 left-0 right-0 h-1.5
+                                bg-gradient-to-r from-teal-500 via-gold-500 to-gold-600" />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t
+                                from-navy-950 via-navy-950/80 to-transparent px-6 pt-14 pb-6">
+                  <p className="font-playfair font-bold text-white text-lg leading-snug">
+                    A K M Abu Taher BSc.
+                  </p>
+                  <p className="text-gold-400 text-sm font-semibold tracking-wide mt-1">
+                    Chairman, East Queen Group
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Message column */}
+            <div>
+              <motion.div
+                initial={{ opacity: 0, x: 56 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.75, ease: EASE }}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="gold-rule" />
+                  <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">
+                    Chairman's Message
+                  </span>
+                </div>
+
+                <h2 className="font-playfair font-bold text-h2 text-slate-900 mb-8">
+                  A Word From Our Chairman
+                </h2>
+
+                <div className="relative mb-8">
+                  <span className="absolute -top-6 -left-2 text-[7rem] leading-none text-gold-500/10
+                                   font-playfair font-bold select-none pointer-events-none">
+                    "
+                  </span>
+                  <p className="font-playfair italic text-slate-700 text-xl leading-relaxed
+                                pl-5 border-l-[3px] border-gold-500 relative">
+                    Welcome to East Queen Group.
+                  </p>
+                </div>
+              </motion.div>
+
+              <div className="space-y-5">
+                {CHAIRMAN_PARAS.map((para, i) => (
+                  <motion.p
+                    key={i}
+                    initial={{ opacity: 0, x: 56 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: '0px 0px -30px 0px' }}
+                    transition={{ duration: 0.65, ease: EASE, delay: i * 0.06 }}
+                    className="text-slate-600 leading-loose"
+                  >
+                    {para}
+                  </motion.p>
+                ))}
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.55, ease: EASE }}
+                className="mt-10 pt-7 border-t border-slate-200"
+              >
+                <p className="text-slate-500 text-sm mb-1">Warm regards,</p>
+                <p className="font-playfair font-bold text-slate-900 text-xl leading-tight">
+                  A K M Abu Taher BSc.
+                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="gold-rule" style={{ width: '1.5rem' }} />
+                  <p className="text-gold-500 text-sm font-semibold tracking-wide">
+                    Chairman, East Queen Group
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── At A Glance ──────────────────────────────────────────────────────── */}
       <section className="section-padding bg-white relative overflow-hidden">
         <div className="absolute inset-0 bg-light-grid pointer-events-none opacity-60" />
         <div className="section-container relative">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 xl:gap-24 items-center">
 
-            {/* Left — heading + CountUp stat cards */}
+            {/* Left — text */}
             <motion.div
-              variants={staggerSlow}
-              initial="hidden"
-              whileInView="visible"
+              initial={{ opacity: 0, x: -60 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.75, ease: EASE }}
             >
-              <motion.div variants={fadeDown} className="flex items-center gap-3 mb-5">
+              <div className="flex items-center gap-3 mb-5">
                 <div className="gold-rule" />
                 <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">
                   Who We Are
                 </span>
-              </motion.div>
-              <motion.h2
-                variants={fadeDown}
-                className="font-playfair font-bold text-h1 text-slate-900 leading-tight mb-6"
-              >
+              </div>
+              <h2 className="font-playfair font-bold text-h1 text-slate-900 leading-tight mb-6">
                 A Legacy Built on<br />
-                <span className="text-gradient-gold">Trust & Trade</span>
-              </motion.h2>
-              <RainText
-                text="East Queen Group is one of Bangladesh's leading diversified conglomerates, spanning ship-breaking, international commodity trading, energy distribution, agri-business, and more. Since 1982, we have connected Bangladesh's industrial strength with global demand across multiple continents."
-                className="text-slate-600 text-lg leading-relaxed"
-                stagger={0.036}
-              />
+                <span className="text-gradient-gold">Trust &amp; Trade</span>
+              </h2>
+              <p className="text-slate-600 text-lg leading-relaxed">
+                East Queen Group is one of Bangladesh's leading diversified conglomerates, spanning ship-breaking, international commodity trading, energy distribution, agri-business, and more. Since 1982, we have connected Bangladesh's industrial strength with global demand across four continents.
+              </p>
 
+              {/* Stat cards — alternating red / teal tints */}
               <div ref={statsRef} className="grid grid-cols-2 gap-3 sm:gap-4 mt-8 sm:mt-10">
-                {glanceStats.map((s, i) => (
-                  <motion.div
-                    key={s.label}
-                    variants={fadeDown}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.12 }}
-                    className="p-5 bg-slate-50 rounded-xl border border-slate-100
-                               hover:border-gold-200 hover:shadow-card transition-all duration-300"
-                  >
-                    <p className="font-mono font-black text-3xl text-slate-900 leading-none mb-1">
-                      {statsInView
-                        ? (
-                          <CountUp
-                            start={s.start}
-                            end={s.end}
-                            duration={2.2}
-                            delay={0.2 + i * 0.1}
-                            separator=","
-                          />
-                        )
-                        : String(s.start)
-                      }
-                      <span className="text-gold-500">{s.suffix}</span>
-                    </p>
-                    <p className="text-slate-500 text-sm">{s.label}</p>
-                  </motion.div>
-                ))}
+                {glanceStats.map((s, i) => {
+                  const isRed = s.color === 'red'
+                  return (
+                    <motion.div
+                      key={s.label}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, ease: EASE, delay: i * 0.1 }}
+                      className={[
+                        'p-5 rounded-[24px] border transition-all duration-300 hover:shadow-card',
+                        isRed
+                          ? 'bg-gradient-to-br from-gold-50 to-white border-gold-100/80 hover:border-gold-300'
+                          : 'bg-gradient-to-br from-teal-50/70 to-white border-teal-100/80 hover:border-teal-300',
+                      ].join(' ')}
+                    >
+                      <p className={[
+                        'font-mono font-black text-3xl leading-none mb-1',
+                        isRed ? 'text-gold-500' : 'text-teal-600',
+                      ].join(' ')}>
+                        {statsInView
+                          ? <CountUp start={s.start} end={s.end} duration={2.2} delay={0.2 + i * 0.1} separator="," />
+                          : String(s.start)
+                        }
+                        <span className={isRed ? 'text-gold-400' : 'text-teal-400'}>{s.suffix}</span>
+                      </p>
+                      <p className="text-slate-500 text-sm">{s.label}</p>
+                    </motion.div>
+                  )
+                })}
               </div>
             </motion.div>
 
-            {/* Right — image with floating stat badges */}
+            {/* Right — image with styled floating badges */}
             <motion.div
               variants={scaleIn}
               initial="hidden"
@@ -429,32 +496,36 @@ export default function About({ chairman, timeline = timelineEvents }) {
               viewport={{ once: true, margin: '-80px' }}
               className="relative"
             >
-              <div className="relative rounded-2xl overflow-hidden shadow-hover">
+              <div className="relative rounded-[32px] overflow-hidden shadow-hover">
                 <img
                   src="/images/shipping/tristar-prosperity.jpeg"
                   alt="East Queen Group operations"
                   className="w-full aspect-[4/3] object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy-900/50 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy-950/55 via-transparent to-transparent" />
 
+                {/* "Founded" badge — teal */}
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5, duration: 0.45 }}
                   viewport={{ once: true }}
-                  className="absolute bottom-4 left-4 bg-white rounded-xl p-4 shadow-hover"
+                  className="absolute bottom-4 left-4 bg-white rounded-[20px] p-4 shadow-hover
+                             border border-teal-100"
                 >
-                  <p className="font-mono font-black text-gold-500 text-2xl leading-none">1982</p>
+                  <p className="font-mono font-black text-teal-600 text-2xl leading-none">1982</p>
                   <p className="text-slate-700 text-xs font-semibold mt-1">Founded in Chittagong</p>
                   <p className="text-slate-400 text-[10px]">Bangladesh</p>
                 </motion.div>
 
+                {/* "42+ Years" badge — brand red */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.65, duration: 0.4, type: 'spring', stiffness: 300 }}
                   viewport={{ once: true }}
-                  className="absolute top-4 right-4 bg-gold-500 rounded-xl px-4 py-3"
+                  className="absolute top-4 right-4 bg-gradient-to-br from-gold-500 to-gold-600
+                             rounded-[20px] px-4 py-3 shadow-gold-glow"
                 >
                   <p className="font-mono font-black text-white text-2xl leading-none">42+</p>
                   <p className="text-white/80 text-[10px] font-semibold uppercase tracking-wider mt-0.5">
@@ -467,41 +538,40 @@ export default function About({ chairman, timeline = timelineEvents }) {
         </div>
       </section>
 
-      {/* ── Explore Our Principles ───────────────────────────────────────── */}
+      {/* ── Explore Our Principles ───────────────────────────────────────────── */}
       <section className="section-padding bg-slate-50">
         <div className="section-container">
           <motion.div
-            variants={staggerSlow}
+            variants={fadeLeft}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-80px' }}
             className="mb-12"
           >
-            <motion.div variants={fadeDown} className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-4">
               <div className="gold-rule" />
               <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">
                 Our Principles
               </span>
-            </motion.div>
-            <motion.h2 variants={fadeDown} className="font-playfair font-bold text-h2 text-slate-900">
+            </div>
+            <h2 className="font-playfair font-bold text-h2 text-slate-900">
               What We Believe In
-            </motion.h2>
+            </h2>
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-4 md:gap-6">
             {principleLinks.map(({ label, sub, href, img, tag }, i) => (
               <motion.div
                 key={href}
-                variants={fadeDown}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
+                initial={{ opacity: 0, x: i === 0 ? -60 : 60 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.75, ease: EASE, delay: i * 0.1 }}
               >
                 <Link
                   href={href}
-                  className="group relative flex h-72 rounded-2xl overflow-hidden
-                             shadow-card hover:shadow-hover transition-shadow duration-300 block"
+                  className="group relative flex h-72 rounded-[32px] overflow-hidden shadow-card
+                             hover:shadow-hover transition-shadow duration-300 block"
                 >
                   <img
                     src={img}
@@ -510,10 +580,15 @@ export default function About({ chairman, timeline = timelineEvents }) {
                                transition-transform duration-700 ease-out group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t
-                                 from-navy-950/95 via-navy-900/60 to-navy-900/20
+                                 from-navy-950/95 via-navy-900/55 to-navy-900/15
                                  group-hover:from-navy-950 transition-all duration-500" />
-                  <div className="absolute top-5 left-5 bg-gold-500 rounded-lg px-3 py-1.5">
-                    <span className="font-mono font-black text-white text-xs">{tag}</span>
+                  {/* Number tag */}
+                  <div className="absolute top-5 left-5">
+                    <span className="inline-flex items-center justify-center w-9 h-9
+                                     bg-gold-500 rounded-full shadow-gold-glow
+                                     font-mono font-black text-white text-xs">
+                      {tag}
+                    </span>
                   </div>
                   <div className="absolute inset-0 flex flex-col justify-end p-7">
                     <div className="h-[2px] w-8 bg-gold-500 rounded-full mb-4
@@ -533,7 +608,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
         </div>
       </section>
 
-      {/* ── Our Journey (Timeline) ───────────────────────────────────────── */}
+      {/* ── Our Journey (Timeline) ───────────────────────────────────────────── */}
       <section id="timeline" className="section-padding bg-slate-50 relative overflow-hidden">
         <div className="absolute inset-0 bg-dots-pattern pointer-events-none" />
         <div className="absolute top-0 left-0 right-0 h-[3px]
@@ -550,7 +625,6 @@ export default function About({ chairman, timeline = timelineEvents }) {
 
           {/* Desktop alternating timeline */}
           <div className="relative hidden lg:block">
-            {/* Animated spine growing from top */}
             <motion.div
               initial={{ scaleY: 0 }}
               whileInView={{ scaleY: 1 }}
@@ -563,16 +637,14 @@ export default function About({ chairman, timeline = timelineEvents }) {
 
             {timeline.map((event, i) => {
               const isLeft = i % 2 === 0
-              const dir    = CARD_DIRS[i] ?? { x: 0, y: 0 }
               return (
                 <div
                   key={event.year}
                   className="relative grid grid-cols-2 items-center mb-10 last:mb-0"
                 >
-                  {/* Left column */}
                   <div className="pr-12 flex justify-end">
                     {isLeft
-                      ? <DesktopCard event={event} dir={dir} />
+                      ? <DesktopCard event={event} side="left" />
                       : (
                         <motion.div
                           initial={{ opacity: 0, x: -32 }}
@@ -592,8 +664,7 @@ export default function About({ chairman, timeline = timelineEvents }) {
                     }
                   </div>
 
-                  {/* Center pulsing dot */}
-                  <div className="absolute left-1/2 -translate-x-1/2 z-10">
+                  <div className="absolute left-1/2 -translate-x-1/2 z-10 flex items-center justify-center">
                     <motion.div
                       initial={{ scale: 0, opacity: 0 }}
                       whileInView={{ scale: 1, opacity: 1 }}
@@ -610,10 +681,9 @@ export default function About({ chairman, timeline = timelineEvents }) {
                     </motion.div>
                   </div>
 
-                  {/* Right column */}
                   <div className="pl-12 flex justify-start">
                     {!isLeft
-                      ? <DesktopCard event={event} dir={dir} />
+                      ? <DesktopCard event={event} side="right" />
                       : (
                         <motion.div
                           initial={{ opacity: 0, x: 32 }}
@@ -649,36 +719,33 @@ export default function About({ chairman, timeline = timelineEvents }) {
                          bg-gradient-to-b from-gold-500/0 via-gold-500 to-gold-500/0"
             />
             <div className="space-y-5 pl-14">
-              {timeline.map((event, i) => {
-                const dir = CARD_DIRS[i] ?? { x: 0, y: 0 }
-                return (
-                  <div key={event.year} className="relative">
-                    <div className="absolute -left-[38px] top-5 z-10">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        whileInView={{ scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1, type: 'spring', stiffness: 300 }}
-                        className="relative flex items-center justify-center"
-                      >
-                        <motion.span
-                          animate={{ scale: [1, 2.0, 1], opacity: [0.4, 0, 0.4] }}
-                          transition={{ duration: 2.8, repeat: Infinity, delay: i * 0.6 }}
-                          className="absolute w-4 h-4 rounded-full bg-gold-400"
-                        />
-                        <div className="w-3 h-3 rounded-full bg-gold-500 border-2 border-slate-50 shadow-gold-glow" />
-                      </motion.div>
-                    </div>
-                    <MobileCard event={event} dir={dir} />
+              {timeline.map((event, i) => (
+                <div key={event.year} className="relative">
+                  <div className="absolute -left-[38px] top-5 z-10">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.1, type: 'spring', stiffness: 300 }}
+                      className="relative flex items-center justify-center"
+                    >
+                      <motion.span
+                        animate={{ scale: [1, 2.0, 1], opacity: [0.4, 0, 0.4] }}
+                        transition={{ duration: 2.8, repeat: Infinity, delay: i * 0.6 }}
+                        className="absolute w-4 h-4 rounded-full bg-gold-400"
+                      />
+                      <div className="w-3 h-3 rounded-full bg-gold-500 border-2 border-slate-50 shadow-gold-glow" />
+                    </motion.div>
                   </div>
-                )
-              })}
+                  <MobileCard event={event} />
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── What Sets Us Apart ──────────────────────────────────────────── */}
+      {/* ── What Sets Us Apart ───────────────────────────────────────────────── */}
       <section className="section-padding bg-white">
         <div className="section-container">
           <SectionHeader
@@ -693,12 +760,15 @@ export default function About({ chairman, timeline = timelineEvents }) {
             {differentiators.map((d, i) => (
               <motion.div
                 key={d.title}
-                variants={fadeDown}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="group relative rounded-2xl overflow-hidden h-[420px] cursor-default"
+                initial={{
+                  opacity: 0,
+                  x: i === 0 ? -60 : i === 2 ? 60 : 0,
+                  y: i === 1 ? 50 : 0,
+                }}
+                whileInView={{ opacity: 1, x: 0, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.75, ease: EASE, delay: i * 0.1 }}
+                className="group relative rounded-[32px] overflow-hidden h-[420px] cursor-default"
               >
                 <img
                   src={d.img}
@@ -710,7 +780,12 @@ export default function About({ chairman, timeline = timelineEvents }) {
                                from-navy-950/95 via-navy-900/50 to-navy-900/10
                                group-hover:from-navy-950 transition-all duration-500" />
                 <div className="absolute inset-0 flex flex-col justify-end p-6">
-                  <span className="font-mono font-black text-gold-400 text-xs tracking-widest mb-3">
+                  {/* Colored number chip */}
+                  <span className={[
+                    'inline-flex items-center justify-center w-9 h-9 rounded-full mb-4',
+                    'font-mono font-black text-white text-xs shadow-lg',
+                    d.chip,
+                  ].join(' ')}>
                     0{i + 1}
                   </span>
                   <div className="h-[2px] w-8 bg-gold-500 rounded-full mb-4

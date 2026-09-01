@@ -125,7 +125,7 @@ function CompaniesMegaMenu({ open, onClose }) {
                       Ship breaking · LPG energy<br />Fisheries · International trade
                     </p>
                     <Link
-                      href="/about"
+                      href="/about-east-queen"
                       onClick={onClose}
                       className="inline-flex items-center gap-1 text-gold-400 hover:text-gold-300
                                  text-xs font-semibold tracking-wide transition-colors"

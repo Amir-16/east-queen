@@ -19,7 +19,7 @@ const NAV_SECTIONS = ['Overview', 'Specifications', 'Use Cases', 'Markets', 'Enq
 
 export default function ProductDetail({ slug, type = 'export', exportData = exportProducts, importData = importProducts }) {
   const allProducts = type === 'import' ? importData : exportData
-  const product = allProducts.find((p) => p.id === slug)
+  const product = allProducts.find((p) => p.urlSlug === slug)
   const [activeSection, setActiveSection] = useState('Overview')
   const [galleryIdx, setGalleryIdx] = useState(0)
   const sectionRefs = useRef({})

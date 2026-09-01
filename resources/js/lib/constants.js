@@ -1,6 +1,6 @@
 export const NAV_ITEMS = [
   { label: 'Home', href: '/' },
-  { label: 'About', href: '/about' },
+  { label: 'About', href: '/about-east-queen' },
   {
     label: 'Companies',
     href: '/companies',

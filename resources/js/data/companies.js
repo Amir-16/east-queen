@@ -141,7 +141,7 @@ export const companies = [
     ],
     color: '#0d9488',
     logo: '/images/brand/concerns/con-3.png',
-    coverImage: '/images/companies/syedpur/farm-1.jpeg',
+    coverImage: '/images/companies/syedpur/pond-1.jpeg',
     galleryImages: [
       '/images/companies/syedpur/pond-1.jpeg',
       '/images/companies/syedpur/coastal-land.jpeg',

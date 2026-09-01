@@ -11,7 +11,6 @@ const TILES = [
   { src: '/images/gallery/ship-breaking/scrap-2.jpeg',       alt: 'Scrap materials',     style: '' },
   { src: '/images/gallery/ship-breaking/harmonia.jpeg',      alt: 'Harmonia vessel',     style: '' },
   { src: '/images/gallery/ship-breaking/yard-wide-1.jpeg',   alt: 'Yard panorama',       style: 'col-span-2' },
-  { src: '/images/gallery/fisheries/farm-1.jpeg',            alt: 'Fisheries farm',      style: '' },
   { src: '/images/gallery/aggregate/gabbro-1.jpeg',          alt: 'Gabbro aggregate',    style: '' },
   { src: '/images/gallery/mill-scale/mill-1.jpeg',           alt: 'Mill scale',          style: '' },
   { src: '/images/shipping/tristar-prosperity.jpeg',         alt: 'Tristar Prosperity',  style: 'col-span-2' },
