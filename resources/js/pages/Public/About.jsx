@@ -391,10 +391,10 @@ export default function About({ chairman, timeline = timelineEvents }) {
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t
                                 from-navy-900 via-navy-900/80 to-transparent px-6 pt-12 pb-5">
                   <p className="font-playfair font-bold text-white text-lg leading-snug">
-                    Md. Shahrear Islam
+                    A K M Abu Taher BSc.
                   </p>
                   <p className="text-gold-500 text-sm font-semibold tracking-wide mt-1">
-                    Chairman &amp; Managing Director
+                    Chairman, East Queen Group
                   </p>
                 </div>
               </div>
@@ -454,12 +454,12 @@ export default function About({ chairman, timeline = timelineEvents }) {
               >
                 <p className="text-slate-500 text-sm mb-1">Warm regards,</p>
                 <p className="font-playfair font-bold text-slate-900 text-xl leading-tight">
-                  Md. Shahrear Islam
+                  A K M Abu Taher BSc.
                 </p>
                 <div className="flex items-center gap-2 mt-2">
                   <div className="gold-rule" style={{ width: '1.5rem' }} />
                   <p className="text-gold-500 text-sm font-semibold tracking-wide">
-                    Chairman &amp; Managing Director, East Queen Group
+                    Chairman, East Queen Group
                   </p>
                 </div>
               </motion.div>
