@@ -8,7 +8,6 @@ use App\Http\Controllers\Public\GalleryController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\ImportController;
 use App\Http\Controllers\Public\LegalController;
-use App\Http\Controllers\Public\ProductController;
 use App\Http\Controllers\Public\ShipBreakingController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,15 +40,24 @@ Route::get('associates', fn () => inertia('Public/Associates'))->name('associate
 Route::get('export', [ExportController::class, 'index'])->name('export');
 Route::get('import', [ImportController::class, 'index'])->name('import');
 
-// Product detail — frontend-style flat URLs: /export-{slug} and /import-{slug}
-Route::get('export-{slug}', [ProductController::class, 'show'])->defaults('type', 'export')->name('products.export');
-Route::get('import-{slug}', [ProductController::class, 'show'])->defaults('type', 'import')->name('products.import');
+// Export product detail — explicit routes matching frontend SPA exactly
+Route::get('export-mill-scale',                  fn () => inertia('Public/ProductDetail', ['type' => 'export', 'slug' => 'mill-scale']))->name('products.export.mill-scale');
+Route::get('export-zinc-oxide',                  fn () => inertia('Public/ProductDetail', ['type' => 'export', 'slug' => 'zinc-oxide']))->name('products.export.zinc-oxide');
+Route::get('export-pet-flakes',                  fn () => inertia('Public/ProductDetail', ['type' => 'export', 'slug' => 'pet-flakes']))->name('products.export.pet-flakes');
+Route::get('export-fresh-vegetables-and-fruits', fn () => inertia('Public/ProductDetail', ['type' => 'export', 'slug' => 'fresh-vegetables-and-fruits']))->name('products.export.vegetables');
+Route::get('export-leather-goods',               fn () => inertia('Public/ProductDetail', ['type' => 'export', 'slug' => 'leather-goods']))->name('products.export.leather-goods');
+Route::get('export-jute-made-products',          fn () => inertia('Public/ProductDetail', ['type' => 'export', 'slug' => 'jute-made-products']))->name('products.export.jute');
 
-// Backward-compat redirect for old /import-gabbro (was an alias for aggregate)
-Route::redirect('import-gabbro', 'import-aggregate', 301);
+// Import product detail — explicit routes matching frontend SPA exactly
+Route::get('import-aggregate',              fn () => inertia('Public/ProductDetail', ['type' => 'import', 'slug' => 'aggregate']))->name('products.import.aggregate');
+Route::get('import-coal',                   fn () => inertia('Public/ProductDetail', ['type' => 'import', 'slug' => 'coal']))->name('products.import.coal');
+Route::get('import-steel-scraps',           fn () => inertia('Public/ProductDetail', ['type' => 'import', 'slug' => 'steel-scraps']))->name('products.import.steel-scraps');
+Route::get('import-automobile-spare-parts', fn () => inertia('Public/ProductDetail', ['type' => 'import', 'slug' => 'automobile-spare-parts']))->name('products.import.auto-parts');
+Route::get('import-lime-stone',             fn () => inertia('Public/ProductDetail', ['type' => 'import', 'slug' => 'lime-stone']))->name('products.import.lime-stone');
 
-// Backward-compat redirect for old /products/{type}/{slug} deep path
-Route::get('products/{type}/{slug}', fn ($type, $slug) => redirect("/{$type}-{$slug}", 301));
+// Backward-compat redirects
+Route::redirect('import-gabbro',          'import-aggregate', 301);
+Route::get('products/{type}/{slug}',      fn ($type, $slug) => redirect("/{$type}-{$slug}", 301));
 
 // Ship breaking
 Route::get('ship-breaking', ShipBreakingController::class)->name('ship-breaking');
