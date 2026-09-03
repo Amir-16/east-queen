@@ -11,7 +11,7 @@ use Inertia\Response;
 
 class SettingController extends Controller
 {
-    private const GROUPS = ['company', 'seo', 'social'];
+    private const GROUPS = ['company', 'seo', 'social', 'ship_hero'];
 
     public function index(): Response
     {
@@ -39,13 +39,12 @@ class SettingController extends Controller
             );
         }
 
-        // Clear the relevant shared-prop cache
         cache()->forget("settings.{$group}");
 
-        // company + seo are shared on every page via HandleInertiaRequests
-        if ($group === 'company') cache()->forget('settings.company');
-        if ($group === 'seo')     cache()->forget('settings.seo');
+        // Shared-prop caches (every page)
+        if ($group === 'company')   cache()->forget('settings.company');
+        if ($group === 'seo')       cache()->forget('settings.seo');
 
-        return back()->with('flash.success', ucfirst($group) . ' settings saved.');
+        return back()->with('flash.success', ucfirst(str_replace('_', ' ', $group)) . ' settings saved.');
     }
 }

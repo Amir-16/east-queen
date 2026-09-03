@@ -13,10 +13,10 @@ import MapVisual         from '@/components/public/sections/MapVisual'
 import AssociatesTeaser  from '@/components/public/sections/AssociatesTeaser'
 import ContactCTA        from '@/components/public/sections/ContactCTA'
 
-export default function Home({ heroSlides = [], marqueeItems = [], companies = [], associates = [], stats = [], processSteps = [], gallery = [], exportProducts = [], importProducts = [] }) {
+export default function Home({ heroSlides = [], marqueeItems = [], companies = [], associates = [], stats = [], processSteps = [], gallery = [], exportProducts = [], importProducts = [], shipHero = {} }) {
   return (
     <>
-      <ShipHeroSection />
+      <ShipHeroSection shipHero={shipHero} />
       <HeroSection slides={heroSlides} />
       <MarqueeStrip items={marqueeItems} />
       <AboutSnippet />
