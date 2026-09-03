@@ -707,7 +707,7 @@ export default function Gallery({ gallery = [] }) {
                     <Icon size={13} />
                     {label}
                     <span className="font-mono text-[10px] opacity-55">
-                      ({value === 'photos' ? allImages.length : value === 'videos' ? allVideos.length : galleryItems.length})
+                      ({value === 'photos' ? allImages.length : value === 'videos' ? allVideos.length : gallery.length})
                     </span>
                   </span>
                 </button>

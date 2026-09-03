@@ -3,23 +3,10 @@ import { motion } from 'framer-motion'
 import { Head, Link } from '@inertiajs/react'
 import { ArrowLeft, ArrowRight, ChevronRight, Tag } from 'lucide-react'
 import { pageTransition, stagger, fadeUp, fadeLeft, fadeRight } from '@/lib/motion'
-import { exportProducts } from '@/data/exports'
-import { importProducts } from '@/data/imports'
-
-function NotFoundFallback({ slug }) {
-  return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center">
-      <p className="text-slate-400 mb-4">Product "{slug}" not found.</p>
-      <Link href="/" className="text-gold-500 font-semibold hover:underline">← Home</Link>
-    </div>
-  )
-}
 
 const NAV_SECTIONS = ['Overview', 'Specifications', 'Use Cases', 'Markets', 'Enquire']
 
-export default function ProductDetail({ slug, type = 'export', exportData = exportProducts, importData = importProducts }) {
-  const allProducts = type === 'import' ? importData : exportData
-  const product = allProducts.find((p) => p.urlSlug === slug)
+export default function ProductDetail({ product }) {
   const [activeSection, setActiveSection] = useState('Overview')
   const [galleryIdx, setGalleryIdx] = useState(0)
   const sectionRefs = useRef({})
@@ -35,17 +22,16 @@ export default function ProductDetail({ slug, type = 'export', exportData = expo
     return () => obs.disconnect()
   }, [product])
 
-  if (!product) return <NotFoundFallback slug={slug} />
-
+  const type       = product?.type ?? 'export'
   const accentColor = type === 'import' ? 'teal' : 'gold'
-  const listHref = type === 'import' ? '/import' : '/export'
-  const listLabel = type === 'import' ? 'Import Products' : 'Export Products'
+  const listHref   = type === 'import' ? '/import' : '/export'
+  const listLabel  = type === 'import' ? 'Import Products' : 'Export Products'
 
-  const gallery = product.galleryImages?.length ? product.galleryImages : [product.image].filter(Boolean)
-  const specs = product.specs || {}
-  const useCases = product.useCases || product.uses || []
-  const markets = product.markets || product.origins || []
-  const tags = product.tags || []
+  const gallery  = product?.gallery_images?.length ? product.gallery_images : [product?.image].filter(Boolean)
+  const specs    = product?.specs    ?? {}
+  const useCases = product?.use_cases ?? []
+  const markets  = product?.markets   ?? []
+  const tags     = product?.tags      ?? []
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
@@ -182,10 +168,10 @@ export default function ProductDetail({ slug, type = 'export', exportData = expo
                 className="bg-white border border-slate-200 rounded-2xl p-7"
               >
                 <h2 className="font-playfair font-bold text-xl text-navy-900 mb-4">Overview</h2>
-                <p className="text-slate-500 text-sm leading-relaxed">{product.description || product.desc}</p>
-                {product.longDescription && (
-                  <p className="text-slate-500 text-sm leading-relaxed mt-4">{product.longDescription}</p>
-                )}
+                <p className="text-slate-500 text-sm leading-relaxed">{product.description}</p>
+                {product.long_description?.map((para, i) => (
+                  <p key={i} className="text-slate-500 text-sm leading-relaxed mt-4">{para}</p>
+                ))}
               </section>
 
               {/* Specifications */}
