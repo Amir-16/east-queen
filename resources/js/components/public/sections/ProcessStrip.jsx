@@ -1,43 +1,18 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { Search, ShieldCheck, Hammer, BarChart3, PackageCheck } from 'lucide-react'
+import { Search, ClipboardCheck, FileText, Truck, BadgeCheck, Circle } from 'lucide-react'
 import { ease, stagger, fadeUp } from '@/lib/motion'
 import SectionHeader from '@/components/public/ui/SectionHeader'
 
-const steps = [
-  {
-    icon: Search,
-    step: '01',
-    title: 'Acquire',
-    description: 'Source end-of-life vessels from global shipping markets and owners.',
-  },
-  {
-    icon: ShieldCheck,
-    step: '02',
-    title: 'Survey',
-    description: 'Pre-purchase structural inspection, hazardous material audit, and HKC compliance check.',
-  },
-  {
-    icon: Hammer,
-    step: '03',
-    title: 'Recycle',
-    description: 'Safe dismantling at our Sitakunda yard under certified environmental and safety protocols.',
-  },
-  {
-    icon: BarChart3,
-    step: '04',
-    title: 'Process',
-    description: 'Grade and certify re-rollable scrap steel, spare parts, and recovered commodities.',
-  },
-  {
-    icon: PackageCheck,
-    step: '05',
-    title: 'Supply',
-    description: 'Deliver processed steel and materials to mills and industrial buyers across Bangladesh.',
-  },
-]
+const ICON_MAP = {
+  MagnifyingGlassIcon:        Search,
+  ClipboardDocumentCheckIcon: ClipboardCheck,
+  DocumentTextIcon:           FileText,
+  TruckIcon:                  Truck,
+  CheckBadgeIcon:             BadgeCheck,
+}
 
-export default function ProcessStrip() {
+export default function ProcessStrip({ steps = [] }) {
   const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
@@ -79,26 +54,30 @@ export default function ProcessStrip() {
             animate={inView ? 'visible' : 'hidden'}
             className="grid grid-cols-5 gap-4 relative z-10"
           >
-            {steps.map(({ icon: Icon, step, title, description }) => (
-              <motion.div
-                key={step}
-                variants={fadeUp}
-                className="group flex flex-col items-center text-center cursor-default"
-              >
-                <div className="relative mb-6">
-                  <div className="w-[4.5rem] h-[4.5rem] rounded-full bg-white border-2 border-slate-200 group-hover:border-gold-500 group-hover:shadow-card flex items-center justify-center transition-all duration-300">
-                    <Icon size={22} className="text-slate-400 group-hover:text-gold-500 transition-colors duration-300" />
+            {steps.map((step) => {
+              const Icon = ICON_MAP[step.icon] ?? Circle
+              const num  = String(step.step_number).padStart(2, '0')
+              return (
+                <motion.div
+                  key={step.id}
+                  variants={fadeUp}
+                  className="group flex flex-col items-center text-center cursor-default"
+                >
+                  <div className="relative mb-6">
+                    <div className="w-[4.5rem] h-[4.5rem] rounded-full bg-white border-2 border-slate-200 group-hover:border-gold-500 group-hover:shadow-card flex items-center justify-center transition-all duration-300">
+                      <Icon size={22} className="text-slate-400 group-hover:text-gold-500 transition-colors duration-300" />
+                    </div>
+                    <span className="absolute -top-1 -right-1 w-[22px] h-[22px] rounded-full bg-gold-500 text-white text-[9px] font-mono font-bold flex items-center justify-center shadow-sm">
+                      {num}
+                    </span>
                   </div>
-                  <span className="absolute -top-1 -right-1 w-[22px] h-[22px] rounded-full bg-gold-500 text-white text-[9px] font-mono font-bold flex items-center justify-center shadow-sm">
-                    {step}
-                  </span>
-                </div>
-                <h3 className="font-inter font-bold text-navy-900 text-base mb-2 group-hover:text-gold-500 transition-colors duration-200">
-                  {title}
-                </h3>
-                <p className="text-slate-500 text-xs leading-relaxed max-w-[140px]">{description}</p>
-              </motion.div>
-            ))}
+                  <h3 className="font-inter font-bold text-navy-900 text-base mb-2 group-hover:text-gold-500 transition-colors duration-200">
+                    {step.title}
+                  </h3>
+                  <p className="text-slate-500 text-xs leading-relaxed max-w-[140px]">{step.description}</p>
+                </motion.div>
+              )
+            })}
           </motion.div>
         </div>
 
@@ -115,28 +94,32 @@ export default function ProcessStrip() {
           </div>
 
           <div className="space-y-9">
-            {steps.map(({ icon: Icon, step, title, description }, i) => (
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, x: 28 }}
-                animate={inView ? { opacity: 1, x: 0 } : {}}
-                transition={{ delay: 0.1 + i * 0.11, duration: 0.55, ease: ease.smooth }}
-                className="flex gap-5 items-start"
-              >
-                <div className="relative z-10 shrink-0 -ml-12">
-                  <div className="w-[3.25rem] h-[3.25rem] rounded-full bg-white border-2 border-slate-200 flex items-center justify-center shadow-sm">
-                    <Icon size={17} className="text-gold-500" />
+            {steps.map((step, i) => {
+              const Icon = ICON_MAP[step.icon] ?? Circle
+              const num  = String(step.step_number).padStart(2, '0')
+              return (
+                <motion.div
+                  key={step.id}
+                  initial={{ opacity: 0, x: 28 }}
+                  animate={inView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ delay: 0.1 + i * 0.11, duration: 0.55, ease: ease.smooth }}
+                  className="flex gap-5 items-start"
+                >
+                  <div className="relative z-10 shrink-0 -ml-12">
+                    <div className="w-[3.25rem] h-[3.25rem] rounded-full bg-white border-2 border-slate-200 flex items-center justify-center shadow-sm">
+                      <Icon size={17} className="text-gold-500" />
+                    </div>
+                    <span className="absolute -top-1 -right-1 w-[18px] h-[18px] rounded-full bg-gold-500 text-white text-[8px] font-mono font-bold flex items-center justify-center">
+                      {num}
+                    </span>
                   </div>
-                  <span className="absolute -top-1 -right-1 w-[18px] h-[18px] rounded-full bg-gold-500 text-white text-[8px] font-mono font-bold flex items-center justify-center">
-                    {step}
-                  </span>
-                </div>
-                <div className="pt-2.5">
-                  <h3 className="font-inter font-bold text-navy-900 text-base mb-1.5">{title}</h3>
-                  <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="pt-2.5">
+                    <h3 className="font-inter font-bold text-navy-900 text-base mb-1.5">{step.title}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed">{step.description}</p>
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </div>

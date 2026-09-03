@@ -5,7 +5,6 @@ import { pageTransition } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
 import SectionHeader from '@/components/public/ui/SectionHeader'
 import CompanyCard from '@/components/public/cards/CompanyCard'
-import { companies as defaultCompanies } from '@/data/companies'
 
 const FILTERS = [
   { label: 'All',          value: 'all'          },
@@ -17,7 +16,7 @@ const FILTERS = [
   { label: 'Trading',      value: 'trading'      },
 ]
 
-export default function Companies({ companies = defaultCompanies }) {
+export default function Companies({ companies = [] }) {
   const [active, setActive] = useState('all')
 
   const filtered = active === 'all' ? companies : companies.filter((c) => c.industry === active)

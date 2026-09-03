@@ -1,15 +1,8 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Quote } from 'lucide-react'
+import { usePage } from '@inertiajs/react'
 import { ease } from '@/lib/motion'
-
-const CHAIRMAN = {
-  name:  'Our Founder & Chairman',
-  title: 'East Queen Group · Est. 1982',
-  quote:
-    "What began as a single ship-breaking yard on the shores of Chittagong has grown into a family of companies built on trust, discipline, and a deep belief in Bangladesh's industrial future. We don't just trade commodities — we build relationships that last generations.",
-  photo: '/images/team/chairman.jpeg',
-}
 
 function ClipRevealText({ text, inView }) {
   return (
@@ -38,14 +31,15 @@ function ClipRevealText({ text, inView }) {
   )
 }
 
-export default function ChairmanMessage({ chairman }) {
-  const ref    = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-80px' })
+export default function ChairmanMessage() {
+  const ref      = useRef(null)
+  const inView   = useInView(ref, { once: true, margin: '-80px' })
+  const chairman = usePage().props.chairman ?? {}
 
-  const name  = chairman?.name  ?? CHAIRMAN.name
-  const title = chairman?.title ?? CHAIRMAN.title
-  const quote = chairman?.quote ?? CHAIRMAN.quote
-  const photo = chairman?.photo ?? CHAIRMAN.photo
+  const name  = chairman.name      ?? ''
+  const title = chairman.title     ?? ''
+  const quote = chairman.message   ?? ''
+  const photo = chairman.photo_url ?? ''
 
   return (
     <section ref={ref} className="section-padding bg-white relative overflow-hidden">

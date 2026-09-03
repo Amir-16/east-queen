@@ -3,11 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Head, Link } from '@inertiajs/react'
 import { ArrowRight } from 'lucide-react'
 import { pageTransition, stagger, fadeUp, fadeLeft, fadeRight } from '@/lib/motion'
+import { Search, ClipboardCheck, FileText, Truck, BadgeCheck, Circle } from 'lucide-react'
 import PageHero from '@/components/public/ui/PageHero'
 import SectionHeader from '@/components/public/ui/SectionHeader'
-import { importProducts, importProcessSteps } from '@/data/imports'
 
-export default function Import({ products = importProducts, processSteps = importProcessSteps }) {
+const ICON_MAP = {
+  MagnifyingGlassIcon:        Search,
+  ClipboardDocumentCheckIcon: ClipboardCheck,
+  DocumentTextIcon:           FileText,
+  TruckIcon:                  Truck,
+  CheckBadgeIcon:             BadgeCheck,
+}
+
+export default function Import({ products = [], processSteps = [] }) {
   const [activeId, setActiveId] = useState(products[0]?.id)
   const active = products.find((p) => p.id === activeId) ?? products[0]
 
@@ -154,18 +162,23 @@ export default function Import({ products = importProducts, processSteps = impor
             whileInView="visible"
             viewport={{ once: true }}
           >
-            {processSteps.map((step) => (
-              <motion.div key={step.step} variants={fadeUp} className="flex flex-col items-center text-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-3xl">
-                  {step.icon}
-                </div>
-                <div>
-                  <p className="font-mono font-bold text-white/50 text-sm mb-1">Step 0{step.step}</p>
-                  <p className="font-semibold text-white text-sm mb-1.5">{step.title}</p>
-                  <p className="text-white/55 text-xs leading-relaxed">{step.description}</p>
-                </div>
-              </motion.div>
-            ))}
+            {processSteps.map((step) => {
+              const Icon = ICON_MAP[step.icon] ?? Circle
+              return (
+                <motion.div key={step.id} variants={fadeUp} className="flex flex-col items-center text-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center">
+                    <Icon size={24} className="text-white/70" />
+                  </div>
+                  <div>
+                    <p className="font-mono font-bold text-white/50 text-sm mb-1">
+                      Step {String(step.step_number).padStart(2, '0')}
+                    </p>
+                    <p className="font-semibold text-white text-sm mb-1.5">{step.title}</p>
+                    <p className="text-white/55 text-xs leading-relaxed">{step.description}</p>
+                  </div>
+                </motion.div>
+              )
+            })}
           </motion.div>
         </div>
       </section>

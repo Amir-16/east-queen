@@ -5,9 +5,8 @@ import { pageTransition, stagger, fadeUp } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
 import SectionHeader from '@/components/public/ui/SectionHeader'
 import AssociateCard from '@/components/public/cards/AssociateCard'
-import { associates as defaultAssociates } from '@/data/associates'
 
-export default function Associates({ associates = defaultAssociates }) {
+export default function Associates({ associates = [] }) {
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
       <PageHero

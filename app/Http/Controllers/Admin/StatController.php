@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\ClearsPublicCache;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StatRequest;
 use App\Models\Stat;
@@ -12,6 +13,8 @@ use Inertia\Response;
 
 class StatController extends Controller
 {
+    use ClearsPublicCache;
+
     public function index(): Response
     {
         return Inertia::render('Admin/Stats/Index', [
@@ -27,6 +30,7 @@ class StatController extends Controller
     public function store(StatRequest $request): RedirectResponse
     {
         $stat = Stat::create($request->validated());
+        $this->clearStatCache();
 
         return redirect()->route('admin.stats.index')
             ->with('flash.success', "\"{$stat->label}\" stat added.");
@@ -43,6 +47,7 @@ class StatController extends Controller
     {
         $model = Stat::findOrFail($stat);
         $model->update($request->validated());
+        $this->clearStatCache();
 
         return redirect()->route('admin.stats.edit', $model->id)
             ->with('flash.success', "\"{$model->label}\" stat saved.");
@@ -53,6 +58,7 @@ class StatController extends Controller
         $model = Stat::findOrFail($stat);
         $label = $model->label;
         $model->delete();
+        $this->clearStatCache();
 
         return redirect()->route('admin.stats.index')
             ->with('flash.success', "\"{$label}\" stat deleted.");
@@ -65,6 +71,8 @@ class StatController extends Controller
         foreach ($request->order as $sortOrder => $id) {
             Stat::where('id', $id)->update(['sort_order' => $sortOrder]);
         }
+
+        $this->clearStatCache();
 
         return redirect()->route('admin.stats.index');
     }

@@ -1,17 +1,18 @@
 <?php
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\ClearsPublicCache;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CompanyRequest;
 use App\Models\Company;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CompanyController extends Controller {
+    use ClearsPublicCache;
     public function index(): Response {
         return Inertia::render('Admin/Companies/Index', [
             'companies' => Company::ordered()->get([
@@ -28,7 +29,7 @@ class CompanyController extends Controller {
         $data = $request->validated();
         $data['slug'] = $data['slug'] ?? Str::slug($data['name']);
         $company = Company::create($data);
-        Cache::forget('api.companies');
+        $this->clearCompanyCache();
         return redirect()->route('admin.companies.index')
             ->with('flash.success', "\"{$company->name}\" added.");
     }
@@ -39,16 +40,14 @@ class CompanyController extends Controller {
 
     public function update(CompanyRequest $request, Company $company): RedirectResponse {
         $company->update($request->validated());
-        Cache::forget('api.companies');
-        Cache::forget("api.company.{$company->slug}");
+        $this->clearCompanyCache($company->slug);
         return redirect()->route('admin.companies.edit', $company->id)
             ->with('flash.success', "\"{$company->name}\" saved.");
     }
 
     public function destroy(Company $company): RedirectResponse {
         $name = $company->name;
-        Cache::forget('api.companies');
-        Cache::forget("api.company.{$company->slug}");
+        $this->clearCompanyCache($company->slug);
         $company->delete();
         return redirect()->route('admin.companies.index')
             ->with('flash.success', "\"{$name}\" deleted.");
@@ -59,13 +58,13 @@ class CompanyController extends Controller {
         foreach ($request->order as $sortOrder => $id) {
             Company::where('id', $id)->update(['sort_order' => $sortOrder]);
         }
-        Cache::forget('api.companies');
+        $this->clearCompanyCache();
         return redirect()->route('admin.companies.index');
     }
 
     public function toggleActive(Company $company): RedirectResponse {
         $company->update(['is_active' => !$company->is_active]);
-        Cache::forget('api.companies');
+        $this->clearCompanyCache();
         return back()->with('flash.success', "\"{$company->name}\" visibility updated.");
     }
 }

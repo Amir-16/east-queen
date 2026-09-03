@@ -3,25 +3,25 @@ import { Link } from '@inertiajs/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, Images, X, ChevronLeft, ChevronRight } from 'lucide-react'
 
-const TILES = [
-  { src: '/images/gallery/ship-breaking/bbg-master.jpeg',   alt: 'BBG Master',         style: 'col-span-2 row-span-2' },
-  { src: '/images/gallery/ship-breaking/tristar.jpeg',       alt: 'Tristar vessel',      style: '' },
-  { src: '/images/gallery/ship-breaking/scrap-1.jpeg',       alt: 'Scrap yard',          style: '' },
-  { src: '/images/gallery/coal/hold-aerial.jpeg',            alt: 'Coal hold aerial',    style: 'row-span-2' },
-  { src: '/images/gallery/ship-breaking/scrap-2.jpeg',       alt: 'Scrap materials',     style: '' },
-  { src: '/images/gallery/ship-breaking/harmonia.jpeg',      alt: 'Harmonia vessel',     style: '' },
-  { src: '/images/gallery/ship-breaking/yard-wide-1.jpeg',   alt: 'Yard panorama',       style: 'col-span-2' },
-  { src: '/images/gallery/aggregate/gabbro-1.jpeg',          alt: 'Gabbro aggregate',    style: '' },
-  { src: '/images/gallery/mill-scale/mill-1.jpeg',           alt: 'Mill scale',          style: '' },
-  { src: '/images/shipping/tristar-prosperity.jpeg',         alt: 'Tristar Prosperity',  style: 'col-span-2' },
+const GRID_SPANS = [
+  'col-span-2 row-span-2',
+  '',
+  '',
+  'row-span-2',
+  '',
+  '',
+  'col-span-2',
+  '',
+  '',
+  'col-span-2',
 ]
 
-export default function GalleryMosaic({ tiles = TILES }) {
+export default function GalleryMosaic({ gallery = [] }) {
   const [lb, setLb] = useState({ open: false, index: 0 })
 
   const openLb  = (i) => setLb({ open: true, index: i })
   const closeLb = () => setLb((p) => ({ ...p, open: false }))
-  const nav     = (d) => setLb((p) => ({ open: true, index: (p.index + d + tiles.length) % tiles.length }))
+  const nav     = (d) => setLb((p) => ({ open: true, index: (p.index + d + gallery.length) % gallery.length }))
 
   return (
     <section className="section-padding bg-white overflow-hidden">
@@ -63,10 +63,10 @@ export default function GalleryMosaic({ tiles = TILES }) {
         <div
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 auto-rows-[120px] sm:auto-rows-[150px] md:auto-rows-[180px] gap-2 sm:gap-3"
         >
-          {tiles.map(({ src, alt, style }, i) => (
+          {gallery.map((item, i) => (
             <motion.div
-              key={src}
-              className={`relative overflow-hidden rounded-xl group cursor-pointer ${style}`}
+              key={item.id ?? i}
+              className={`relative overflow-hidden rounded-xl group cursor-pointer ${GRID_SPANS[i] ?? ''}`}
               initial={{ opacity: 0, scale: 0.97 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, margin: '-40px' }}
@@ -74,8 +74,8 @@ export default function GalleryMosaic({ tiles = TILES }) {
               onClick={() => openLb(i)}
             >
               <img
-                src={src}
-                alt={alt}
+                src={item.src}
+                alt={item.title ?? ''}
                 loading="lazy"
                 decoding="async"
                 className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
@@ -83,7 +83,7 @@ export default function GalleryMosaic({ tiles = TILES }) {
 
               <div className="absolute inset-0 bg-navy-900/0 group-hover:bg-navy-900/50 transition-colors duration-300" />
               <div className="absolute inset-0 flex items-end p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <span className="text-white text-xs font-medium">{alt}</span>
+                <span className="text-white text-xs font-medium">{item.title}</span>
               </div>
 
               {/* Red top accent on hover */}
@@ -112,8 +112,8 @@ export default function GalleryMosaic({ tiles = TILES }) {
 
             <motion.img
               key={lb.index}
-              src={tiles[lb.index].src}
-              alt={tiles[lb.index].alt}
+              src={gallery[lb.index]?.src}
+              alt={gallery[lb.index]?.title ?? ''}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
@@ -138,7 +138,7 @@ export default function GalleryMosaic({ tiles = TILES }) {
             </button>
 
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/40 font-mono text-sm">
-              {lb.index + 1} / {tiles.length}
+              {lb.index + 1} / {gallery.length}
             </div>
           </motion.div>
         )}

@@ -64,7 +64,7 @@ export default function CompanyCard({ company, className }) {
 
             {/* Touch CTA */}
             <Link
-              href={`/companies/${company.id}`}
+              href={`/companies/${company.slug}`}
               onClick={e => e.stopPropagation()}
               className="[@media(hover:none)]:flex hidden items-center gap-1.5 text-gold-500 text-sm font-semibold mt-auto"
             >
@@ -115,22 +115,22 @@ export default function CompanyCard({ company, className }) {
 
           {/* Footer */}
           <div className="px-6 pb-5 space-y-3">
-            {(company.founded || company.teamSize) && (
+            {(company.founded || company.team_size) && (
               <div className="flex gap-5">
                 {company.founded && (
                   <div className="flex items-center gap-1.5 text-white/40 text-xs">
                     <Calendar size={11} /> Est. {company.founded}
                   </div>
                 )}
-                {company.teamSize && (
+                {company.team_size && (
                   <div className="flex items-center gap-1.5 text-white/40 text-xs">
-                    <Users size={11} /> {company.teamSize}+ people
+                    <Users size={11} /> {company.team_size}+ people
                   </div>
                 )}
               </div>
             )}
             <Link
-              href={`/companies/${company.id}`}
+              href={`/companies/${company.slug}`}
               onClick={e => e.stopPropagation()}
               className="flex items-center justify-center gap-2 w-full bg-white/15 hover:bg-white/25
                          border border-white/20 text-white font-semibold text-sm px-4 py-2.5 rounded-xl

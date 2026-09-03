@@ -1,9 +1,8 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import CountUp from 'react-countup'
-import { STATS } from '@/lib/constants'
 
-export default function StatsSection({ stats = STATS }) {
+export default function StatsSection({ stats = [] }) {
   const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
 

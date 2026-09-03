@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\ClearsPublicCache;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\HeroSlideRequest;
 use App\Models\HeroSlide;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class HeroSlideController extends Controller
 {
+    use ClearsPublicCache;
     private const PRESETS = [
         'zoom_out'    => 'Zoom Out',
         'zoom_in'     => 'Zoom In',
@@ -43,7 +44,7 @@ class HeroSlideController extends Controller
     public function store(HeroSlideRequest $request): RedirectResponse
     {
         HeroSlide::create($request->validated());
-        Cache::forget('public.hero_slides');
+        $this->clearHeroCache();
 
         return redirect()->route('admin.hero-slides.index')
             ->with('flash.success', 'Hero slide added successfully.');
@@ -60,7 +61,7 @@ class HeroSlideController extends Controller
     public function update(HeroSlideRequest $request, HeroSlide $heroSlide): RedirectResponse
     {
         $heroSlide->update($request->validated());
-        Cache::forget('public.hero_slides');
+        $this->clearHeroCache();
 
         return redirect()->route('admin.hero-slides.index')
             ->with('flash.success', "\"{$heroSlide->label}\" updated successfully.");
@@ -70,7 +71,7 @@ class HeroSlideController extends Controller
     {
         $label = $heroSlide->label;
         $heroSlide->delete();
-        Cache::forget('public.hero_slides');
+        $this->clearHeroCache();
 
         return back()->with('flash.success', "\"{$label}\" deleted.");
     }
@@ -83,7 +84,7 @@ class HeroSlideController extends Controller
             HeroSlide::where('id', $id)->update(['sort_order' => $sortOrder]);
         }
 
-        Cache::forget('public.hero_slides');
+        $this->clearHeroCache();
 
         return redirect()->route('admin.hero-slides.index');
     }
@@ -91,7 +92,7 @@ class HeroSlideController extends Controller
     public function toggleActive(HeroSlide $heroSlide): RedirectResponse
     {
         $heroSlide->update(['is_active' => ! $heroSlide->is_active]);
-        Cache::forget('public.hero_slides');
+        $this->clearHeroCache();
 
         return back()->with('flash.success', "\"{$heroSlide->label}\" visibility updated.");
     }

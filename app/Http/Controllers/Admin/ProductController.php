@@ -1,17 +1,18 @@
 <?php
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\ClearsPublicCache;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductRequest;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ProductController extends Controller {
+    use ClearsPublicCache;
     public function index(): Response {
         return Inertia::render('Admin/Products/Index', [
             'products' => Product::ordered()->get([
@@ -28,8 +29,7 @@ class ProductController extends Controller {
         $data = $request->validated();
         $data['slug'] = $data['slug'] ?? Str::slug($data['name']);
         $product = Product::create($data);
-        Cache::forget('api.products');
-        Cache::forget("api.products.{$product->type}");
+        $this->clearProductCache($product->type, $product->slug);
         return redirect()->route('admin.products.index')
             ->with('flash.success', "\"{$product->name}\" added.");
     }
@@ -40,18 +40,14 @@ class ProductController extends Controller {
 
     public function update(ProductRequest $request, Product $product): RedirectResponse {
         $product->update($request->validated());
-        Cache::forget('api.products');
-        Cache::forget("api.products.{$product->type}");
-        Cache::forget("api.product.{$product->slug}");
+        $this->clearProductCache($product->type, $product->slug);
         return redirect()->route('admin.products.edit', $product->id)
             ->with('flash.success', "\"{$product->name}\" saved.");
     }
 
     public function destroy(Product $product): RedirectResponse {
         $name = $product->name;
-        Cache::forget('api.products');
-        Cache::forget("api.products.{$product->type}");
-        Cache::forget("api.product.{$product->slug}");
+        $this->clearProductCache($product->type, $product->slug);
         $product->delete();
         return redirect()->route('admin.products.index')
             ->with('flash.success', "\"{$name}\" deleted.");
@@ -62,14 +58,15 @@ class ProductController extends Controller {
         foreach ($request->order as $sortOrder => $id) {
             Product::where('id', $id)->update(['sort_order' => $sortOrder]);
         }
-        Cache::forget('api.products');
+        // Reorder affects both types; clear lists but not individual product caches
+        $this->clearProductCache('export', '');
+        $this->clearProductCache('import', '');
         return redirect()->route('admin.products.index');
     }
 
     public function toggleActive(Product $product): RedirectResponse {
         $product->update(['is_active' => !$product->is_active]);
-        Cache::forget('api.products');
-        Cache::forget("api.products.{$product->type}");
+        $this->clearProductCache($product->type, $product->slug);
         return back()->with('flash.success', "\"{$product->name}\" visibility updated.");
     }
 }

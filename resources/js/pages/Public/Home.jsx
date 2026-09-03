@@ -13,19 +13,19 @@ import MapVisual         from '@/components/public/sections/MapVisual'
 import AssociatesTeaser  from '@/components/public/sections/AssociatesTeaser'
 import ContactCTA        from '@/components/public/sections/ContactCTA'
 
-export default function Home({ stats, chairman, companies, associates }) {
+export default function Home({ heroSlides = [], marqueeItems = [], companies = [], associates = [], stats = [], processSteps = [], gallery = [], exportProducts = [], importProducts = [] }) {
   return (
     <>
       <ShipHeroSection />
-      <HeroSection />
-      <MarqueeStrip />
+      <HeroSection slides={heroSlides} />
+      <MarqueeStrip items={marqueeItems} />
       <AboutSnippet />
-      <ChairmanMessage chairman={chairman} />
+      <ChairmanMessage />
       <CompaniesPreview companiesData={companies} />
       <ShipBreakingFeature />
-      <ProductsHighlight />
-      <ProcessStrip />
-      <GalleryMosaic />
+      <ProductsHighlight exports={exportProducts} imports={importProducts} />
+      <ProcessStrip steps={processSteps} />
+      <GalleryMosaic gallery={gallery} />
       <StatsSection stats={stats} />
       <MapVisual />
       <AssociatesTeaser companiesData={companies} associatesData={associates} />

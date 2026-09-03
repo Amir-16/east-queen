@@ -1,7 +1,7 @@
-import { companies } from '@/data/companies'
+export default function MarqueeStrip({ items = [] }) {
+  if (!items.length) return null
 
-export default function MarqueeStrip() {
-  const items = [...companies, ...companies]
+  const doubled = [...items, ...items]
 
   return (
     <div className="bg-slate-50 border-y border-slate-200 py-4 overflow-hidden relative">
@@ -10,24 +10,24 @@ export default function MarqueeStrip() {
 
       <div className="flex items-center group" style={{ width: 'max-content' }}>
         <div className="flex items-center animate-marquee group-hover:[animation-play-state:paused]">
-          {items.map((c, i) => (
+          {doubled.map((item, i) => (
             <span
               key={i}
               className="flex items-center gap-3 px-8 text-slate-500 text-[12px] font-semibold uppercase tracking-[0.2em] whitespace-nowrap"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-gold-500 shrink-0" />
-              {c.name}
+              {item.text}
             </span>
           ))}
         </div>
         <div className="flex items-center animate-marquee group-hover:[animation-play-state:paused]" aria-hidden>
-          {items.map((c, i) => (
+          {doubled.map((item, i) => (
             <span
               key={`dup-${i}`}
               className="flex items-center gap-3 px-8 text-slate-500 text-[12px] font-semibold uppercase tracking-[0.2em] whitespace-nowrap"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-gold-500 shrink-0" />
-              {c.name}
+              {item.text}
             </span>
           ))}
         </div>

@@ -5,8 +5,6 @@ import {
   Briefcase, MapPin, Download, CheckCircle, ChevronRight,
 } from 'lucide-react'
 import { pageTransition, stagger, fadeUp, fadeLeft, fadeRight } from '@/lib/motion'
-import { companies as defaultCompanies } from '@/data/companies'
-
 const INDUSTRY_LABELS = {
   shipping:     'Maritime & Shipping',
   energy:       'LPG Energy',
@@ -16,24 +14,10 @@ const INDUSTRY_LABELS = {
   trading:      'International Trading',
 }
 
-export default function CompanyDetail({ slug, companies = defaultCompanies }) {
-  const allCompanies = companies.length ? companies : defaultCompanies
-  const company = allCompanies.find((c) => c.id === slug)
-
-  if (!company) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <p className="text-slate-400 mb-4">Company not found.</p>
-        <Link href="/companies" className="text-gold-500 font-semibold hover:underline">← Back to Companies</Link>
-      </div>
-    )
-  }
-
-  const paragraphs = Array.isArray(company.longDescription) && company.longDescription.length
-    ? company.longDescription
+export default function CompanyDetail({ company, otherCompanies = [] }) {
+  const paragraphs = Array.isArray(company.long_description) && company.long_description.length
+    ? company.long_description
     : [company.description]
-
-  const otherCompanies = allCompanies.filter((c) => c.id !== company.id)
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
@@ -41,7 +25,7 @@ export default function CompanyDetail({ slug, companies = defaultCompanies }) {
 
       {/* Hero */}
       <div className="relative h-[55vh] min-h-[400px] overflow-hidden bg-navy-950 flex items-end">
-        <img src={company.coverImage} alt={company.name} className="absolute inset-0 w-full h-full object-cover scale-105" />
+        <img src={company.cover_image} alt={company.name} className="absolute inset-0 w-full h-full object-cover scale-105" />
         <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/60 to-navy-950/10" />
         <div className="absolute inset-0 bg-gradient-to-r from-navy-950/70 to-transparent" />
 
@@ -78,14 +62,14 @@ export default function CompanyDetail({ slug, companies = defaultCompanies }) {
                 </div>
               </div>
             )}
-            {company.teamSize && (
+            {company.team_size && (
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-gold-50 border border-gold-100 flex items-center justify-center shrink-0">
                   <Users size={15} className="text-gold-500" />
                 </div>
                 <div>
                   <p className="text-slate-400 text-[10px] uppercase tracking-wider">Team</p>
-                  <p className="font-mono font-semibold text-slate-900">{company.teamSize}+ members</p>
+                  <p className="font-mono font-semibold text-slate-900">{company.team_size}+ members</p>
                 </div>
               </div>
             )}
@@ -130,9 +114,9 @@ export default function CompanyDetail({ slug, companies = defaultCompanies }) {
                 </div>
               )}
 
-              {company.pdfUrl && (
+              {company.pdf_url && (
                 <a
-                  href={company.pdfUrl}
+                  href={company.pdf_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 w-full bg-white border border-slate-200 p-4 rounded-xl hover:border-gold-300 hover:shadow-card transition-all duration-200 group"
@@ -188,9 +172,9 @@ export default function CompanyDetail({ slug, companies = defaultCompanies }) {
               className="md:col-span-2 space-y-6"
             >
               {/* Gallery grid */}
-              {company.galleryImages?.length > 0 && (
+              {company.gallery_images?.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {company.galleryImages.map((img, i) => (
+                  {company.gallery_images.map((img, i) => (
                     <div key={i} className="aspect-video rounded-xl overflow-hidden">
                       <img
                         src={img}
@@ -210,13 +194,13 @@ export default function CompanyDetail({ slug, companies = defaultCompanies }) {
               </div>
 
               {/* Export + Import items */}
-              {company.exportItems?.length > 0 && company.importItems?.length > 0 ? (
+              {company.export_items?.length > 0 && company.import_items?.length > 0 ? (
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
                     <h4 className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.25em] mb-3">Export Products</h4>
                     <div className="h-px bg-slate-200 mb-3" />
                     <ul className="space-y-2">
-                      {company.exportItems.map((item) => (
+                      {company.export_items.map((item) => (
                         <li key={item} className="flex items-start gap-2 text-slate-600 text-sm">
                           <CheckCircle size={13} className="text-gold-500 mt-0.5 shrink-0" />
                           {item}
@@ -228,7 +212,7 @@ export default function CompanyDetail({ slug, companies = defaultCompanies }) {
                     <h4 className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.25em] mb-3">Import Products</h4>
                     <div className="h-px bg-slate-200 mb-3" />
                     <ul className="space-y-2">
-                      {company.importItems.map((item) => (
+                      {company.import_items.map((item) => (
                         <li key={item} className="flex items-start gap-2 text-slate-600 text-sm">
                           <CheckCircle size={13} className="text-gold-500 mt-0.5 shrink-0" />
                           {item}
@@ -239,12 +223,12 @@ export default function CompanyDetail({ slug, companies = defaultCompanies }) {
                 </div>
               ) : (
                 <>
-                  {company.exportItems?.length > 0 && (
+                  {company.export_items?.length > 0 && (
                     <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
                       <h4 className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.25em] mb-3">Export Products</h4>
                       <div className="h-px bg-slate-200 mb-3" />
                       <ul className="space-y-2">
-                        {company.exportItems.map((item) => (
+                        {company.export_items.map((item) => (
                           <li key={item} className="flex items-start gap-2 text-slate-600 text-sm">
                             <CheckCircle size={13} className="text-gold-500 mt-0.5 shrink-0" />
                             {item}
@@ -253,12 +237,12 @@ export default function CompanyDetail({ slug, companies = defaultCompanies }) {
                       </ul>
                     </div>
                   )}
-                  {company.importItems?.length > 0 && (
+                  {company.import_items?.length > 0 && (
                     <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
                       <h4 className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.25em] mb-3">Import Products</h4>
                       <div className="h-px bg-slate-200 mb-3" />
                       <ul className="space-y-2">
-                        {company.importItems.map((item) => (
+                        {company.import_items.map((item) => (
                           <li key={item} className="flex items-start gap-2 text-slate-600 text-sm">
                             <CheckCircle size={13} className="text-gold-500 mt-0.5 shrink-0" />
                             {item}
@@ -301,7 +285,7 @@ export default function CompanyDetail({ slug, companies = defaultCompanies }) {
             {otherCompanies.map((c) => (
               <Link
                 key={c.id}
-                href={`/companies/${c.id}`}
+                href={`/companies/${c.slug}`}
                 className="group flex items-center gap-4 bg-white border border-slate-200 rounded-xl p-4 hover:border-gold-300 hover:shadow-card transition-all duration-200"
               >
                 <div className="w-10 h-10 rounded-xl bg-navy-900 group-hover:bg-gold-500 flex items-center justify-center shrink-0 transition-colors duration-200">
