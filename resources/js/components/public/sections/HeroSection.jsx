@@ -9,65 +9,6 @@ import 'swiper/css/effect-fade'
 
 const SLIDE_DELAY = 5000
 
-const SLIDES = [
-  {
-    image: '/images/operations/facility-1.jpeg',
-    label: 'Gateway to Global Business',
-    line1: 'East Queen',
-    line2: 'Group',
-    href:  '/about-east-queen',
-  },
-  {
-    image: '/images/operations/facility-2.jpeg',
-    label: 'Ship Recycling · Est. 1982',
-    line1: "Bangladesh's",
-    line2: 'Industrial Pioneer',
-    href:  '/companies',
-  },
-  {
-    image: '/images/operations/facility-3.jpeg',
-    label: 'Sitakunda Yard · Chittagong',
-    line1: 'Steel Forged',
-    line2: 'at Sitakunda',
-    href:  '/ship-breaking',
-  },
-  {
-    image: '/images/operations/facility-4.jpeg',
-    label: 'HKC Certified · ISO Compliant',
-    line1: 'Safe.',
-    line2: 'Sustainable.',
-    href:  '/ship-breaking',
-  },
-  {
-    image: '/images/operations/facility-5.jpeg',
-    label: 'Six Companies · 500+ Employees',
-    line1: '42 Years of',
-    line2: 'Excellence',
-    href:  '/companies',
-  },
-  {
-    image: '/images/operations/facility-6.jpeg',
-    label: 'International Commerce',
-    line1: 'Built on',
-    line2: 'Industry',
-    href:  '/about-east-queen',
-  },
-  {
-    image: '/images/ship-breaking/coastal-view.jpeg',
-    label: 'Sitakunda Ship Breaking Yard',
-    line1: 'Where Ships',
-    line2: 'Find New Purpose',
-    href:  '/ship-breaking',
-  },
-  {
-    image: '/images/ship-breaking/yard-wide-1.jpeg',
-    label: '150+ Vessels Recycled',
-    line1: 'Pioneers of',
-    line2: 'Ship Recycling',
-    href:  '/ship-breaking',
-  },
-]
-
 const fadeUp = {
   hidden:  { opacity: 0, y: 16 },
   visible: { opacity: 1, y: 0,  transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } },
@@ -102,14 +43,14 @@ function SlideContent({ slide, slideKey }) {
           style={{ fontSize: 'clamp(2.6rem, 5.5vw, 4.5rem)' }}
         >
           <motion.span className="block text-white" variants={staggerL1}>
-            {slide.line1.split(' ').map((word, i) => (
+            {slide.title.split(' ').map((word, i) => (
               <motion.span key={i} variants={wordAnim} className="inline-block mr-[0.18em]">
                 {word}
               </motion.span>
             ))}
           </motion.span>
           <motion.span className="block" variants={staggerL2}>
-            {slide.line2.split(' ').map((word, i, arr) => (
+            {slide.subtitle.split(' ').map((word, i, arr) => (
               <motion.span
                 key={i}
                 variants={wordAnim}
@@ -124,7 +65,7 @@ function SlideContent({ slide, slideKey }) {
         {/* Minimal text CTA */}
         <motion.div variants={fadeUp}>
           <Link
-            href={slide.href}
+            href={slide.cta_url}
             className="group inline-flex items-center gap-2.5 text-white/70 hover:text-gold-400 text-sm font-semibold tracking-wide transition-colors duration-200"
           >
             Explore
@@ -136,7 +77,8 @@ function SlideContent({ slide, slideKey }) {
   )
 }
 
-export default function HeroSection({ slides = SLIDES }) {
+export default function HeroSection({ slides = [] }) {
+  if (!slides.length) return null
   const [activeIndex, setActiveIndex] = useState(0)
   const [isPaused,    setIsPaused]    = useState(false)
   const swiperRef = useRef(null)
@@ -169,7 +111,7 @@ export default function HeroSection({ slides = SLIDES }) {
           <SwiperSlide key={idx} className="relative w-full h-full overflow-hidden">
             <div className="absolute inset-0 kenburns">
               <img
-                src={slide.image}
+                src={slide.image_path}
                 alt=""
                 aria-hidden="true"
                 className="absolute inset-0 w-full h-full object-cover object-center"

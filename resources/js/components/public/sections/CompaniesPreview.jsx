@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link } from '@inertiajs/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, Building2 } from 'lucide-react'
-import { companies } from '@/data/companies'
 import SectionHeader from '@/components/public/ui/SectionHeader'
 
 const industryLabels = {
@@ -14,7 +13,7 @@ const industryLabels = {
   food:         'Food Trading',
 }
 
-export default function CompaniesPreview({ companiesData = companies }) {
+export default function CompaniesPreview({ companiesData = [] }) {
   const [hovered, setHovered] = useState(null)
 
   return (
@@ -46,12 +45,12 @@ export default function CompaniesPreview({ companiesData = companies }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              onMouseEnter={() => setHovered(companiesData[0].id)}
+              onMouseEnter={() => setHovered(companiesData[0].slug)}
               onMouseLeave={() => setHovered(null)}
             >
-              <Link href={`/companies/${companiesData[0].id}`} className="absolute inset-0 z-10" aria-label={companiesData[0].name} />
+              <Link href={`/companies/${companiesData[0].slug}`} className="absolute inset-0 z-10" aria-label={companiesData[0].name} />
               <img
-                src={companiesData[0].coverImage}
+                src={companiesData[0].cover_image}
                 alt={companiesData[0].name}
                 loading="lazy"
                 decoding="async"
@@ -70,7 +69,7 @@ export default function CompaniesPreview({ companiesData = companies }) {
                   {companiesData[0].name}
                 </h3>
                 <AnimatePresence>
-                  {hovered === companiesData[0].id ? (
+                  {hovered === companiesData[0].slug ? (
                     <motion.div
                       key="hover"
                       initial={{ opacity: 0, y: 8 }}
@@ -104,12 +103,12 @@ export default function CompaniesPreview({ companiesData = companies }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              onMouseEnter={() => setHovered(companiesData[1].id)}
+              onMouseEnter={() => setHovered(companiesData[1].slug)}
               onMouseLeave={() => setHovered(null)}
             >
-              <Link href={`/companies/${companiesData[1].id}`} className="absolute inset-0 z-10" aria-label={companiesData[1].name} />
+              <Link href={`/companies/${companiesData[1].slug}`} className="absolute inset-0 z-10" aria-label={companiesData[1].name} />
               <img
-                src={companiesData[1].coverImage}
+                src={companiesData[1].cover_image}
                 alt={companiesData[1].name}
                 loading="lazy"
                 decoding="async"
@@ -125,7 +124,7 @@ export default function CompaniesPreview({ companiesData = companies }) {
                   {companiesData[1].name}
                 </h3>
                 <AnimatePresence>
-                  {hovered === companiesData[1].id ? (
+                  {hovered === companiesData[1].slug ? (
                     <motion.span
                       key="hover"
                       initial={{ opacity: 0 }}
@@ -153,12 +152,12 @@ export default function CompaniesPreview({ companiesData = companies }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.15 + i * 0.08 }}
-              onMouseEnter={() => setHovered(company.id)}
+              onMouseEnter={() => setHovered(company.slug)}
               onMouseLeave={() => setHovered(null)}
             >
-              <Link href={`/companies/${company.id}`} className="absolute inset-0 z-10" aria-label={company.name} />
+              <Link href={`/companies/${company.slug}`} className="absolute inset-0 z-10" aria-label={company.name} />
               <img
-                src={company.coverImage}
+                src={company.cover_image}
                 alt={company.name}
                 loading="lazy"
                 decoding="async"
@@ -174,7 +173,7 @@ export default function CompaniesPreview({ companiesData = companies }) {
                   {company.name}
                 </h3>
                 <AnimatePresence>
-                  {hovered === company.id && (
+                  {hovered === company.slug && (
                     <motion.span
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}

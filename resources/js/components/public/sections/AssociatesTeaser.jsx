@@ -2,10 +2,6 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from '@inertiajs/react'
 import { stagger, fadeUp } from '@/lib/motion'
-import { companies } from '@/data/companies'
-import { associates } from '@/data/associates'
-
-
 
 function CompanyLogoCard({ company, delay = 0 }) {
   const [imgError, setImgError] = useState(false)
@@ -19,7 +15,7 @@ function CompanyLogoCard({ company, delay = 0 }) {
       whileHover={{ y: -4, scale: 1.03, transition: { duration: 0.2 } }}
     >
       <Link
-        href={`/companies/${company.id}`}
+        href={`/companies/${company.slug}`}
         className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col items-center gap-3 shadow-card hover:shadow-hover hover:border-gold-200 transition-all duration-300 group block"
       >
         <div className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center bg-white border border-slate-100 shadow-sm">
@@ -86,7 +82,7 @@ function AssociateLogoCard({ associate, delay = 0 }) {
   )
 }
 
-export default function AssociatesTeaser({ companiesData = companies, associatesData = associates }) {
+export default function AssociatesTeaser({ companiesData = [], associatesData = [] }) {
   return (
     <section className="section-padding bg-white">
       <div className="section-container space-y-16">

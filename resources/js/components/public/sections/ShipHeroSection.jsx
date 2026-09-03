@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from '@inertiajs/react'
 import { ArrowRight, Phone, ChevronDown, Wind, VolumeX } from 'lucide-react'
-import { CONTACT } from '@/lib/constants'
+import { usePage } from '@inertiajs/react'
 import { ease } from '@/lib/motion'
 
 const STATS = [
@@ -223,6 +223,7 @@ const wAnim = { hidden: { opacity: 0, y: 44, skewY: 4 }, visible: { opacity: 1, 
 
 export default function ShipHeroSection() {
   const { playing, toggle } = useWindSound()
+  const { company } = usePage().props
 
   return (
     <section
@@ -348,7 +349,7 @@ export default function ShipHeroSection() {
               <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform duration-200" />
             </Link>
             <a
-              href={`tel:${CONTACT.phones[0].replace(/\s/g, '')}`}
+              href={`tel:${(company?.phone ?? '').replace(/\s/g, '')}`}
               className="inline-flex items-center gap-2 px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-white/25 hover:border-gold-500/60 text-white font-semibold rounded-lg text-sm tracking-wide transition-all duration-200"
             >
               <Phone size={14} />
