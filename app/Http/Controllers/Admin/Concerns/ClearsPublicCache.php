@@ -24,6 +24,7 @@ trait ClearsPublicCache
     protected function clearCompanyCache(?string $slug = null): void
     {
         Cache::forget('public.companies');
+        Cache::forget('public.nav_companies');
         Cache::forget('api.companies');
 
         if ($slug) {

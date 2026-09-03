@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Company;
 use App\Models\Contact;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -33,6 +34,9 @@ class HandleInertiaRequests extends Middleware
             'company'  => fn () => cache()->remember('settings.company', 3600, fn () => Setting::group('company')),
             'chairman' => fn () => cache()->remember('settings.chairman', 3600, fn () => Setting::group('chairman')),
             'seo'      => fn () => cache()->remember('settings.seo', 3600, fn () => Setting::group('seo')),
+
+            'navCompanies' => fn () => cache()->remember('public.nav_companies', 3600,
+                fn () => Company::active()->ordered()->get(['id', 'name', 'slug', 'industry'])),
 
             'adminUser' => fn () => $request->user()?->only(['id', 'name', 'email']),
 
