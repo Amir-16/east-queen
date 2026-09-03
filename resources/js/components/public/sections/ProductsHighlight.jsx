@@ -5,9 +5,6 @@ import {
   ArrowRight, TrendingUp, TrendingDown, Globe,
   Search, ShieldCheck, Package, Ship, FileText,
 } from 'lucide-react'
-import { exportProducts } from '@/data/exports'
-import { importProducts } from '@/data/imports'
-
 const ease = [0.25, 0.1, 0.25, 1]
 
 const fromLeft = (i) => ({
