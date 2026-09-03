@@ -15,12 +15,12 @@ export default function ProductsEdit() {
         sort_order:       product.sort_order       ?? 0,
         is_active:        product.is_active        ?? true,
         description:      product.description      ?? '',
-        long_description: product.long_description ?? [],
-        specs:            product.specs            ?? {},
-        tags:             product.tags             ?? [],
-        use_cases:        product.use_cases        ?? [],
+        long_description: Array.isArray(product.long_description) ? product.long_description : [],
+        specs:            (product.specs && typeof product.specs === 'object' && !Array.isArray(product.specs)) ? product.specs : {},
+        tags:             Array.isArray(product.tags)             ? product.tags             : [],
+        use_cases:        Array.isArray(product.use_cases)        ? product.use_cases        : [],
         image:            product.image            ?? '',
-        gallery_images:   product.gallery_images   ?? [],
+        gallery_images:   Array.isArray(product.gallery_images)  ? product.gallery_images   : [],
     })
 
     function handleSubmit(e) {
