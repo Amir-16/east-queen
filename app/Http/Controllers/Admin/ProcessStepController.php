@@ -1,16 +1,17 @@
 <?php
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\ClearsPublicCache;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProcessStepRequest;
 use App\Models\ProcessStep;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ProcessStepController extends Controller {
+    use ClearsPublicCache;
     public function index(): Response {
         return Inertia::render('Admin/ProcessSteps/Index', [
             'steps' => ProcessStep::ordered()->get(),
@@ -23,7 +24,7 @@ class ProcessStepController extends Controller {
 
     public function store(ProcessStepRequest $request): RedirectResponse {
         $item = ProcessStep::create($request->validated());
-        Cache::forget('api.process_steps');
+        $this->clearProcessStepCache();
         return redirect()->route('admin.process-steps.index')
             ->with('flash.success', "\"{$item->title}\" added.");
     }
@@ -34,7 +35,7 @@ class ProcessStepController extends Controller {
 
     public function update(ProcessStepRequest $request, ProcessStep $processStep): RedirectResponse {
         $processStep->update($request->validated());
-        Cache::forget('api.process_steps');
+        $this->clearProcessStepCache();
         return redirect()->route('admin.process-steps.edit', $processStep->id)
             ->with('flash.success', "\"{$processStep->title}\" saved.");
     }
@@ -42,7 +43,7 @@ class ProcessStepController extends Controller {
     public function destroy(ProcessStep $processStep): RedirectResponse {
         $title = $processStep->title;
         $processStep->delete();
-        Cache::forget('api.process_steps');
+        $this->clearProcessStepCache();
         return redirect()->route('admin.process-steps.index')
             ->with('flash.success', "\"{$title}\" deleted.");
     }
@@ -52,7 +53,7 @@ class ProcessStepController extends Controller {
         foreach ($request->order as $sortOrder => $id) {
             ProcessStep::where('id', $id)->update(['sort_order' => $sortOrder]);
         }
-        Cache::forget('api.process_steps');
+        $this->clearProcessStepCache();
         return redirect()->route('admin.process-steps.index');
     }
 }

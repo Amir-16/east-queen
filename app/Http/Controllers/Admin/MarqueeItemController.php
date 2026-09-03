@@ -1,16 +1,17 @@
 <?php
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\ClearsPublicCache;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\MarqueeItemRequest;
 use App\Models\MarqueeItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class MarqueeItemController extends Controller {
+    use ClearsPublicCache;
     public function index(): Response {
         return Inertia::render('Admin/MarqueeItems/Index', [
             'items' => MarqueeItem::ordered()->get(),
@@ -23,7 +24,7 @@ class MarqueeItemController extends Controller {
 
     public function store(MarqueeItemRequest $request): RedirectResponse {
         $item = MarqueeItem::create($request->validated());
-        Cache::forget('api.marquee');
+        $this->clearMarqueeCache();
         return redirect()->route('admin.marquee.index')
             ->with('flash.success', "Marquee item added.");
     }
@@ -34,14 +35,14 @@ class MarqueeItemController extends Controller {
 
     public function update(MarqueeItemRequest $request, MarqueeItem $marquee): RedirectResponse {
         $marquee->update($request->validated());
-        Cache::forget('api.marquee');
+        $this->clearMarqueeCache();
         return redirect()->route('admin.marquee.edit', $marquee->id)
             ->with('flash.success', "Marquee item saved.");
     }
 
     public function destroy(MarqueeItem $marquee): RedirectResponse {
         $marquee->delete();
-        Cache::forget('api.marquee');
+        $this->clearMarqueeCache();
         return redirect()->route('admin.marquee.index')
             ->with('flash.success', "Marquee item deleted.");
     }
@@ -51,13 +52,13 @@ class MarqueeItemController extends Controller {
         foreach ($request->order as $sortOrder => $id) {
             MarqueeItem::where('id', $id)->update(['sort_order' => $sortOrder]);
         }
-        Cache::forget('api.marquee');
+        $this->clearMarqueeCache();
         return redirect()->route('admin.marquee.index');
     }
 
     public function toggleActive(MarqueeItem $marquee): RedirectResponse {
         $marquee->update(['is_active' => !$marquee->is_active]);
-        Cache::forget('api.marquee');
+        $this->clearMarqueeCache();
         return back()->with('flash.success', "Marquee item visibility updated.");
     }
 }
