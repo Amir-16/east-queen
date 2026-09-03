@@ -6,7 +6,6 @@ import {
 } from 'lucide-react'
 import { pageTransition, ease } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
-import { galleryItems } from '@/data/gallery'
 
 /* ── constants ── */
 const CATEGORY_META = {
@@ -101,7 +100,7 @@ const ImageCard = memo(function ImageCard({ item, idx, floatDelay, onClick }) {
 
           <img
             src={item.src}
-            alt={item.alt}
+            alt={item.title ?? ''}
             loading={isEager ? 'eager' : 'lazy'}
             decoding="async"
             fetchPriority={isEager ? 'high' : 'auto'}
@@ -318,7 +317,7 @@ function ImageLightbox({ images, index, dir, onNav, onJump, onClose }) {
             <motion.img
               key={index}
               src={img.src}
-              alt={img.alt}
+              alt={img.title ?? ''}
               custom={dir}
               variants={slideVariants}
               initial="enter"
@@ -570,7 +569,7 @@ function VideoModal({ videos, index, onClose, onNavigate }) {
 }
 
 /* ── Gallery page ── */
-export default function Gallery() {
+export default function Gallery({ gallery = [] }) {
   const [mediaType,  setMediaType]  = useState('all')
   const [activeCat,  setActiveCat]  = useState('all')
   const [lb,         setLb]         = useState({ open: false, index: 0, dir: 0 })
@@ -579,23 +578,23 @@ export default function Gallery() {
 
   const allImages = useMemo(() => {
     const seen = new Set()
-    return galleryItems.filter(i => {
+    return gallery.filter(i => {
       if (i.type === 'video') return false
       if (seen.has(i.src)) return false
       seen.add(i.src)
       return true
     })
-  }, [])
+  }, [gallery])
 
   const allVideos = useMemo(() => {
     const seen = new Set()
-    return galleryItems.filter(i => {
+    return gallery.filter(i => {
       if (i.type !== 'video') return false
       if (seen.has(i.src)) return false
       seen.add(i.src)
       return true
     })
-  }, [])
+  }, [gallery])
 
   const filteredImages = useMemo(() =>
     mediaType === 'videos'

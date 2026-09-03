@@ -6,7 +6,6 @@ import { ArrowRight, Eye, Target, Flame } from 'lucide-react'
 import { pageTransition, fadeLeft, scaleIn } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
 import SectionHeader from '@/components/public/ui/SectionHeader'
-import { timelineEvents } from '@/data/timeline'
 
 const EASE = [0.22, 1, 0.36, 1]
 
@@ -20,18 +19,18 @@ function CardContent({ event }) {
           <span className="font-mono font-black text-gold-500 text-3xl leading-none">
             {event.year}
           </span>
-          {event.milestone && (
+          {event.done && (
             <span className="text-[10px] font-bold uppercase tracking-widest
                              text-gold-500 border border-gold-200 bg-gold-50
                              rounded-full px-2.5 py-1">
-              Milestone
+              Completed
             </span>
           )}
         </div>
         <h4 className="font-playfair font-bold text-slate-900 text-lg leading-snug mb-2">
           {event.title}
         </h4>
-        <p className="text-slate-500 text-sm leading-relaxed">{event.description}</p>
+        <p className="text-slate-500 text-sm leading-relaxed">{event.desc}</p>
       </div>
     </>
   )
@@ -128,7 +127,7 @@ const CHAIRMAN_PARAS = [
 ]
 
 /* ── Page ────────────────────────────────────────────────────────────────── */
-export default function About({ chairman, timeline = timelineEvents }) {
+export default function About({ timeline = [] }) {
   const statsRef    = useRef(null)
   const statsInView = useInView(statsRef, { once: true, margin: '-80px' })
 
