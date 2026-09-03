@@ -34,9 +34,10 @@ function Login() {
             {/* Logo + Brand */}
             <div className="mb-10">
               <img
-                src="/images/brand/logo-white.png"
+                src="/images/brand/logo-white.svg"
                 alt="East Queen Group"
-                className="h-12 mb-6 drop-shadow-lg"
+                className="h-16 mb-6 drop-shadow-lg"
+                onError={(e) => { e.currentTarget.src = '/images/brand/logo.svg' }}
               />
               <h1 className="text-3xl font-bold text-white leading-tight"
                   style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
