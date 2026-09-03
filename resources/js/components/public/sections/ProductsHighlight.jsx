@@ -62,7 +62,7 @@ function ProductCard({ product, index, dir }) {
       className="mb-3"
     >
       <Link
-        href={`/${product.type}-${product.urlSlug}`}
+        href={`/${product.type}-${product.slug}`}
         className="group relative flex items-center gap-4 p-3.5 rounded-xl
                    border border-slate-200 bg-white
                    hover:border-gold-500/50 hover:shadow-[0_8px_32px_rgba(226,31,47,0.10)]
@@ -143,8 +143,8 @@ function TrackHeader({ icon: Icon, label, count, dir }) {
 }
 
 export default function ProductsHighlight({
-  exports: exportsData = exportProducts,
-  imports: importsData = importProducts,
+  exports: exportsData = [],
+  imports: importsData = [],
 }) {
   const headerRef   = useRef(null)
   const processRef  = useRef(null)
