@@ -115,7 +115,7 @@ export default function CompanyCard({ company, className }) {
 
           {/* Footer */}
           <div className="px-6 pb-5 space-y-3">
-            {(company.founded || company.teamSize) && (
+            {(company.founded || company.team_size) && (
               <div className="flex gap-5">
                 {company.founded && (
                   <div className="flex items-center gap-1.5 text-white/40 text-xs">
