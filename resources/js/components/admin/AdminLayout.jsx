@@ -10,7 +10,7 @@ export default function AdminLayout({ title = '', subtitle = '', children }) {
   const toggleSidebar = useCallback(() => setSidebarOpen((o) => !o), [])
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#F1F5F9', fontFamily: 'Inter, sans-serif' }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: '#F5F0E8', fontFamily: 'Inter, sans-serif' }}>
       <AdminSidebar open={sidebarOpen} onClose={closeSidebar} />
 
       {/* Mobile overlay */}
