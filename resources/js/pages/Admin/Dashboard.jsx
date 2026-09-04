@@ -148,7 +148,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── Chart + Recent inquiries ────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="md:col-span-2">
           <FormCard title="Inquiry Trend" description="Incoming inquiries — last 30 days">
             <InquiryChart data={chartData ?? []} />
