@@ -43,6 +43,10 @@ trait ClearsPublicCache
     {
         Cache::forget('public.gallery');
         Cache::forget('public.gallery.home');
+        Cache::forget('api.gallery');
+        foreach (['operations', 'products', 'facilities'] as $cat) {
+            Cache::forget("api.gallery.{$cat}");
+        }
     }
 
     protected function clearMarqueeCache(): void
