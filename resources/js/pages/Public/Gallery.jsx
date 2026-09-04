@@ -5,6 +5,7 @@ import {
   Film, ImageIcon, Grid2x2, ZoomIn, Layers,
 } from 'lucide-react'
 import { pageTransition, ease } from '@/lib/motion'
+import PageHead from '@/components/public/ui/PageHead'
 import PageHero from '@/components/public/ui/PageHero'
 
 /* ── constants ── */
@@ -648,6 +649,7 @@ export default function Gallery({ gallery = [] }) {
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+      <PageHead title="Gallery" />
       <PageHero
         title="Our Gallery"
         subtitle={`${allImages.length} photos · ${allVideos.length} videos — a visual journey through our operations, facilities, and people.`}

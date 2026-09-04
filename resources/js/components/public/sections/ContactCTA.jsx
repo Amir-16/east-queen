@@ -1,10 +1,10 @@
-import { Link } from '@inertiajs/react'
+import { Link, usePage } from '@inertiajs/react'
 import { motion } from 'framer-motion'
 import { ArrowRight, Phone, Mail, MapPin } from 'lucide-react'
-import { CONTACT } from '@/lib/constants'
 import { fadeUp, fadeLeft, stagger } from '@/lib/motion'
 
-export default function ContactCTA({ contact = CONTACT }) {
+export default function ContactCTA() {
+  const { company } = usePage().props
   return (
     <section className="section-padding bg-slate-50 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none opacity-60"
@@ -54,17 +54,19 @@ export default function ContactCTA({ contact = CONTACT }) {
                 Send Us a Message
                 <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform duration-200" />
               </Link>
-              <a
-                href={`tel:${contact.phones[0].replace(/\s/g, '')}`}
-                className="inline-flex items-center gap-2 px-7 py-4
-                           bg-white hover:bg-slate-50 border border-slate-200
-                           hover:border-gold-500/40 text-slate-700 font-semibold
-                           rounded-xl text-sm tracking-wide transition-all duration-200
-                           shadow-sm hover:shadow-card"
-              >
-                <Phone size={14} className="text-gold-500" />
-                {contact.phones[0]}
-              </a>
+              {company?.phone && (
+                <a
+                  href={`tel:${company.phone.replace(/\s/g, '')}`}
+                  className="inline-flex items-center gap-2 px-7 py-4
+                             bg-white hover:bg-slate-50 border border-slate-200
+                             hover:border-gold-500/40 text-slate-700 font-semibold
+                             rounded-xl text-sm tracking-wide transition-all duration-200
+                             shadow-sm hover:shadow-card"
+                >
+                  <Phone size={14} className="text-gold-500" />
+                  {company.phone}
+                </a>
+              )}
             </motion.div>
           </motion.div>
 
@@ -82,39 +84,39 @@ export default function ContactCTA({ contact = CONTACT }) {
             </h3>
 
             <div className="space-y-5">
-              <div className="flex items-start gap-4">
-                <div className="w-9 h-9 rounded-xl bg-gold-50 border border-gold-100
-                                flex items-center justify-center shrink-0">
-                  <MapPin size={14} className="text-gold-500" />
+              {company?.address && (
+                <div className="flex items-start gap-4">
+                  <div className="w-9 h-9 rounded-xl bg-gold-50 border border-gold-100
+                                  flex items-center justify-center shrink-0">
+                    <MapPin size={14} className="text-gold-500" />
+                  </div>
+                  <div>
+                    <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-1">Office</p>
+                    <p className="text-slate-700 text-sm">{company.address}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-1">Office</p>
-                  <p className="text-slate-700 text-sm">{contact.address}</p>
-                </div>
-              </div>
+              )}
 
-              {contact.phones.map((phone, i) => (
-                <div key={phone} className="flex items-center gap-4">
+              {company?.phone && (
+                <div className="flex items-center gap-4">
                   <div className="w-9 h-9 rounded-xl bg-gold-50 border border-gold-100
                                   flex items-center justify-center shrink-0">
                     <Phone size={14} className="text-gold-500" />
                   </div>
                   <div>
-                    <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-1">
-                      Office {i + 1}
-                    </p>
+                    <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-1">Phone</p>
                     <a
-                      href={`tel:${phone.replace(/\s/g, '')}`}
+                      href={`tel:${company.phone.replace(/\s/g, '')}`}
                       className="text-slate-700 hover:text-gold-500 text-sm transition-colors"
                     >
-                      {phone}
+                      {company.phone}
                     </a>
                   </div>
                 </div>
-              ))}
+              )}
 
-              {contact.emails.map((email) => (
-                <div key={email} className="flex items-center gap-4">
+              {company?.email && (
+                <div className="flex items-center gap-4">
                   <div className="w-9 h-9 rounded-xl bg-gold-50 border border-gold-100
                                   flex items-center justify-center shrink-0">
                     <Mail size={14} className="text-gold-500" />
@@ -122,14 +124,14 @@ export default function ContactCTA({ contact = CONTACT }) {
                   <div>
                     <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-1">Email</p>
                     <a
-                      href={`mailto:${email}`}
+                      href={`mailto:${company.email}`}
                       className="text-slate-700 hover:text-gold-500 text-sm transition-colors break-all"
                     >
-                      {email}
+                      {company.email}
                     </a>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           </motion.div>
         </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Head } from '@inertiajs/react'
 import { motion, AnimatePresence } from 'framer-motion'
+import PageHead from '@/components/public/ui/PageHead'
 import { pageTransition } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
 import SectionHeader from '@/components/public/ui/SectionHeader'
@@ -23,7 +23,7 @@ export default function Companies({ companies = [] }) {
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
-      <Head title="Our Companies | East Queen Group" />
+      <PageHead title="Our Companies" />
       <PageHero
         title="Our Companies"
         subtitle="Six specialised entities working together across Bangladesh's industrial, trading, and maritime landscape."

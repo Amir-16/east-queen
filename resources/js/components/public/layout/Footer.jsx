@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react'
+import { Link, usePage } from '@inertiajs/react'
 import { motion } from 'framer-motion'
 import { Phone, Mail, MapPin, Clock, ExternalLink } from 'lucide-react'
 
@@ -13,13 +13,13 @@ const FacebookIcon = () => (
     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
   </svg>
 )
-import { NAV_ITEMS, CONTACT } from '@/lib/constants'
-import { companies } from '@/data/companies'
+import { NAV_ITEMS } from '@/lib/constants'
 import { stagger, fadeUp } from '@/lib/motion'
 
 const currentYear = new Date().getFullYear()
 
 export default function Footer() {
+  const { company, navCompanies = [] } = usePage().props
   return (
     <footer className="bg-white relative overflow-hidden border-t border-slate-200">
       {/* Subtle light grid texture */}
@@ -116,10 +116,10 @@ export default function Footer() {
               Our Companies
             </h4>
             <ul className="space-y-2.5">
-              {companies.map((c) => (
+              {navCompanies.map((c) => (
                 <li key={c.id}>
                   <Link
-                    href={`/companies/${c.id}`}
+                    href={`/companies/${c.slug}`}
                     className="text-slate-600 hover:text-gold-500 text-sm
                                transition-colors duration-200 flex items-center gap-2 group"
                   >
@@ -141,36 +141,38 @@ export default function Footer() {
               Contact Us
             </h4>
             <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <MapPin size={14} className="text-gold-500 mt-0.5 shrink-0" />
-                <span className="text-slate-600 text-sm">{CONTACT.address}</span>
-              </li>
-              {CONTACT.phones.map((phone) => (
-                <li key={phone} className="flex items-center gap-3">
+              {company?.address && (
+                <li className="flex items-start gap-3">
+                  <MapPin size={14} className="text-gold-500 mt-0.5 shrink-0" />
+                  <span className="text-slate-600 text-sm">{company.address}</span>
+                </li>
+              )}
+              {company?.phone && (
+                <li className="flex items-center gap-3">
                   <Phone size={14} className="text-gold-500 shrink-0" />
                   <a
-                    href={`tel:${phone.replace(/\s/g, '')}`}
+                    href={`tel:${company.phone.replace(/\s/g, '')}`}
                     className="text-slate-600 hover:text-gold-500 text-sm transition-colors duration-200"
                   >
-                    {phone}
+                    {company.phone}
                   </a>
                 </li>
-              ))}
-              {CONTACT.emails.map((email) => (
-                <li key={email} className="flex items-center gap-3">
+              )}
+              {company?.email && (
+                <li className="flex items-center gap-3">
                   <Mail size={14} className="text-gold-500 shrink-0" />
                   <a
-                    href={`mailto:${email}`}
+                    href={`mailto:${company.email}`}
                     className="text-slate-600 hover:text-gold-500 text-sm
                                transition-colors duration-200 break-all"
                   >
-                    {email}
+                    {company.email}
                   </a>
                 </li>
-              ))}
+              )}
               <li className="flex items-center gap-3">
                 <Clock size={14} className="text-gold-500 shrink-0" />
-                <span className="text-slate-600 text-sm">{CONTACT.hours}</span>
+                <span className="text-slate-600 text-sm">Sunday – Thursday, 9:00 AM – 5:00 PM (BST)</span>
               </li>
             </ul>
           </motion.div>

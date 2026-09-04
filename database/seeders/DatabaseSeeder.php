@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder {
             MarqueeItemSeeder::class,
             TimelineSeeder::class,
             GalleryMediaSeeder::class,
+            DifferentiatorSeeder::class,
+            CoreValueSeeder::class,
         ]);
     }
 }

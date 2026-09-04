@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Head, Link } from '@inertiajs/react'
+import { Link } from '@inertiajs/react'
+import PageHead from '@/components/public/ui/PageHead'
 import { ArrowLeft, ArrowRight, ChevronRight, Tag } from 'lucide-react'
 import { pageTransition, stagger, fadeUp, fadeLeft, fadeRight } from '@/lib/motion'
 
@@ -35,7 +36,7 @@ export default function ProductDetail({ product }) {
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
-      <Head title={`${product.name} | East Queen Group`} />
+      <PageHead title={product.name} description={product.description} image={product.image} />
       {/* Hero */}
       <div className="relative bg-navy-950 overflow-hidden">
         {gallery[0] && (

@@ -10,6 +10,7 @@ use App\Models\HeroSlide;
 use App\Models\MarqueeItem;
 use App\Models\ProcessStep;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\Stat;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -45,6 +46,9 @@ class HomeController extends Controller
 
             'importProducts' => cache()->remember('public.import_products', 3600,
                 fn () => Product::active()->ordered()->imports()->get()),
+
+            'shipHero' => cache()->remember('settings.ship_hero', 3600,
+                fn () => Setting::group('ship_hero')),
         ]);
         // 'chairman' is injected on every page via HandleInertiaRequests::share()
     }

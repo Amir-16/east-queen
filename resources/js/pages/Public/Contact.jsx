@@ -2,21 +2,16 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react'
 import { toast } from 'sonner'
-import { Head, router } from '@inertiajs/react'
+import { router, usePage } from '@inertiajs/react'
+import PageHead from '@/components/public/ui/PageHead'
 import { pageTransition, stagger, fadeUp, fadeLeft, fadeRight } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
-import { CONTACT } from '@/lib/constants'
 
 const subjects = ['General Inquiry', 'Export Products', 'Import Products', 'Business Partnership', 'Careers', 'Other']
+const HOURS = 'Sunday – Thursday, 9:00 AM – 5:00 PM (BST)'
 
-const infoItems = [
-  { icon: MapPin, label: 'Office', values: [CONTACT.address] },
-  { icon: Phone,  label: 'Phone',  values: CONTACT.phones },
-  { icon: Mail,   label: 'Email',  values: CONTACT.emails },
-  { icon: Clock,  label: 'Hours',  values: [CONTACT.hours] },
-]
-
-export default function Contact({ contact = CONTACT }) {
+export default function Contact() {
+  const { company } = usePage().props
   const [form, setForm] = useState({ name: '', company: '', email: '', phone: '', subject: '', message: '' })
   const [loading, setLoading] = useState(false)
 
@@ -36,15 +31,15 @@ export default function Contact({ contact = CONTACT }) {
   }
 
   const infoDisplay = [
-    { icon: MapPin, label: 'Office', values: [contact?.address ?? CONTACT.address] },
-    { icon: Phone,  label: 'Phone',  values: contact?.phones ?? CONTACT.phones },
-    { icon: Mail,   label: 'Email',  values: contact?.emails ?? CONTACT.emails },
-    { icon: Clock,  label: 'Hours',  values: [contact?.hours ?? CONTACT.hours] },
-  ]
+    company?.address && { icon: MapPin, label: 'Office', values: [company.address] },
+    company?.phone   && { icon: Phone,  label: 'Phone',  values: [company.phone]   },
+    company?.email   && { icon: Mail,   label: 'Email',  values: [company.email]   },
+    { icon: Clock, label: 'Hours', values: [HOURS] },
+  ].filter(Boolean)
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
-      <Head title="Contact Us | East Queen Group" />
+      <PageHead title="Contact Us" />
       <PageHero
         title="Contact Us"
         subtitle="We'd love to hear from you. Reach out for export, import, partnership, or general inquiries."
@@ -144,16 +139,18 @@ export default function Contact({ contact = CONTACT }) {
               whileInView="visible"
               viewport={{ once: true }}
             >
-              <div className="bg-navy-900 rounded-2xl overflow-hidden h-56 relative">
-                <iframe
-                  title="East Queen Group Location"
-                  src="https://maps.google.com/maps?q=Dhaka,Bangladesh&z=12&output=embed"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  loading="lazy"
-                />
-              </div>
+              {company?.map_embed_url && (
+                <div className="bg-navy-900 rounded-2xl overflow-hidden h-56 relative">
+                  <iframe
+                    title="East Queen Group Location"
+                    src={company.map_embed_url}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    loading="lazy"
+                  />
+                </div>
+              )}
 
               <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-7 space-y-5">
                 <h3 className="font-semibold text-navy-900 text-sm uppercase tracking-widest border-b border-slate-100 pb-4">Contact Details</h3>

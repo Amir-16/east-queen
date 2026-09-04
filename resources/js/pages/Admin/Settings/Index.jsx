@@ -5,6 +5,7 @@ import {
     BuildingOfficeIcon,
     MagnifyingGlassIcon,
     ShareIcon,
+    FilmIcon,
 } from '@heroicons/react/24/outline'
 
 // ── Primitives ───────────────────────────────────────────────────────────────
@@ -233,12 +234,116 @@ function SocialForm({ defaults }) {
     )
 }
 
+function ShipHeroForm({ defaults }) {
+    const { data, setData, patch, processing, errors } = useForm({
+        media_type:     defaults.media_type     ?? 'video',
+        video_url:      defaults.video_url      ?? '',
+        video_poster:   defaults.video_poster   ?? '',
+        image_url:      defaults.image_url      ?? '',
+        eyebrow:        defaults.eyebrow        ?? '',
+        headline:       defaults.headline       ?? '',
+        headline_accent: defaults.headline_accent ?? '',
+        tagline:        defaults.tagline        ?? '',
+        body:           defaults.body           ?? '',
+        cta1_text:      defaults.cta1_text      ?? '',
+        cta1_url:       defaults.cta1_url       ?? '',
+        badge_text:     defaults.badge_text     ?? '',
+    })
+
+    const isVideo = data.media_type === 'video'
+
+    return (
+        <form onSubmit={(e) => { e.preventDefault(); patch('/admin/settings/ship_hero') }} className="space-y-5">
+
+            <FormCard title="Background Media">
+                <div className="space-y-4">
+                    <Field label="Media Type">
+                        <div className="flex gap-4 mt-1">
+                            {['video', 'image'].map((type) => (
+                                <label key={type} className="inline-flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="media_type"
+                                        value={type}
+                                        checked={data.media_type === type}
+                                        onChange={() => setData('media_type', type)}
+                                        className="text-admin-gold focus:ring-admin-gold/30"
+                                    />
+                                    <span className="text-sm text-gray-700 capitalize">{type}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </Field>
+
+                    {isVideo ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Field label="Video URL" hint="Path relative to /public (e.g. /videos/ops.mp4)" error={errors.video_url}>
+                                <TextInput value={data.video_url} onChange={(v) => setData('video_url', v)} placeholder="/videos/operations/ops-2.mp4" mono />
+                            </Field>
+                            <Field label="Video Poster Image" hint="Shown while video loads" error={errors.video_poster}>
+                                <ImageField value={data.video_poster} onChange={(v) => setData('video_poster', v)} error={errors.video_poster} />
+                            </Field>
+                        </div>
+                    ) : (
+                        <Field label="Background Image" error={errors.image_url}>
+                            <ImageField value={data.image_url} onChange={(v) => setData('image_url', v)} error={errors.image_url} />
+                        </Field>
+                    )}
+                </div>
+            </FormCard>
+
+            <FormCard title="Text Content">
+                <div className="space-y-4">
+                    <Field label="Eyebrow Text" hint="Small uppercase line above the headline" error={errors.eyebrow}>
+                        <TextInput value={data.eyebrow} onChange={(v) => setData('eyebrow', v)} placeholder="East Queen Group · Est. 1982 · Chittagong, Bangladesh" />
+                    </Field>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="sm:col-span-2">
+                            <Field label="Headline" hint="Full headline text" error={errors.headline}>
+                                <TextInput value={data.headline} onChange={(v) => setData('headline', v)} placeholder="Global Export Import & Sourcing Solutions" />
+                            </Field>
+                        </div>
+                        <Field label="Accent Word" hint="Word highlighted in gold" error={errors.headline_accent}>
+                            <TextInput value={data.headline_accent} onChange={(v) => setData('headline_accent', v)} placeholder="Solutions" />
+                        </Field>
+                    </div>
+                    <Field label="Tagline" hint="Uppercase sub-headline below the main headline" error={errors.tagline}>
+                        <TextInput value={data.tagline} onChange={(v) => setData('tagline', v)} placeholder="Your Partner for Global Business & Sourcing" />
+                    </Field>
+                    <Field label="Body Text" error={errors.body}>
+                        <TextArea rows={4} value={data.body} onChange={(v) => setData('body', v)} placeholder="From Chittagong to markets across four continents…" />
+                    </Field>
+                </div>
+            </FormCard>
+
+            <FormCard title="Call-to-Action & Badge">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Field label="Primary Button Text" error={errors.cta1_text}>
+                        <TextInput value={data.cta1_text} onChange={(v) => setData('cta1_text', v)} placeholder="Explore Our Services" />
+                    </Field>
+                    <Field label="Primary Button URL" error={errors.cta1_url}>
+                        <TextInput value={data.cta1_url} onChange={(v) => setData('cta1_url', v)} placeholder="/export" mono />
+                    </Field>
+                    <div className="sm:col-span-2">
+                        <Field label="Badge Text" hint="Small pill shown bottom-left" error={errors.badge_text}>
+                            <TextInput value={data.badge_text} onChange={(v) => setData('badge_text', v)} placeholder="Trusted Globally · Est. 1982" />
+                        </Field>
+                    </div>
+                </div>
+            </FormCard>
+
+            <SaveBar processing={processing} />
+        </form>
+    )
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 const TABS = [
-    { id: 'company', label: 'Company', icon: BuildingOfficeIcon },
-    { id: 'seo',     label: 'SEO',     icon: MagnifyingGlassIcon },
-    { id: 'social',  label: 'Social',  icon: ShareIcon },
+    { id: 'company',   label: 'Company',      icon: BuildingOfficeIcon },
+    { id: 'seo',       label: 'SEO',          icon: MagnifyingGlassIcon },
+    { id: 'social',    label: 'Social',       icon: ShareIcon },
+    { id: 'ship_hero', label: 'Hero Section', icon: FilmIcon },
 ]
 
 export default function SettingsIndex() {
@@ -273,9 +378,10 @@ export default function SettingsIndex() {
                 </nav>
             </div>
 
-            {tab === 'company' && <CompanyForm defaults={settings.company ?? {}} />}
-            {tab === 'seo'     && <SeoForm     defaults={settings.seo     ?? {}} />}
-            {tab === 'social'  && <SocialForm  defaults={settings.social  ?? {}} />}
+            {tab === 'company'   && <CompanyForm   defaults={settings.company   ?? {}} />}
+            {tab === 'seo'       && <SeoForm       defaults={settings.seo       ?? {}} />}
+            {tab === 'social'    && <SocialForm    defaults={settings.social    ?? {}} />}
+            {tab === 'ship_hero' && <ShipHeroForm  defaults={settings.ship_hero ?? {}} />}
         </AdminLayout>
     )
 }

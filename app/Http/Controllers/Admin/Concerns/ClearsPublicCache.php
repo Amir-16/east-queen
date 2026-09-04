@@ -24,6 +24,7 @@ trait ClearsPublicCache
     protected function clearCompanyCache(?string $slug = null): void
     {
         Cache::forget('public.companies');
+        Cache::forget('public.nav_companies');
         Cache::forget('api.companies');
 
         if ($slug) {
@@ -66,6 +67,23 @@ trait ClearsPublicCache
     {
         Cache::forget('public.process_steps');
         Cache::forget('api.process_steps');
+    }
+
+    protected function clearAboutCache(): void
+    {
+        Cache::forget('public.about');
+        Cache::forget('public.mission_vision');
+        Cache::forget('public.core_values');
+    }
+
+    protected function clearDifferentiatorCache(): void
+    {
+        Cache::forget('public.differentiators');
+    }
+
+    protected function clearCoreValueCache(): void
+    {
+        Cache::forget('public.core_values');
     }
 
     protected function clearProductCache(string $type, string $slug): void

@@ -2,13 +2,15 @@ import { useState, useRef } from 'react'
 import { Link, usePage } from '@inertiajs/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Phone, Mail, ChevronDown, ArrowRight, Clock } from 'lucide-react'
-import { NAV_ITEMS, CONTACT } from '@/lib/constants'
-import { companies } from '@/data/companies'
+import { NAV_ITEMS } from '@/lib/constants'
 import { useNavbarScroll } from '@/hooks/useNavbarScroll'
 import { stagger, fadeRight } from '@/lib/motion'
 
 /* ─── Top utility bar ──────────────────────────────────────────────────────── */
 function TopBar() {
+  const { company } = usePage().props
+  const phone = company?.phone ?? ''
+  const email = company?.email ?? ''
   return (
     <div className="bg-gold-500 text-white hidden lg:block">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -20,20 +22,24 @@ function TopBar() {
             </span>
           </div>
           <div className="flex items-center gap-5 text-[11px] font-medium">
-            <a
-              href={`tel:${CONTACT.phones[0].replace(/\s/g, '')}`}
-              className="flex items-center gap-1.5 text-white/85 hover:text-white transition-colors"
-            >
-              <Phone size={11} />
-              {CONTACT.phones[0]}
-            </a>
-            <a
-              href={`mailto:${CONTACT.emails[0]}`}
-              className="flex items-center gap-1.5 text-white/85 hover:text-white transition-colors"
-            >
-              <Mail size={11} />
-              {CONTACT.emails[0]}
-            </a>
+            {phone && (
+              <a
+                href={`tel:${phone.replace(/\s/g, '')}`}
+                className="flex items-center gap-1.5 text-white/85 hover:text-white transition-colors"
+              >
+                <Phone size={11} />
+                {phone}
+              </a>
+            )}
+            {email && (
+              <a
+                href={`mailto:${email}`}
+                className="flex items-center gap-1.5 text-white/85 hover:text-white transition-colors"
+              >
+                <Mail size={11} />
+                {email}
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -43,6 +49,7 @@ function TopBar() {
 
 /* ─── Companies mega-menu ──────────────────────────────────────────────────── */
 function CompaniesMegaMenu({ open, onClose }) {
+  const { navCompanies = [] } = usePage().props
   return (
     <AnimatePresence>
       {open && (
@@ -63,7 +70,7 @@ function CompaniesMegaMenu({ open, onClose }) {
                   Our Portfolio
                 </p>
                 <div className="grid grid-cols-2 gap-0.5 flex-1">
-                  {companies.map((c, i) => (
+                  {navCompanies.map((c, i) => (
                     <motion.div
                       key={c.id}
                       initial={{ opacity: 0, y: 6 }}
@@ -71,7 +78,7 @@ function CompaniesMegaMenu({ open, onClose }) {
                       transition={{ delay: i * 0.035 }}
                     >
                       <Link
-                        href={`/companies/${c.id}`}
+                        href={`/companies/${c.slug}`}
                         onClick={onClose}
                         className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl
                                    hover:bg-slate-50 transition-colors duration-150"
@@ -202,6 +209,7 @@ function ProductDropdown({ open, item, onClose }) {
 /* ─── Main Navbar ──────────────────────────────────────────────────────────── */
 export default function Navbar() {
   const { url } = usePage()
+  const { company } = usePage().props
   const [menuOpen, setMenuOpen] = useState(false)
   const [openLabel, setOpenLabel] = useState(null)
   const [mobileExpanded, setMobileExpanded] = useState(null)
@@ -449,15 +457,17 @@ export default function Navbar() {
 
               {/* Drawer footer — phone CTA + button */}
               <div className="p-4 bg-slate-50 border-t border-slate-100 space-y-3">
-                <a
-                  href={`tel:${CONTACT.phones[0].replace(/\s/g, '')}`}
-                  className="flex items-center gap-2.5 px-3 py-2.5 bg-white rounded-xl
-                             border border-slate-200 text-slate-700 text-sm
-                             hover:border-gold-200 transition-colors"
-                >
-                  <Phone size={15} className="text-gold-500" />
-                  {CONTACT.phones[0]}
-                </a>
+                {company?.phone && (
+                  <a
+                    href={`tel:${company.phone.replace(/\s/g, '')}`}
+                    className="flex items-center gap-2.5 px-3 py-2.5 bg-white rounded-xl
+                               border border-slate-200 text-slate-700 text-sm
+                               hover:border-gold-200 transition-colors"
+                  >
+                    <Phone size={15} className="text-gold-500" />
+                    {company.phone}
+                  </a>
+                )}
                 <Link
                   href="/contact-us"
                   onClick={() => setMenuOpen(false)}

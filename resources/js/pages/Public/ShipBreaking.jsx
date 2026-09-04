@@ -25,6 +25,7 @@ import {
   ZoomIn,
 } from 'lucide-react'
 import { stagger, fadeUp, fadeLeft, fadeRight, ease } from '@/lib/motion'
+import PageHead from '@/components/public/ui/PageHead'
 
 /* ── data ── */
 const stats = [
@@ -491,6 +492,7 @@ export default function ShipBreaking() {
       transition={{ duration: 0.35 }}
       className="bg-white overflow-x-hidden"
     >
+      <PageHead title="Ship Breaking" />
 
       {/* HERO */}
       <section

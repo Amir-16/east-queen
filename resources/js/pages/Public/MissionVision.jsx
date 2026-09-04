@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { pageTransition, staggerSlow, fadeDown, scaleIn } from '@/lib/motion'
+import PageHead from '@/components/public/ui/PageHead'
 import PageHero from '@/components/public/ui/PageHero'
 
 const pillars = [
@@ -35,6 +36,7 @@ const pillars = [
 export default function MissionVision() {
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+      <PageHead title="Mission & Vision" />
       <PageHero
         title="Mission, Vision & Purpose"
         subtitle="The three pillars that define who we are, where we are going, and why it matters."

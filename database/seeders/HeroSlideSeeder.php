@@ -9,7 +9,7 @@ class HeroSlideSeeder extends Seeder {
         HeroSlide::truncate();
         HeroSlide::insert([
             [
-                'image_path'       => '/images/hero/ship-hero.jpg',
+                'image_path'       => '/images/shipping/bbg-master-night.jpeg',
                 'label'            => 'Ship Breaking',
                 'category'         => 'Maritime',
                 'animation_preset' => 'zoom_out',
@@ -24,7 +24,7 @@ class HeroSlideSeeder extends Seeder {
                 'sort_order'       => 1,
             ],
             [
-                'image_path'       => '/images/hero/trading-hero.jpg',
+                'image_path'       => '/images/shipping/ship-port-1.jpeg',
                 'label'            => 'Global Trading',
                 'category'         => 'Trade',
                 'animation_preset' => 'pan_right',
@@ -39,7 +39,7 @@ class HeroSlideSeeder extends Seeder {
                 'sort_order'       => 2,
             ],
             [
-                'image_path'       => '/images/hero/energy-hero.jpg',
+                'image_path'       => '/images/shipping/tristar-prosperity.jpeg',
                 'label'            => 'Energy',
                 'category'         => 'Energy',
                 'animation_preset' => 'zoom_in',

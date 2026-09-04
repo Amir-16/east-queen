@@ -41,20 +41,6 @@ export const NAV_ITEMS = [
   { label: 'Contact',       href: '/contact-us'     },
 ]
 
-export const STATS = [
-  { value: 100, suffix: '+', label: 'Happy Clients'       },
-  { value: 500, suffix: '+', label: 'Employees'           },
-  { value: 400, suffix: '+', label: 'Complete Deliveries' },
-  { value: 42,  suffix: '+', label: 'Years Established'   },
-]
-
-export const CONTACT = {
-  phones:  ['+880 1713 042261', '+880 1723 870250'],
-  emails:  ['shahrear@eastqueengroup.com', 'contact@eastqueengroup.com'],
-  address: 'Dhaka, Bangladesh',
-  hours:   'Sunday – Thursday, 9:00 AM – 5:00 PM (BST)',
-}
-
 export const INDUSTRY_COLORS = {
   shipping:     'bg-slate-100 text-slate-700',
   energy:       'bg-gold-100  text-gold-700',

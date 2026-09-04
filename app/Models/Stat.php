@@ -9,11 +9,11 @@ class Stat extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['label', 'value', 'suffix', 'icon', 'sort_order'];
+    protected $fillable = ['label', 'value', 'suffix', 'icon', 'color', 'count_start', 'sort_order'];
 
     protected function casts(): array
     {
-        return ['value' => 'integer'];
+        return ['value' => 'integer', 'count_start' => 'integer'];
     }
 
     public function scopeOrdered(Builder $query): Builder

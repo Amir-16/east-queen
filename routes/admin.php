@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\LogoutController;
 use App\Http\Controllers\Admin\AssociateController;
+use App\Http\Controllers\Admin\CoreValueController;
+use App\Http\Controllers\Admin\DifferentiatorController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -63,6 +65,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('/marquee/{marquee}/toggle-active',[MarqueeItemController::class, 'toggleActive'])->name('marquee.toggle-active');
         Route::resource('marquee', MarqueeItemController::class)->except(['show'])
             ->parameters(['marquee' => 'marquee']);
+
+        // Differentiators (About page — "What Sets Us Apart")
+        Route::post('/differentiators/reorder', [DifferentiatorController::class, 'reorder'])->name('differentiators.reorder');
+        Route::resource('differentiators', DifferentiatorController::class)->except(['show']);
+
+        // Core Values
+        Route::post('/core-values/reorder', [CoreValueController::class, 'reorder'])->name('core-values.reorder');
+        Route::resource('core-values', CoreValueController::class)->except(['show'])
+            ->parameters(['core-values' => 'coreValue']);
 
         // Timeline
         Route::post('/timeline/reorder', [TimelineEntryController::class, 'reorder'])->name('timeline.reorder');

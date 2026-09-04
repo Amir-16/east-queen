@@ -28,9 +28,10 @@ class HeroSlideController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/HeroSlides/Index', [
-            'slides' => HeroSlide::ordered()->get([
+            'slides'  => HeroSlide::ordered()->get([
                 'id', 'image_path', 'label', 'category', 'animation_preset', 'is_active', 'sort_order',
             ]),
+            'presets' => self::PRESETS,
         ]);
     }
 

@@ -3,8 +3,19 @@ import { Head, Link, router, usePage } from '@inertiajs/react'
 import { AdminLayout, SortableList, ConfirmModal, FormCard, Toggle } from '@/components/admin'
 import { PlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 
+const ANIMATION_ICONS = {
+    zoom_out:    '🔍↙',
+    zoom_in:     '🔍↗',
+    pan_right:   '→',
+    pan_left:    '←',
+    pan_up:      '↑',
+    pan_down:    '↓',
+    diagonal_lr: '↘',
+    diagonal_rl: '↙',
+}
+
 export default function HeroSlidesIndex() {
-    const { slides } = usePage().props
+    const { slides, presets = {} } = usePage().props
     const [deleting, setDeleting] = useState(null)
 
     function handleReorder(reordered) {
@@ -54,6 +65,7 @@ export default function HeroSlidesIndex() {
                                     src={item.image_path}
                                     alt={item.label}
                                     className="w-16 h-12 object-cover rounded-lg shrink-0 bg-gray-100"
+                                    onError={e => { e.currentTarget.src = '/images/placeholder.png'; e.currentTarget.onerror = null }}
                                 />
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 flex-wrap">
@@ -62,7 +74,7 @@ export default function HeroSlidesIndex() {
                                             {item.category}
                                         </span>
                                         <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-600 font-medium">
-                                            {item.animation_preset}
+                                            {presets[item.animation_preset] ?? item.animation_preset}
                                         </span>
                                     </div>
                                 </div>
