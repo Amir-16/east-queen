@@ -69,6 +69,23 @@ trait ClearsPublicCache
         Cache::forget('api.process_steps');
     }
 
+    protected function clearAboutCache(): void
+    {
+        Cache::forget('public.about');
+        Cache::forget('public.mission_vision');
+        Cache::forget('public.core_values');
+    }
+
+    protected function clearDifferentiatorCache(): void
+    {
+        Cache::forget('public.differentiators');
+    }
+
+    protected function clearCoreValueCache(): void
+    {
+        Cache::forget('public.core_values');
+    }
+
     protected function clearProductCache(string $type, string $slug): void
     {
         Cache::forget('public.products.export');

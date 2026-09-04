@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\ClearsPublicCache;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
@@ -11,7 +12,9 @@ use Inertia\Response;
 
 class SettingController extends Controller
 {
-    private const GROUPS = ['company', 'seo', 'social', 'ship_hero'];
+    use ClearsPublicCache;
+
+    private const GROUPS = ['company', 'seo', 'social', 'ship_hero', 'about', 'chairman', 'mission_vision'];
 
     public function index(): Response
     {
@@ -42,8 +45,12 @@ class SettingController extends Controller
         cache()->forget("settings.{$group}");
 
         // Shared-prop caches (every page)
-        if ($group === 'company')   cache()->forget('settings.company');
-        if ($group === 'seo')       cache()->forget('settings.seo');
+        if ($group === 'company')       cache()->forget('settings.company');
+        if ($group === 'seo')           cache()->forget('settings.seo');
+        if ($group === 'chairman')      cache()->forget('settings.chairman');
+        if (in_array($group, ['about', 'chairman', 'mission_vision'])) {
+            $this->clearAboutCache();
+        }
 
         return back()->with('flash.success', ucfirst(str_replace('_', ' ', $group)) . ' settings saved.');
     }
