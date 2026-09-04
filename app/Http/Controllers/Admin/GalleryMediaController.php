@@ -25,9 +25,20 @@ class GalleryMediaController extends Controller
 
     public function index(): Response
     {
+        $query = GalleryMedia::ordered();
+
+        if ($category = request('category')) {
+            $query->where('category', $category);
+        }
+
+        if ($type = request('type')) {
+            $query->where('type', $type);
+        }
+
         return Inertia::render('Admin/Gallery/Index', [
-            'media'      => GalleryMedia::ordered()->get(),
+            'media'      => $query->paginate(25)->withQueryString(),
             'categories' => $this->categories(),
+            'filters'    => request()->only(['category', 'type']),
         ]);
     }
 
@@ -79,7 +90,7 @@ class GalleryMediaController extends Controller
         $gallery->update(['is_active' => ! $gallery->is_active]);
         $this->clearGalleryCache();
 
-        return redirect()->route('admin.gallery.index');
+        return redirect()->back();
     }
 
     public function reorder(Request $request): RedirectResponse
