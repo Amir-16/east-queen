@@ -8,8 +8,8 @@ export default function GalleryMediaForm({ data, setData, errors, processing, on
 
     return (
         <form onSubmit={onSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 space-y-5">
 
                     {/* ── Type + Category ── */}
                     <FormCard title="Media Details">
@@ -130,7 +130,7 @@ export default function GalleryMediaForm({ data, setData, errors, processing, on
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4">
                 <Link href="/admin/gallery" className="text-sm text-gray-500 hover:text-gray-700">
                     ← Back to Gallery
                 </Link>

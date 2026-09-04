@@ -81,10 +81,10 @@ export default function ContactsIndex() {
     }
 
     // ── Sortable column header ────────────────────────────────────────────────
-    function SortTh({ label, col }) {
+    function SortTh({ label, col, className = '' }) {
         return (
             <th
-                className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide cursor-pointer select-none hover:text-gray-700 whitespace-nowrap"
+                className={`px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide cursor-pointer select-none hover:text-gray-700 whitespace-nowrap ${className}`}
                 onClick={() => toggleSort(col)}
             >
                 <span className="inline-flex items-center gap-1">
@@ -204,9 +204,9 @@ export default function ContactsIndex() {
                                         SL
                                     </th>
                                     <SortTh label="Contact"  col="name" />
-                                    <SortTh label="Service"  col="service" />
+                                    <SortTh label="Service"  col="service" className="hidden sm:table-cell" />
                                     <SortTh label="Status"   col="status" />
-                                    <SortTh label="Received" col="created_at" />
+                                    <SortTh label="Received" col="created_at" className="hidden md:table-cell" />
                                     <th className="px-4 py-3 w-16" />
                                 </tr>
                             </thead>
@@ -241,7 +241,7 @@ export default function ContactsIndex() {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3">
+                                        <td className="hidden sm:table-cell px-4 py-3">
                                             {c.service
                                                 ? <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{c.service}</span>
                                                 : <span className="text-gray-300 text-sm">—</span>
@@ -250,7 +250,7 @@ export default function ContactsIndex() {
                                         <td className="px-4 py-3">
                                             <StatusBadge status={c.status} />
                                         </td>
-                                        <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">
+                                        <td className="hidden md:table-cell px-4 py-3 text-xs text-gray-400 whitespace-nowrap">
                                             {format(parseISO(c.created_at), 'd MMM yyyy')}
                                             <br />
                                             <span className="text-gray-300">{format(parseISO(c.created_at), 'HH:mm')}</span>

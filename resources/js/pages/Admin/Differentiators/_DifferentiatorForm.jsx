@@ -69,14 +69,14 @@ export default function DifferentiatorForm({ data, setData, errors, processing, 
                 <ImageField value={data.image} onChange={v => setData('image', v)} error={errors.image} />
             </FormCard>
 
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4">
                 <Link href="/admin/differentiators" className="text-sm text-gray-500 hover:text-gray-700">
                     ← Back to Differentiators
                 </Link>
                 <button
                     type="submit"
                     disabled={processing}
-                    className="inline-flex items-center gap-2 bg-admin-navy text-white text-sm font-medium px-6 py-2.5 rounded-lg hover:bg-admin-navy/90 disabled:opacity-60 transition-colors"
+                    className="w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-admin-navy text-white text-sm font-medium px-6 py-2.5 rounded-lg hover:bg-admin-navy/90 disabled:opacity-60 transition-colors"
                 >
                     {processing
                         ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving…</>

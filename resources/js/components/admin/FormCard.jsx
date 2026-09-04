@@ -32,7 +32,7 @@ export default function FormCard({ title, description, children, actions, header
 
       {actions && (
         <div
-          className="px-5 py-4 flex flex-wrap items-center justify-end gap-3"
+          className="px-4 sm:px-5 py-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3"
           style={{ borderTop: '1px solid #F1F5F9', background: '#FAFBFC' }}
         >
           {actions}

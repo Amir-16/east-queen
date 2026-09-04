@@ -176,8 +176,8 @@ function SeoForm({ defaults }) {
 
     return (
         <form onSubmit={(e) => { e.preventDefault(); patch('/admin/settings/seo') }} className="space-y-5">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 space-y-5">
                     <FormCard title="Search Engine Settings">
                         <div className="space-y-4">
                             <Field label="Meta Title" hint="Shown in browser tab and Google results">
@@ -413,8 +413,8 @@ function ChairmanForm({ defaults }) {
 
     return (
         <form onSubmit={(e) => { e.preventDefault(); patch('/admin/settings/chairman') }} className="space-y-5">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 space-y-5">
                     <FormCard title="Identity">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Field label="Name" error={errors.name}>
@@ -480,8 +480,8 @@ function MissionVisionForm({ defaults }) {
         <form onSubmit={(e) => { e.preventDefault(); patch('/admin/settings/mission_vision') }} className="space-y-5">
             {pillars.map(({ prefix, label, num }) => (
                 <FormCard key={prefix} title={`${num} · ${label}`}>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <div className="lg:col-span-2 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="md:col-span-2 space-y-4">
                             <Field label="Heading" error={errors[`${prefix}_heading`]}>
                                 <TextInput value={data[`${prefix}_heading`]} onChange={(v) => setData(`${prefix}_heading`, v)} placeholder={`${label} heading…`} />
                             </Field>
