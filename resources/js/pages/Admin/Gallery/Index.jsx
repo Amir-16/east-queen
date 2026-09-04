@@ -3,10 +3,9 @@ import { Head, Link, router, usePage } from '@inertiajs/react'
 import { AdminLayout, SortableList, ConfirmModal, FormCard, Toggle } from '@/components/admin'
 import { PlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 
-const CAT_EMOJI = { operations: '⚙️', products: '📦', facilities: '🏭' }
-
 export default function GalleryIndex() {
-    const { media } = usePage().props
+    const { media, categories } = usePage().props
+    const catLabel = Object.fromEntries((categories ?? []).map(c => [c.slug, c.label]))
     const [deleting, setDeleting] = useState(null)
 
     function handleReorder(reordered) {
@@ -75,8 +74,9 @@ export default function GalleryIndex() {
                                 )}
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-xs">{CAT_EMOJI[item.category] ?? '📷'}</span>
-                                        <span className="text-xs font-semibold text-admin-navy uppercase tracking-wide">{item.category}</span>
+                                        <span className="text-xs font-semibold text-admin-navy uppercase tracking-wide">
+                                            {catLabel[item.category] ?? item.category}
+                                        </span>
                                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${item.type === 'video' ? 'bg-purple-100 text-purple-600' : 'bg-blue-50 text-blue-500'}`}>
                                             {item.type}
                                         </span>

@@ -17,6 +17,7 @@ import {
   SparklesIcon,
   StarIcon,
   ArrowTopRightOnSquareIcon,
+  TagIcon,
 } from '@heroicons/react/24/outline'
 
 const NAV = [
@@ -39,7 +40,8 @@ const NAV = [
       { label: 'Timeline',        href: '/admin/timeline',       icon: ClockIcon },
       { label: 'Differentiators', href: '/admin/differentiators',icon: SparklesIcon },
       { label: 'Core Values',     href: '/admin/core-values',    icon: StarIcon },
-      { label: 'Gallery',         href: '/admin/gallery',        icon: PhotoIcon },
+      { label: 'Gallery',            href: '/admin/gallery',            icon: PhotoIcon },
+      { label: 'Gallery Categories', href: '/admin/gallery-categories', icon: TagIcon   },
     ],
   },
   {

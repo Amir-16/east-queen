@@ -1,13 +1,7 @@
 import { Link } from '@inertiajs/react'
 import { FormCard, Toggle, ImageField, VideoField } from '@/components/admin'
 
-const CATEGORIES = [
-    { value: 'operations', label: 'Operations' },
-    { value: 'products',   label: 'Products'   },
-    { value: 'facilities', label: 'Facilities' },
-]
-
-export default function GalleryMediaForm({ data, setData, errors, processing, onSubmit, isEdit = false }) {
+export default function GalleryMediaForm({ data, setData, errors, processing, onSubmit, isEdit = false, categories = [] }) {
     const isVideo = data.type === 'video'
 
     return (
@@ -48,8 +42,8 @@ export default function GalleryMediaForm({ data, setData, errors, processing, on
                                     onChange={e => setData('category', e.target.value)}
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-500"
                                 >
-                                    {CATEGORIES.map(({ value, label }) => (
-                                        <option key={value} value={value}>{label}</option>
+                                    {categories.map(({ slug, label }) => (
+                                        <option key={slug} value={slug}>{label}</option>
                                     ))}
                                 </select>
                             </div>

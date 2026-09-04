@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder {
             ProcessStepSeeder::class,
             MarqueeItemSeeder::class,
             TimelineSeeder::class,
+            GalleryCategorySeeder::class,
             GalleryMediaSeeder::class,
             DifferentiatorSeeder::class,
             CoreValueSeeder::class,

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\DifferentiatorController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GalleryCategoryController;
 use App\Http\Controllers\Admin\GalleryMediaController;
 use App\Http\Controllers\Admin\HeroSlideController;
 use App\Http\Controllers\Admin\ImageUploadController;
@@ -80,11 +81,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('timeline', TimelineEntryController::class)->except(['show'])
             ->parameters(['timeline' => 'timeline']);
 
-        // Gallery
+        // Gallery Media
         Route::post('/gallery/reorder',                  [GalleryMediaController::class, 'reorder'])->name('gallery.reorder');
         Route::patch('/gallery/{gallery}/toggle-active', [GalleryMediaController::class, 'toggleActive'])->name('gallery.toggle-active');
         Route::resource('gallery', GalleryMediaController::class)->except(['show'])
             ->parameters(['gallery' => 'gallery']);
+
+        // Gallery Categories
+        Route::post('/gallery-categories/reorder', [GalleryCategoryController::class, 'reorder'])->name('gallery-categories.reorder');
+        Route::patch('/gallery-categories/{galleryCategory}/toggle-active', [GalleryCategoryController::class, 'toggleActive'])->name('gallery-categories.toggle-active');
+        Route::resource('gallery-categories', GalleryCategoryController::class)->except(['show'])
+            ->parameters(['gallery-categories' => 'galleryCategory']);
 
         // Inquiry Inbox
         Route::get('/contacts',                    [ContactController::class, 'index'])->name('contacts.index');

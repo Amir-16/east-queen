@@ -8,15 +8,6 @@ import { pageTransition, ease } from '@/lib/motion'
 import PageHead from '@/components/public/ui/PageHead'
 import PageHero from '@/components/public/ui/PageHero'
 
-/* ── constants ── */
-const CATEGORY_META = {
-  operations: { label: 'Operations'  },
-  products:   { label: 'Products'    },
-  facilities: { label: 'Facilities'  },
-}
-
-const ALL_CATS = ['operations', 'products', 'facilities']
-
 const INITIAL_VIDEO_COUNT = 6
 
 function encodeVideoSrc(src) {
@@ -29,12 +20,6 @@ const MEDIA_TABS = [
   { label: 'Videos', value: 'videos', icon: Film      },
 ]
 
-const CAT_TABS = [
-  { label: 'All',        value: 'all'        },
-  { label: 'Operations', value: 'operations' },
-  { label: 'Products',   value: 'products'   },
-  { label: 'Facilities', value: 'facilities' },
-]
 
 /* ── lightbox slide variants ── */
 const slideVariants = {
@@ -147,7 +132,7 @@ const ImageCard = memo(function ImageCard({ item, idx, floatDelay, onClick }) {
 })
 
 /* ── VideoCard ── */
-const VideoCard = memo(function VideoCard({ item, idx, floatDelay, onClick }) {
+const VideoCard = memo(function VideoCard({ item, idx, floatDelay, onClick, categoryMeta }) {
   const reduced = useReducedMotion()
 
   return (
@@ -198,7 +183,7 @@ const VideoCard = memo(function VideoCard({ item, idx, floatDelay, onClick }) {
           <span className="flex items-center gap-1.5 px-2.5 py-1 bg-gold-500 rounded-lg
                            text-white text-[10px] font-bold uppercase tracking-widest shadow-gold-glow">
             <Film size={9} />
-            {CATEGORY_META[item.category]?.label ?? item.category}
+            {categoryMeta[item.category]?.label ?? item.category}
           </span>
         </div>
 
@@ -221,7 +206,7 @@ const VideoCard = memo(function VideoCard({ item, idx, floatDelay, onClick }) {
 })
 
 /* ── ImageLightbox ── */
-function ImageLightbox({ images, index, dir, onNav, onJump, onClose }) {
+function ImageLightbox({ images, index, dir, onNav, onJump, onClose, categoryMeta }) {
   useEffect(() => {
     const fn = (e) => {
       if (e.key === 'ArrowRight') onNav(1)
@@ -256,7 +241,7 @@ function ImageLightbox({ images, index, dir, onNav, onJump, onClose }) {
       >
         <span className="px-2.5 py-1 bg-gold-500/15 border border-gold-500/30 rounded-full
                          text-gold-400 text-[10px] font-semibold uppercase tracking-widest">
-          {CATEGORY_META[img.category]?.label ?? img.category}
+          {categoryMeta[img.category]?.label ?? img.category}
         </span>
         <span className="w-px h-3 bg-white/20" />
         <span className="font-mono text-sm">
@@ -570,12 +555,22 @@ function VideoModal({ videos, index, onClose, onNavigate }) {
 }
 
 /* ── Gallery page ── */
-export default function Gallery({ gallery = [] }) {
+export default function Gallery({ gallery = [], categories = [] }) {
   const [mediaType,  setMediaType]  = useState('all')
   const [activeCat,  setActiveCat]  = useState('all')
   const [lb,         setLb]         = useState({ open: false, index: 0, dir: 0 })
   const [videoIdx,   setVideoIdx]   = useState(-1)
   const [expandedGroups, setExpandedGroups] = useState({})
+
+  const categoryMeta = useMemo(
+    () => Object.fromEntries(categories.map(c => [c.slug, { label: c.label }])),
+    [categories],
+  )
+  const allCats = useMemo(() => categories.map(c => c.slug), [categories])
+  const catTabs = useMemo(() => [
+    { label: 'All', value: 'all' },
+    ...categories.map(c => ({ label: c.label, value: c.slug })),
+  ], [categories])
 
   const allImages = useMemo(() => {
     const seen = new Set()
@@ -616,18 +611,18 @@ export default function Gallery({ gallery = [] }) {
   )
 
   const imageGroups = useMemo(() => {
-    const cats = activeCat === 'all' ? ALL_CATS : [activeCat]
+    const cats = activeCat === 'all' ? allCats : [activeCat]
     return cats
       .map(cat => ({ cat, items: filteredImages.filter(i => i.category === cat) }))
       .filter(g => g.items.length > 0)
-  }, [filteredImages, activeCat])
+  }, [filteredImages, activeCat, allCats])
 
   const videoGroups = useMemo(() => {
-    const cats = activeCat === 'all' ? ALL_CATS : [activeCat]
+    const cats = activeCat === 'all' ? allCats : [activeCat]
     return cats
       .map(cat => ({ cat, items: filteredVideos.filter(i => i.category === cat) }))
       .filter(g => g.items.length > 0)
-  }, [filteredVideos, activeCat])
+  }, [filteredVideos, activeCat, allCats])
 
   const openLb = useCallback((i) => setLb({ open: true, index: i, dir: 0 }), [])
   const closeLb = useCallback(() => setLb(s => ({ ...s, open: false })), [])
@@ -671,7 +666,7 @@ export default function Gallery({ gallery = [] }) {
             {[
               { Icon: ImageIcon, val: allImages.length, lbl: 'Photos',     cls: 'text-slate-700' },
               { Icon: Film,      val: allVideos.length, lbl: 'Videos',     cls: 'text-gold-500'  },
-              { Icon: Layers,    val: 3,                lbl: 'Categories', cls: 'text-slate-400' },
+              { Icon: Layers,    val: categories.length, lbl: 'Categories', cls: 'text-slate-400' },
             ].map(({ Icon, val, lbl, cls }) => (
               <div key={lbl} className="flex items-center gap-2.5">
                 <Icon size={15} className={cls} />
@@ -719,7 +714,7 @@ export default function Gallery({ gallery = [] }) {
             <div className="w-px h-6 bg-slate-200" />
 
             <div className="flex flex-wrap gap-1.5">
-              {CAT_TABS.map(({ label, value }) => (
+              {catTabs.map(({ label, value }) => (
                 <button
                   key={value}
                   onClick={() => { setActiveCat(value); reset() }}
@@ -784,7 +779,7 @@ export default function Gallery({ gallery = [] }) {
                         >
                           <span className="w-2 h-2 rounded-full bg-gold-500 shrink-0" />
                           <span className="text-slate-700 font-semibold text-sm">
-                            {CATEGORY_META[cat]?.label ?? cat}
+                            {categoryMeta[cat]?.label ?? cat}
                           </span>
                           <span className="font-mono text-xs text-slate-400">({items.length})</span>
                           <div className="flex-1 h-px bg-slate-100" />
@@ -874,7 +869,7 @@ export default function Gallery({ gallery = [] }) {
                     >
                       <Film size={13} className="text-gold-500 shrink-0" />
                       <span className="text-white/55 font-semibold text-sm">
-                        {CATEGORY_META[cat]?.label ?? cat}
+                        {categoryMeta[cat]?.label ?? cat}
                       </span>
                       <span className="font-mono text-xs text-white/25">({items.length})</span>
                       <div className="flex-1 h-px bg-white/10" />
@@ -897,6 +892,7 @@ export default function Gallery({ gallery = [] }) {
                                   idx={idx}
                                   floatDelay={floatDelay}
                                   onClick={() => setVideoIdx(globalIdx)}
+                                  categoryMeta={categoryMeta}
                                 />
                               )
                             })}
@@ -950,6 +946,7 @@ export default function Gallery({ gallery = [] }) {
             onNav={navLb}
             onJump={jumpLb}
             onClose={closeLb}
+            categoryMeta={categoryMeta}
           />
         )}
       </AnimatePresence>

@@ -3,7 +3,7 @@ import { AdminLayout } from '@/components/admin'
 import GalleryMediaForm from './_GalleryMediaForm'
 
 export default function EditGalleryMedia() {
-    const { media } = usePage().props
+    const { media, categories } = usePage().props
 
     const { data, setData, put, processing, errors } = useForm({
         category:      media.category      ?? 'operations',
@@ -24,6 +24,7 @@ export default function EditGalleryMedia() {
                 processing={processing}
                 onSubmit={e => { e.preventDefault(); put(`/admin/gallery/${media.id}`) }}
                 isEdit={true}
+                categories={categories}
             />
         </AdminLayout>
     )
