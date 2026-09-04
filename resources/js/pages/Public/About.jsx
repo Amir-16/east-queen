@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Link } from '@inertiajs/react'
+import { Link, usePage } from '@inertiajs/react'
 import PageHead from '@/components/public/ui/PageHead'
 import { motion, useInView } from 'framer-motion'
 import CountUp from 'react-countup'
@@ -73,35 +73,6 @@ function MobileCard({ event }) {
   )
 }
 
-/* ── Page-level data ─────────────────────────────────────────────────────── */
-const glanceStats = [
-  { end: 1982, start: 1974, suffix: '',  label: 'Year Founded',        color: 'red'  },
-  { end: 42,   start: 0,    suffix: '+', label: 'Years of Excellence', color: 'red'  },
-  { end: 6,    start: 0,    suffix: '',  label: 'Group Companies',     color: 'teal' },
-  { end: 4,    start: 0,    suffix: '',  label: 'Continents Served',   color: 'teal' },
-]
-
-const differentiators = [
-  {
-    title: '40+ Years Proven Track Record',
-    body:  'Founded in 1982, East Queen Group has weathered decades of market cycles, political shifts, and global trade disruptions — emerging stronger each time. Our longevity is our most compelling credential.',
-    img:   '/images/shipping/bbg-master-night.jpeg',
-    chip:  'bg-gold-500',
-  },
-  {
-    title: 'International Compliance & Quality',
-    body:  'We comply with HKC standards, phytosanitary requirements, SGS inspections, and all relevant international trade regulations. Our quality control processes are documented and auditable.',
-    img:   '/images/products/exports/mill-scale/mill-1.jpeg',
-    chip:  'bg-teal-500',
-  },
-  {
-    title: 'Full-Service Logistics Support',
-    body:  'From Letter of Credit to final delivery, we handle all documentation, third-party inspections, customs clearance, and logistics coordination — offering complete peace of mind.',
-    img:   '/images/products/imports/aggregate/aggregate-3.jpeg',
-    chip:  'bg-navy-700',
-  },
-]
-
 const principleLinks = [
   {
     label: 'Mission & Vision',
@@ -119,18 +90,17 @@ const principleLinks = [
   },
 ]
 
-const CHAIRMAN_PARAS = [
-  'As Chairman, it gives me great pleasure to witness how far we have come in our journey — from humble beginnings on the shores of Chittagong to a diversified conglomerate with strong foundations in ship recycling, international commodity trading, energy, fisheries, and more.',
-  'At East Queen Group, our mission is clear: to deliver quality, reliability, and integrity across every sector we operate in. Through companies like Ariko International, we have established a significant presence in the export of mill scale, zinc ash, PET flakes, and fresh agricultural produce, as well as the import of aggregate, coal, steel scrap, and industrial raw materials.',
-  'Our long-standing business relationships across Asia, the Middle East, and Europe reflect our global outlook and trustworthy reputation. Our success is driven by the trust of our partners, the hard work of our people, and our unwavering values — honesty, innovation, and sustainability.',
-  'As industries evolve, we remain committed to adapting through modern logistics and environmentally conscious practices that ensure long-term growth. This is more than a business — it is a legacy we are proud to grow.',
-  'I invite you to explore our companies, connect with our team, and partner with us as we continue building a story of strength and excellence through East Queen Group.',
-]
-
 /* ── Page ────────────────────────────────────────────────────────────────── */
-export default function About({ timeline = [] }) {
+export default function About({ about = {}, timeline = [], stats = [], differentiators = [] }) {
+  const { chairman = {} } = usePage().props
+
   const statsRef    = useRef(null)
   const statsInView = useInView(statsRef, { once: true, margin: '-80px' })
+
+  // Build chairman paragraphs from settings keys para_1 … para_5
+  const chairmanParas = [1, 2, 3, 4, 5]
+    .map(n => chairman[`para_${n}`])
+    .filter(Boolean)
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
@@ -172,30 +142,24 @@ export default function About({ timeline = [] }) {
 
           {/* Body paragraphs */}
           <div className="max-w-3xl mb-10 sm:mb-16 space-y-4">
-            <motion.p
-              initial={{ opacity: 0, x: -56 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: '0px 0px -40px 0px' }}
-              transition={{ duration: 0.7, ease: EASE }}
-              className="text-slate-600 text-lg leading-relaxed"
-            >
-              East Queen Group is one of Bangladesh's most respected industrial conglomerates, proudly rooted in Chittagong since 1982. With over four decades of experience, we have established ourselves as pioneers in multiple sectors — including ship recycling, international trade, energy, fisheries, construction materials, and food industries.
-            </motion.p>
-            <motion.p
-              initial={{ opacity: 0, x: -56 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: '0px 0px -40px 0px' }}
-              transition={{ duration: 0.7, ease: EASE, delay: 0.08 }}
-              className="text-slate-600 leading-relaxed"
-            >
-              Founded by a visionary entrepreneur, East Queen Group has grown through resilience, integrity, and strategic foresight. Today we are known not only for being one of Bangladesh's most established ship recyclers but also for our dynamic expansion into new industries and global markets.
-            </motion.p>
+            {[about.overview_p1, about.overview_p2].filter(Boolean).map((para, i) => (
+              <motion.p
+                key={i}
+                initial={{ opacity: 0, x: -56 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: '0px 0px -40px 0px' }}
+                transition={{ duration: 0.7, ease: EASE, delay: i * 0.08 }}
+                className={i === 0 ? 'text-slate-600 text-lg leading-relaxed' : 'text-slate-600 leading-relaxed'}
+              >
+                {para}
+              </motion.p>
+            ))}
           </div>
 
           {/* Vision + Mission cards */}
           <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-6">
 
-            {/* Vision — clean white editorial, slides from left */}
+            {/* Vision */}
             <motion.div
               initial={{ opacity: 0, x: -110 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -206,35 +170,27 @@ export default function About({ timeline = [] }) {
                          border border-slate-200 shadow-card cursor-default
                          transition-[border-color] duration-300 hover:border-slate-300"
             >
-              {/* Left gold accent — slides down from top on hover */}
               <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gold-500
                               scale-y-0 group-hover:scale-y-100 origin-top
                               transition-transform duration-500 ease-out" />
-
               <div className="relative p-8 pt-9">
-                {/* Icon — navy square */}
                 <div className="w-12 h-12 rounded-xl bg-navy-900 flex items-center justify-center mb-6
                                group-hover:bg-gold-500 transition-colors duration-300">
                   <Eye size={20} className="text-white" />
                 </div>
-
-                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400 mb-2">
-                  Our Vision
-                </p>
-                {/* Accent rule — grows on hover */}
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400 mb-2">Our Vision</p>
                 <div className="h-[2px] w-6 bg-gold-500 rounded-full mb-6
                                 group-hover:w-14 transition-all duration-500 ease-out" />
-
                 <h3 className="font-playfair font-bold text-slate-900 text-[1.35rem] leading-snug mb-5">
-                  Leading Bangladesh's<br />Industrial Transformation
+                  {about.vision_heading || "Leading Bangladesh's Industrial Transformation"}
                 </h3>
                 <p className="text-slate-500 leading-relaxed text-[0.9rem]">
-                  To lead Bangladesh's industrial transformation by delivering excellence, fostering innovation, and building global partnerships that create value for generations.
+                  {about.vision_body || "To lead Bangladesh's industrial transformation by delivering excellence, fostering innovation, and building global partnerships that create value for generations."}
                 </p>
               </div>
             </motion.div>
 
-            {/* Mission — clean white editorial, slides from right */}
+            {/* Mission */}
             <motion.div
               initial={{ opacity: 0, x: 110 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -245,35 +201,28 @@ export default function About({ timeline = [] }) {
                          border border-slate-200 shadow-card cursor-default
                          transition-[border-color] duration-300 hover:border-slate-300"
             >
-              {/* Left gold accent */}
               <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gold-500
                               scale-y-0 group-hover:scale-y-100 origin-top
                               transition-transform duration-500 ease-out" />
-
               <div className="relative p-8 pt-9">
-                {/* Icon */}
                 <div className="w-12 h-12 rounded-xl bg-navy-900 flex items-center justify-center mb-6
                                group-hover:bg-gold-500 transition-colors duration-300">
                   <Target size={20} className="text-white" />
                 </div>
-
-                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400 mb-2">
-                  Our Mission
-                </p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400 mb-2">Our Mission</p>
                 <div className="h-[2px] w-6 bg-gold-500 rounded-full mb-6
                                 group-hover:w-14 transition-all duration-500 ease-out" />
-
                 <h3 className="font-playfair font-bold text-slate-900 text-[1.35rem] leading-snug mb-5">
-                  A National &<br />International Benchmark
+                  {about.mission_heading || 'A National & International Benchmark'}
                 </h3>
                 <p className="text-slate-500 leading-relaxed text-[0.9rem]">
-                  To be recognized as a national and international benchmark in exporting, importing, manufacturing, and infrastructure development — through consistent performance, transparency, and customer satisfaction.
+                  {about.mission_body || 'To be recognized as a national and international benchmark in exporting, importing, manufacturing, and infrastructure development — through consistent performance, transparency, and customer satisfaction.'}
                 </p>
               </div>
             </motion.div>
           </div>
 
-          {/* Our Spirit — dark card, slides from left */}
+          {/* Our Spirit */}
           <motion.div
             initial={{ opacity: 0, x: -110 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -282,15 +231,10 @@ export default function About({ timeline = [] }) {
             className="relative bg-navy-950 rounded-[32px] overflow-hidden shadow-deep
                        group cursor-default border border-white/[0.06]"
           >
-            {/* Single brand-red top accent */}
             <div className="absolute top-0 left-0 right-0 h-[3px] bg-gold-500" />
-
-            {/* Subtle radial glow on hover */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_10%_50%,rgba(226,31,47,0.08),transparent)]
                             opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-
             <div className="relative flex flex-col sm:flex-row items-center gap-8 p-8 md:p-12">
-              {/* Icon */}
               <div className="shrink-0">
                 <div className="w-16 h-16 rounded-2xl bg-white/[0.06] border border-white/10
                                flex items-center justify-center
@@ -299,18 +243,12 @@ export default function About({ timeline = [] }) {
                   <Flame size={28} className="text-gold-400" />
                 </div>
               </div>
-
-              {/* Text */}
               <div className="text-center sm:text-left">
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-3">
-                  Our Spirit
-                </p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-3">Our Spirit</p>
                 <p className="font-playfair font-bold text-white text-3xl md:text-[2.5rem] leading-tight">
-                  Enterprise is our spirit.
+                  {about.spirit_tagline || 'Enterprise is our spirit.'}
                 </p>
               </div>
-
-              {/* Decorative right-side monogram */}
               <span className="hidden md:block ml-auto font-playfair font-black text-[5rem]
                                leading-none text-white/[0.04] select-none shrink-0">
                 EQ
@@ -337,22 +275,21 @@ export default function About({ timeline = [] }) {
               <div className="relative rounded-[32px] overflow-hidden shadow-deep"
                    style={{ boxShadow: '0 0 0 2px rgba(226,31,47,0.18), 0 24px 64px rgba(13,11,30,0.35)' }}>
                 <img
-                  src="/images/team/chairman.jpeg"
-                  alt="Chairman of East Queen Group"
+                  src={chairman.photo_url || '/images/team/chairman.jpeg'}
+                  alt={chairman.name || 'Chairman of East Queen Group'}
                   className="w-full aspect-[3/4] object-cover object-top"
                   loading="lazy"
                   decoding="async"
                 />
-                {/* Dual-tone top accent */}
                 <div className="absolute top-0 left-0 right-0 h-1.5
                                 bg-gradient-to-r from-teal-500 via-gold-500 to-gold-600" />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t
                                 from-navy-950 via-navy-950/80 to-transparent px-6 pt-14 pb-6">
                   <p className="font-playfair font-bold text-white text-lg leading-snug">
-                    A K M Abu Taher BSc.
+                    {chairman.name || 'A K M Abu Taher BSc.'}
                   </p>
                   <p className="text-gold-400 text-sm font-semibold tracking-wide mt-1">
-                    Chairman, East Queen Group
+                    {chairman.title || 'Chairman, East Queen Group'}
                   </p>
                 </div>
               </div>
@@ -372,11 +309,9 @@ export default function About({ timeline = [] }) {
                     Chairman's Message
                   </span>
                 </div>
-
                 <h2 className="font-playfair font-bold text-h2 text-slate-900 mb-8">
                   A Word From Our Chairman
                 </h2>
-
                 <div className="relative mb-8">
                   <span className="absolute -top-6 -left-2 text-[7rem] leading-none text-gold-500/10
                                    font-playfair font-bold select-none pointer-events-none">
@@ -384,13 +319,13 @@ export default function About({ timeline = [] }) {
                   </span>
                   <p className="font-playfair italic text-slate-700 text-xl leading-relaxed
                                 pl-5 border-l-[3px] border-gold-500 relative">
-                    Welcome to East Queen Group.
+                    {chairman.greeting_quote || 'Welcome to East Queen Group.'}
                   </p>
                 </div>
               </motion.div>
 
               <div className="space-y-5">
-                {CHAIRMAN_PARAS.map((para, i) => (
+                {chairmanParas.map((para, i) => (
                   <motion.p
                     key={i}
                     initial={{ opacity: 0, x: 56 }}
@@ -413,12 +348,12 @@ export default function About({ timeline = [] }) {
               >
                 <p className="text-slate-500 text-sm mb-1">Warm regards,</p>
                 <p className="font-playfair font-bold text-slate-900 text-xl leading-tight">
-                  A K M Abu Taher BSc.
+                  {chairman.name || 'A K M Abu Taher BSc.'}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
                   <div className="gold-rule" style={{ width: '1.5rem' }} />
                   <p className="text-gold-500 text-sm font-semibold tracking-wide">
-                    Chairman, East Queen Group
+                    {chairman.title || 'Chairman, East Queen Group'}
                   </p>
                 </div>
               </motion.div>
@@ -442,9 +377,7 @@ export default function About({ timeline = [] }) {
             >
               <div className="flex items-center gap-3 mb-5">
                 <div className="gold-rule" />
-                <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">
-                  Who We Are
-                </span>
+                <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">Who We Are</span>
               </div>
               <h2 className="font-playfair font-bold text-h1 text-slate-900 leading-tight mb-6">
                 A Legacy Built on<br />
@@ -454,33 +387,32 @@ export default function About({ timeline = [] }) {
                 East Queen Group is one of Bangladesh's leading diversified conglomerates, spanning ship-breaking, international commodity trading, energy distribution, agri-business, and more. Since 1982, we have connected Bangladesh's industrial strength with global demand across four continents.
               </p>
 
-              {/* Stat cards — alternating red / teal tints */}
               <div ref={statsRef} className="grid grid-cols-2 gap-3 sm:gap-4 mt-8 sm:mt-10">
-                {glanceStats.map((s, i) => {
-                  const isRed = s.color === 'red'
+                {stats.map((s, i) => {
+                  const isGold = s.color === 'gold'
                   return (
                     <motion.div
-                      key={s.label}
+                      key={s.id || s.label}
                       initial={{ opacity: 0, y: 30 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.5, ease: EASE, delay: i * 0.1 }}
                       className={[
                         'p-5 rounded-[24px] border transition-all duration-300 hover:shadow-card',
-                        isRed
+                        isGold
                           ? 'bg-gradient-to-br from-gold-50 to-white border-gold-100/80 hover:border-gold-300'
                           : 'bg-gradient-to-br from-teal-50/70 to-white border-teal-100/80 hover:border-teal-300',
                       ].join(' ')}
                     >
                       <p className={[
                         'font-mono font-black text-3xl leading-none mb-1',
-                        isRed ? 'text-gold-500' : 'text-teal-600',
+                        isGold ? 'text-gold-500' : 'text-teal-600',
                       ].join(' ')}>
                         {statsInView
-                          ? <CountUp start={s.start} end={s.end} duration={2.2} delay={0.2 + i * 0.1} separator="," />
-                          : String(s.start)
+                          ? <CountUp start={s.count_start ?? 0} end={s.value} duration={2.2} delay={0.2 + i * 0.1} separator="," />
+                          : String(s.count_start ?? 0)
                         }
-                        <span className={isRed ? 'text-gold-400' : 'text-teal-400'}>{s.suffix}</span>
+                        <span className={isGold ? 'text-gold-400' : 'text-teal-400'}>{s.suffix}</span>
                       </p>
                       <p className="text-slate-500 text-sm">{s.label}</p>
                     </motion.div>
@@ -489,7 +421,7 @@ export default function About({ timeline = [] }) {
               </div>
             </motion.div>
 
-            {/* Right — image with styled floating badges */}
+            {/* Right — image */}
             <motion.div
               variants={scaleIn}
               initial="hidden"
@@ -499,27 +431,24 @@ export default function About({ timeline = [] }) {
             >
               <div className="relative rounded-[32px] overflow-hidden shadow-hover">
                 <img
-                  src="/images/shipping/tristar-prosperity.jpeg"
+                  src={about.glance_image || '/images/shipping/tristar-prosperity.jpeg'}
                   alt="East Queen Group operations"
                   className="w-full aspect-[4/3] object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-950/55 via-transparent to-transparent" />
 
-                {/* "Founded" badge — teal */}
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5, duration: 0.45 }}
                   viewport={{ once: true }}
-                  className="absolute bottom-4 left-4 bg-white rounded-[20px] p-4 shadow-hover
-                             border border-teal-100"
+                  className="absolute bottom-4 left-4 bg-white rounded-[20px] p-4 shadow-hover border border-teal-100"
                 >
                   <p className="font-mono font-black text-teal-600 text-2xl leading-none">1982</p>
                   <p className="text-slate-700 text-xs font-semibold mt-1">Founded in Chittagong</p>
                   <p className="text-slate-400 text-[10px]">Bangladesh</p>
                 </motion.div>
 
-                {/* "42+ Years" badge — brand red */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
@@ -529,9 +458,7 @@ export default function About({ timeline = [] }) {
                              rounded-[20px] px-4 py-3 shadow-gold-glow"
                 >
                   <p className="font-mono font-black text-white text-2xl leading-none">42+</p>
-                  <p className="text-white/80 text-[10px] font-semibold uppercase tracking-wider mt-0.5">
-                    Years
-                  </p>
+                  <p className="text-white/80 text-[10px] font-semibold uppercase tracking-wider mt-0.5">Years</p>
                 </motion.div>
               </div>
             </motion.div>
@@ -551,13 +478,9 @@ export default function About({ timeline = [] }) {
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="gold-rule" />
-              <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">
-                Our Principles
-              </span>
+              <span className="text-gold-500 text-xs font-semibold uppercase tracking-widest">Our Principles</span>
             </div>
-            <h2 className="font-playfair font-bold text-h2 text-slate-900">
-              What We Believe In
-            </h2>
+            <h2 className="font-playfair font-bold text-h2 text-slate-900">What We Believe In</h2>
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-4 md:gap-6">
@@ -583,7 +506,6 @@ export default function About({ timeline = [] }) {
                   <div className="absolute inset-0 bg-gradient-to-t
                                  from-navy-950/95 via-navy-900/55 to-navy-900/15
                                  group-hover:from-navy-950 transition-all duration-500" />
-                  {/* Number tag */}
                   <div className="absolute top-5 left-5">
                     <span className="inline-flex items-center justify-center w-9 h-9
                                      bg-gold-500 rounded-full shadow-gold-glow
@@ -639,10 +561,7 @@ export default function About({ timeline = [] }) {
             {timeline.map((event, i) => {
               const isLeft = i % 2 === 0
               return (
-                <div
-                  key={event.year}
-                  className="relative grid grid-cols-2 items-center mb-10 last:mb-0"
-                >
+                <div key={event.year} className="relative grid grid-cols-2 items-center mb-10 last:mb-0">
                   <div className="pr-12 flex justify-end">
                     {isLeft
                       ? <DesktopCard event={event} side="left" />
@@ -654,12 +573,8 @@ export default function About({ timeline = [] }) {
                           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
                           className="flex flex-col items-end gap-1 text-right"
                         >
-                          <span className="font-mono font-black text-slate-200 text-5xl leading-none select-none">
-                            {event.year}
-                          </span>
-                          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                            {event.title}
-                          </span>
+                          <span className="font-mono font-black text-slate-200 text-5xl leading-none select-none">{event.year}</span>
+                          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">{event.title}</span>
                         </motion.div>
                       )
                     }
@@ -693,12 +608,8 @@ export default function About({ timeline = [] }) {
                           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
                           className="flex flex-col items-start gap-1"
                         >
-                          <span className="font-mono font-black text-slate-200 text-5xl leading-none select-none">
-                            {event.year}
-                          </span>
-                          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                            {event.title}
-                          </span>
+                          <span className="font-mono font-black text-slate-200 text-5xl leading-none select-none">{event.year}</span>
+                          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">{event.title}</span>
                         </motion.div>
                       )
                     }
@@ -747,65 +658,66 @@ export default function About({ timeline = [] }) {
       </section>
 
       {/* ── What Sets Us Apart ───────────────────────────────────────────────── */}
-      <section className="section-padding bg-white">
-        <div className="section-container">
-          <SectionHeader
-            eyebrow="Why Choose Us"
-            title="What Sets Us Apart"
-            subtitle="Three pillars of excellence that define every engagement with East Queen Group."
-            align="center"
-            className="mb-14"
-          />
+      {differentiators.length > 0 && (
+        <section className="section-padding bg-white">
+          <div className="section-container">
+            <SectionHeader
+              eyebrow="Why Choose Us"
+              title="What Sets Us Apart"
+              subtitle="Three pillars of excellence that define every engagement with East Queen Group."
+              align="center"
+              className="mb-14"
+            />
 
-          <div className="grid md:grid-cols-3 gap-4 md:gap-6">
-            {differentiators.map((d, i) => (
-              <motion.div
-                key={d.title}
-                initial={{
-                  opacity: 0,
-                  x: i === 0 ? -60 : i === 2 ? 60 : 0,
-                  y: i === 1 ? 50 : 0,
-                }}
-                whileInView={{ opacity: 1, x: 0, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.75, ease: EASE, delay: i * 0.1 }}
-                className="group relative rounded-[32px] overflow-hidden h-[420px] cursor-default"
-              >
-                <img
-                  src={d.img}
-                  alt={d.title}
-                  className="absolute inset-0 w-full h-full object-cover
-                             transition-transform duration-700 ease-out group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t
-                               from-navy-950/95 via-navy-900/50 to-navy-900/10
-                               group-hover:from-navy-950 transition-all duration-500" />
-                <div className="absolute inset-0 flex flex-col justify-end p-6">
-                  {/* Colored number chip */}
-                  <span className={[
-                    'inline-flex items-center justify-center w-9 h-9 rounded-full mb-4',
-                    'font-mono font-black text-white text-xs shadow-lg',
-                    d.chip,
-                  ].join(' ')}>
-                    0{i + 1}
-                  </span>
-                  <div className="h-[2px] w-8 bg-gold-500 rounded-full mb-4
-                                  group-hover:w-16 transition-all duration-500" />
-                  <h3 className="font-playfair font-bold text-white text-xl leading-snug mb-3">
-                    {d.title}
-                  </h3>
-                  <p className="text-white/70 text-sm leading-relaxed
-                                translate-y-4 opacity-0
-                                group-hover:translate-y-0 group-hover:opacity-100
-                                transition-all duration-500 delay-100">
-                    {d.body}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+            <div className="grid md:grid-cols-3 gap-4 md:gap-6">
+              {differentiators.map((d, i) => (
+                <motion.div
+                  key={d.id}
+                  initial={{
+                    opacity: 0,
+                    x: i === 0 ? -60 : i === differentiators.length - 1 ? 60 : 0,
+                    y: i === Math.floor(differentiators.length / 2) ? 50 : 0,
+                  }}
+                  whileInView={{ opacity: 1, x: 0, y: 0 }}
+                  viewport={{ once: true, margin: '-60px' }}
+                  transition={{ duration: 0.75, ease: EASE, delay: i * 0.1 }}
+                  className="group relative rounded-[32px] overflow-hidden h-[420px] cursor-default"
+                >
+                  {d.image && (
+                    <img
+                      src={d.image}
+                      alt={d.title}
+                      className="absolute inset-0 w-full h-full object-cover
+                                 transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t
+                                 from-navy-950/95 via-navy-900/50 to-navy-900/10
+                                 group-hover:from-navy-950 transition-all duration-500" />
+                  <div className="absolute inset-0 flex flex-col justify-end p-6">
+                    <span className={[
+                      'inline-flex items-center justify-center w-9 h-9 rounded-full mb-4',
+                      'font-mono font-black text-white text-xs shadow-lg',
+                      d.chip_color || 'bg-gold-500',
+                    ].join(' ')}>
+                      0{i + 1}
+                    </span>
+                    <div className="h-[2px] w-8 bg-gold-500 rounded-full mb-4
+                                    group-hover:w-16 transition-all duration-500" />
+                    <h3 className="font-playfair font-bold text-white text-xl leading-snug mb-3">{d.title}</h3>
+                    <p className="text-white/70 text-sm leading-relaxed
+                                  translate-y-4 opacity-0
+                                  group-hover:translate-y-0 group-hover:opacity-100
+                                  transition-all duration-500 delay-100">
+                      {d.body}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </motion.div>
   )
 }
