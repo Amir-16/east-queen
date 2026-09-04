@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Link } from '@inertiajs/react'
+import PageHead from '@/components/public/ui/PageHead'
 import { ArrowRight } from 'lucide-react'
 import { pageTransition, stagger, fadeUp } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
@@ -9,6 +10,7 @@ import AssociateCard from '@/components/public/cards/AssociateCard'
 export default function Associates({ associates = [] }) {
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+      <PageHead title="Business Associates" />
       <PageHero
         title="Business Associates"
         subtitle="A trusted global network of partners spanning Bangladesh, the Middle East, Asia, and Europe."

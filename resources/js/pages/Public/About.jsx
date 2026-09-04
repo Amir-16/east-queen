@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { Link } from '@inertiajs/react'
+import PageHead from '@/components/public/ui/PageHead'
 import { motion, useInView } from 'framer-motion'
 import CountUp from 'react-countup'
 import { ArrowRight, Eye, Target, Flame } from 'lucide-react'
@@ -133,6 +134,7 @@ export default function About({ timeline = [] }) {
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+      <PageHead title="About Us" />
       <PageHero
         title="About East Queen Group"
         subtitle="Four decades of industrial excellence, ethical trade, and sustainable growth — proudly rooted in Chittagong since 1982."

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Head, Link } from '@inertiajs/react'
+import { Link } from '@inertiajs/react'
+import PageHead from '@/components/public/ui/PageHead'
 import { ArrowRight } from 'lucide-react'
 import { pageTransition, stagger, fadeUp, fadeLeft, fadeRight } from '@/lib/motion'
 import { Search, ClipboardCheck, FileText, Truck, BadgeCheck, Circle } from 'lucide-react'
@@ -21,7 +22,7 @@ export default function Export({ products = [], processSteps = [] }) {
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
-      <Head title="Export Products | East Queen Group" />
+      <PageHead title="Export Products" />
       <PageHero
         title="Export Products"
         subtitle="Premium Bangladeshi goods exported to global markets — from industrial commodities to fresh agricultural produce."

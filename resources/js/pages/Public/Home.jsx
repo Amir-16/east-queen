@@ -1,3 +1,4 @@
+import PageHead from '@/components/public/ui/PageHead'
 import ShipHeroSection   from '@/components/public/sections/ShipHeroSection'
 import HeroSection       from '@/components/public/sections/HeroSection'
 import MarqueeStrip      from '@/components/public/sections/MarqueeStrip'
@@ -16,6 +17,7 @@ import ContactCTA        from '@/components/public/sections/ContactCTA'
 export default function Home({ heroSlides = [], marqueeItems = [], companies = [], associates = [], stats = [], processSteps = [], gallery = [], exportProducts = [], importProducts = [], shipHero = {} }) {
   return (
     <>
+      <PageHead />
       <ShipHeroSection shipHero={shipHero} />
       <HeroSection slides={heroSlides} />
       <MarqueeStrip items={marqueeItems} />

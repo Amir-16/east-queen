@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Shield, Target, Handshake, Lightbulb } from 'lucide-react'
 import { pageTransition, staggerSlow, fadeDown, stagger } from '@/lib/motion'
+import PageHead from '@/components/public/ui/PageHead'
 import PageHero from '@/components/public/ui/PageHero'
 
 const values = [
@@ -41,6 +42,7 @@ const values = [
 export default function CoreValues() {
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
+      <PageHead title="Core Values" />
       <PageHero
         title="Our Core Values"
         subtitle="Four principles that have guided every decision, every partnership, and every milestone for over four decades."

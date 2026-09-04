@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { Head, Link } from '@inertiajs/react'
+import { Link } from '@inertiajs/react'
+import PageHead from '@/components/public/ui/PageHead'
 import {
   ArrowRight, Globe, Users, Calendar,
   Briefcase, MapPin, Download, CheckCircle, ChevronRight,
@@ -21,7 +22,7 @@ export default function CompanyDetail({ company, otherCompanies = [] }) {
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
-      <Head title={`${company.name} | East Queen Group`} />
+      <PageHead title={company.name} description={company.description} image={company.cover_image} />
 
       {/* Hero */}
       <div className="relative h-[55vh] min-h-[400px] overflow-hidden bg-navy-950 flex items-end">

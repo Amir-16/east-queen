@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react'
 import { toast } from 'sonner'
-import { Head, router, usePage } from '@inertiajs/react'
+import { router, usePage } from '@inertiajs/react'
+import PageHead from '@/components/public/ui/PageHead'
 import { pageTransition, stagger, fadeUp, fadeLeft, fadeRight } from '@/lib/motion'
 import PageHero from '@/components/public/ui/PageHero'
 
@@ -38,7 +39,7 @@ export default function Contact() {
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
-      <Head title="Contact Us | East Queen Group" />
+      <PageHead title="Contact Us" />
       <PageHero
         title="Contact Us"
         subtitle="We'd love to hear from you. Reach out for export, import, partnership, or general inquiries."

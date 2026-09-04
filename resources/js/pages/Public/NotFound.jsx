@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Link } from '@inertiajs/react'
+import PageHead from '@/components/public/ui/PageHead'
 import { Home as HomeIcon } from 'lucide-react'
 import { stagger, fadeUp } from '@/lib/motion'
 
@@ -11,6 +12,7 @@ export default function NotFound() {
       exit={{ opacity: 0 }}
       className="min-h-screen bg-navy-950 flex items-center justify-center"
     >
+      <PageHead title="Page Not Found" noIndex />
       <motion.div
         variants={stagger}
         initial="hidden"
