@@ -6,6 +6,9 @@ import {
     MagnifyingGlassIcon,
     ShareIcon,
     FilmIcon,
+    InformationCircleIcon,
+    UserCircleIcon,
+    StarIcon,
 } from '@heroicons/react/24/outline'
 
 // ── Primitives ───────────────────────────────────────────────────────────────
@@ -337,13 +340,188 @@ function ShipHeroForm({ defaults }) {
     )
 }
 
+function AboutForm({ defaults }) {
+    const { data, setData, patch, processing, errors } = useForm({
+        overview_p1:     defaults.overview_p1     ?? '',
+        overview_p2:     defaults.overview_p2     ?? '',
+        vision_heading:  defaults.vision_heading  ?? '',
+        vision_body:     defaults.vision_body     ?? '',
+        mission_heading: defaults.mission_heading ?? '',
+        mission_body:    defaults.mission_body    ?? '',
+        spirit_tagline:  defaults.spirit_tagline  ?? '',
+        glance_image:    defaults.glance_image    ?? '',
+    })
+
+    return (
+        <form onSubmit={(e) => { e.preventDefault(); patch('/admin/settings/about') }} className="space-y-5">
+            <FormCard title="Company Overview" description="Shown at the top of the About page">
+                <div className="space-y-4">
+                    <Field label="Overview Paragraph 1" error={errors.overview_p1}>
+                        <TextArea rows={4} value={data.overview_p1} onChange={(v) => setData('overview_p1', v)} placeholder="East Queen Group is one of Bangladesh's most respected…" />
+                    </Field>
+                    <Field label="Overview Paragraph 2" error={errors.overview_p2}>
+                        <TextArea rows={3} value={data.overview_p2} onChange={(v) => setData('overview_p2', v)} placeholder="Founded by a visionary entrepreneur…" />
+                    </Field>
+                </div>
+            </FormCard>
+
+            <FormCard title="Vision & Mission Cards">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Field label="Vision Card Heading" error={errors.vision_heading}>
+                        <TextInput value={data.vision_heading} onChange={(v) => setData('vision_heading', v)} placeholder="Leading Bangladesh's Industrial Transformation" />
+                    </Field>
+                    <Field label="Mission Card Heading" error={errors.mission_heading}>
+                        <TextInput value={data.mission_heading} onChange={(v) => setData('mission_heading', v)} placeholder="A National & International Benchmark" />
+                    </Field>
+                    <Field label="Vision Card Body" error={errors.vision_body}>
+                        <TextArea rows={3} value={data.vision_body} onChange={(v) => setData('vision_body', v)} placeholder="To lead Bangladesh's industrial transformation…" />
+                    </Field>
+                    <Field label="Mission Card Body" error={errors.mission_body}>
+                        <TextArea rows={3} value={data.mission_body} onChange={(v) => setData('mission_body', v)} placeholder="To be recognized as a national and international benchmark…" />
+                    </Field>
+                </div>
+            </FormCard>
+
+            <FormCard title="Spirit & At-A-Glance">
+                <div className="space-y-4">
+                    <Field label="Spirit Tagline" hint='Shown in the dark banner ("Enterprise is our spirit.")' error={errors.spirit_tagline}>
+                        <TextInput value={data.spirit_tagline} onChange={(v) => setData('spirit_tagline', v)} placeholder="Enterprise is our spirit." />
+                    </Field>
+                    <Field label="At-A-Glance Section Image" hint="Right-side image in the stats section">
+                        <ImageField value={data.glance_image} onChange={(v) => setData('glance_image', v)} />
+                    </Field>
+                </div>
+            </FormCard>
+
+            <SaveBar processing={processing} />
+        </form>
+    )
+}
+
+function ChairmanForm({ defaults }) {
+    const { data, setData, patch, processing, errors } = useForm({
+        name:           defaults.name           ?? '',
+        title:          defaults.title          ?? '',
+        photo_url:      defaults.photo_url      ?? '',
+        greeting_quote: defaults.greeting_quote ?? '',
+        para_1:         defaults.para_1         ?? '',
+        para_2:         defaults.para_2         ?? '',
+        para_3:         defaults.para_3         ?? '',
+        para_4:         defaults.para_4         ?? '',
+        para_5:         defaults.para_5         ?? '',
+    })
+
+    return (
+        <form onSubmit={(e) => { e.preventDefault(); patch('/admin/settings/chairman') }} className="space-y-5">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-5">
+                    <FormCard title="Identity">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Field label="Name" error={errors.name}>
+                                <TextInput value={data.name} onChange={(v) => setData('name', v)} placeholder="A K M Abu Taher BSc." />
+                            </Field>
+                            <Field label="Title / Role" error={errors.title}>
+                                <TextInput value={data.title} onChange={(v) => setData('title', v)} placeholder="Chairman, East Queen Group" />
+                            </Field>
+                            <div className="sm:col-span-2">
+                                <Field label="Greeting Quote" hint='Shown in the pull-quote block ("Welcome to East Queen Group.")' error={errors.greeting_quote}>
+                                    <TextInput value={data.greeting_quote} onChange={(v) => setData('greeting_quote', v)} placeholder="Welcome to East Queen Group." />
+                                </Field>
+                            </div>
+                        </div>
+                    </FormCard>
+
+                    <FormCard title="Message Paragraphs">
+                        <div className="space-y-4">
+                            {[1, 2, 3, 4, 5].map((n) => (
+                                <Field key={n} label={`Paragraph ${n}`} error={errors[`para_${n}`]}>
+                                    <TextArea rows={3} value={data[`para_${n}`]} onChange={(v) => setData(`para_${n}`, v)} placeholder={`Paragraph ${n}…`} />
+                                </Field>
+                            ))}
+                        </div>
+                    </FormCard>
+                </div>
+
+                <div>
+                    <FormCard title="Portrait Photo" description="Shown sticky on desktop (3:4 ratio recommended)">
+                        <ImageField value={data.photo_url} onChange={(v) => setData('photo_url', v)} />
+                    </FormCard>
+                </div>
+            </div>
+            <SaveBar processing={processing} />
+        </form>
+    )
+}
+
+function MissionVisionForm({ defaults }) {
+    const { data, setData, patch, processing, errors } = useForm({
+        m_heading:    defaults.m_heading    ?? '',
+        m_body:       defaults.m_body       ?? '',
+        m_detail:     defaults.m_detail     ?? '',
+        m_image:      defaults.m_image      ?? '',
+        v_heading:    defaults.v_heading    ?? '',
+        v_body:       defaults.v_body       ?? '',
+        v_detail:     defaults.v_detail     ?? '',
+        v_image:      defaults.v_image      ?? '',
+        p_heading:    defaults.p_heading    ?? '',
+        p_body:       defaults.p_body       ?? '',
+        p_detail:     defaults.p_detail     ?? '',
+        p_image:      defaults.p_image      ?? '',
+        bottom_quote: defaults.bottom_quote ?? '',
+    })
+
+    const pillars = [
+        { prefix: 'm', label: 'Mission', num: '01' },
+        { prefix: 'v', label: 'Vision',  num: '02' },
+        { prefix: 'p', label: 'Purpose', num: '03' },
+    ]
+
+    return (
+        <form onSubmit={(e) => { e.preventDefault(); patch('/admin/settings/mission_vision') }} className="space-y-5">
+            {pillars.map(({ prefix, label, num }) => (
+                <FormCard key={prefix} title={`${num} · ${label}`}>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div className="lg:col-span-2 space-y-4">
+                            <Field label="Heading" error={errors[`${prefix}_heading`]}>
+                                <TextInput value={data[`${prefix}_heading`]} onChange={(v) => setData(`${prefix}_heading`, v)} placeholder={`${label} heading…`} />
+                            </Field>
+                            <Field label="Body" error={errors[`${prefix}_body`]}>
+                                <TextArea rows={3} value={data[`${prefix}_body`]} onChange={(v) => setData(`${prefix}_body`, v)} placeholder={`${label} body paragraph…`} />
+                            </Field>
+                            <Field label="Detail" hint="Expanded paragraph shown below the body" error={errors[`${prefix}_detail`]}>
+                                <TextArea rows={3} value={data[`${prefix}_detail`]} onChange={(v) => setData(`${prefix}_detail`, v)} placeholder={`${label} detail…`} />
+                            </Field>
+                        </div>
+                        <div>
+                            <Field label="Image">
+                                <ImageField value={data[`${prefix}_image`]} onChange={(v) => setData(`${prefix}_image`, v)} />
+                            </Field>
+                        </div>
+                    </div>
+                </FormCard>
+            ))}
+
+            <FormCard title="Bottom Quote" description="Displayed in the dark closing banner">
+                <Field label="Quote Text" error={errors.bottom_quote}>
+                    <TextArea rows={3} value={data.bottom_quote} onChange={(v) => setData('bottom_quote', v)} placeholder="These are not aspirational statements…" />
+                </Field>
+            </FormCard>
+
+            <SaveBar processing={processing} />
+        </form>
+    )
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 const TABS = [
-    { id: 'company',   label: 'Company',      icon: BuildingOfficeIcon },
-    { id: 'seo',       label: 'SEO',          icon: MagnifyingGlassIcon },
-    { id: 'social',    label: 'Social',       icon: ShareIcon },
-    { id: 'ship_hero', label: 'Hero Section', icon: FilmIcon },
+    { id: 'company',        label: 'Company',          icon: BuildingOfficeIcon },
+    { id: 'seo',            label: 'SEO',              icon: MagnifyingGlassIcon },
+    { id: 'social',         label: 'Social',           icon: ShareIcon },
+    { id: 'ship_hero',      label: 'Hero Section',     icon: FilmIcon },
+    { id: 'about',          label: 'About Page',       icon: InformationCircleIcon },
+    { id: 'chairman',       label: 'Chairman',         icon: UserCircleIcon },
+    { id: 'mission_vision', label: 'Mission & Vision', icon: StarIcon },
 ]
 
 export default function SettingsIndex() {
@@ -378,10 +556,13 @@ export default function SettingsIndex() {
                 </nav>
             </div>
 
-            {tab === 'company'   && <CompanyForm   defaults={settings.company   ?? {}} />}
-            {tab === 'seo'       && <SeoForm       defaults={settings.seo       ?? {}} />}
-            {tab === 'social'    && <SocialForm    defaults={settings.social    ?? {}} />}
-            {tab === 'ship_hero' && <ShipHeroForm  defaults={settings.ship_hero ?? {}} />}
+            {tab === 'company'        && <CompanyForm       defaults={settings.company        ?? {}} />}
+            {tab === 'seo'            && <SeoForm           defaults={settings.seo            ?? {}} />}
+            {tab === 'social'         && <SocialForm        defaults={settings.social         ?? {}} />}
+            {tab === 'ship_hero'      && <ShipHeroForm      defaults={settings.ship_hero      ?? {}} />}
+            {tab === 'about'          && <AboutForm         defaults={settings.about          ?? {}} />}
+            {tab === 'chairman'       && <ChairmanForm      defaults={settings.chairman       ?? {}} />}
+            {tab === 'mission_vision' && <MissionVisionForm defaults={settings.mission_vision ?? {}} />}
         </AdminLayout>
     )
 }

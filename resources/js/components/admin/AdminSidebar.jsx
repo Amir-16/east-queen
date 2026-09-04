@@ -14,6 +14,8 @@ import {
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   XMarkIcon,
+  SparklesIcon,
+  StarIcon,
 } from '@heroicons/react/24/outline'
 
 const NAV = [
@@ -32,9 +34,11 @@ const NAV = [
       { label: 'Associates',    href: '/admin/associates',    icon: UserGroupIcon },
       { label: 'Process Steps', href: '/admin/process-steps', icon: ArrowPathIcon },
       { label: 'Marquee Items', href: '/admin/marquee',       icon: QueueListIcon },
-      { label: 'Stats',         href: '/admin/stats',         icon: ChartBarSquareIcon },
-      { label: 'Timeline',      href: '/admin/timeline',      icon: ClockIcon },
-      { label: 'Gallery',       href: '/admin/gallery',       icon: PhotoIcon },
+      { label: 'Stats',          href: '/admin/stats',          icon: ChartBarSquareIcon },
+      { label: 'Timeline',       href: '/admin/timeline',       icon: ClockIcon },
+      { label: 'Differentiators',href: '/admin/differentiators',icon: SparklesIcon },
+      { label: 'Core Values',    href: '/admin/core-values',    icon: StarIcon },
+      { label: 'Gallery',        href: '/admin/gallery',        icon: PhotoIcon },
     ],
   },
   {
