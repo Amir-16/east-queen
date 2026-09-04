@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Head, Link, router, usePage } from '@inertiajs/react'
-import { AdminLayout, SortableList, ConfirmModal, FormCard } from '@/components/admin'
-import { PlusIcon, PencilSquareIcon, TrashIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { AdminLayout, SortableList, ConfirmModal, FormCard, Toggle } from '@/components/admin'
+import { PlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 const INDUSTRY_COLORS = {
     trading:      'bg-blue-100 text-blue-700',
@@ -84,10 +84,6 @@ export default function CompaniesIndex() {
                                                 {company.industry}
                                             </span>
                                         )}
-                                        <span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded-full ${company.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                                            <span className={`w-1.5 h-1.5 rounded-full ${company.is_active ? 'bg-green-500' : 'bg-gray-400'}`} />
-                                            {company.is_active ? 'Active' : 'Hidden'}
-                                        </span>
                                     </div>
                                     {company.tagline && (
                                         <p className="text-xs text-gray-500 mt-0.5 truncate">{company.tagline}</p>
@@ -98,18 +94,8 @@ export default function CompaniesIndex() {
                                 <span className="text-xs text-gray-400 flex-shrink-0 hidden sm:block">#{company.sort_order}</span>
 
                                 {/* Actions */}
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleToggleActive(company)}
-                                        title={company.is_active ? 'Hide' : 'Show'}
-                                        className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-admin-navy transition-colors"
-                                    >
-                                        {company.is_active
-                                            ? <EyeIcon className="w-5 h-5" />
-                                            : <EyeSlashIcon className="w-5 h-5" />
-                                        }
-                                    </button>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                    <Toggle checked={company.is_active} onChange={() => handleToggleActive(company)} />
                                     <Link
                                         href={`/admin/companies/${company.id}/edit`}
                                         className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-admin-navy transition-colors"

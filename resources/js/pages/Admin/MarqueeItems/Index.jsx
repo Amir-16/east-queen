@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Head, Link, router, usePage } from '@inertiajs/react'
-import { AdminLayout, SortableList, ConfirmModal, FormCard } from '@/components/admin'
-import { PlusIcon, PencilSquareIcon, TrashIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { AdminLayout, SortableList, ConfirmModal, FormCard, Toggle } from '@/components/admin'
+import { PlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 export default function MarqueeItemsIndex() {
     const { items } = usePage().props
@@ -57,28 +57,12 @@ export default function MarqueeItemsIndex() {
                             <div className="flex items-center gap-4 py-3 px-1">
                                 {/* Text content */}
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <p className="text-sm font-medium text-admin-navy truncate">{item.text}</p>
-                                        <span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded-full flex-shrink-0 ${item.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                                            <span className={`w-1.5 h-1.5 rounded-full ${item.is_active ? 'bg-green-500' : 'bg-gray-400'}`} />
-                                            {item.is_active ? 'Active' : 'Hidden'}
-                                        </span>
-                                    </div>
+                                    <p className="text-sm font-medium text-admin-navy truncate">{item.text}</p>
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleToggleActive(item)}
-                                        title={item.is_active ? 'Hide' : 'Show'}
-                                        className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-admin-navy transition-colors"
-                                    >
-                                        {item.is_active
-                                            ? <EyeIcon className="w-5 h-5" />
-                                            : <EyeSlashIcon className="w-5 h-5" />
-                                        }
-                                    </button>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                    <Toggle checked={item.is_active} onChange={() => handleToggleActive(item)} />
                                     <Link
                                         href={`/admin/marquee/${item.id}/edit`}
                                         className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-admin-navy transition-colors"
