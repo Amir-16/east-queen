@@ -15,10 +15,14 @@ const INDUSTRY_LABELS = {
   trading:      'International Trading',
 }
 
+const toArr = (v) => Array.isArray(v) ? v : []
+
 export default function CompanyDetail({ company, otherCompanies = [] }) {
-  const paragraphs = Array.isArray(company.long_description) && company.long_description.length
-    ? company.long_description
-    : [company.description]
+  const paragraphs    = toArr(company.long_description).length ? toArr(company.long_description) : [company.description]
+  const services      = toArr(company.services)
+  const galleryImages = toArr(company.gallery_images)
+  const exportItems   = toArr(company.export_items)
+  const importItems   = toArr(company.import_items)
 
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
@@ -149,11 +153,11 @@ export default function CompanyDetail({ company, otherCompanies = [] }) {
                 </a>
               )}
 
-              {company.services?.length > 0 && (
+              {services.length > 0 && (
                 <div className="bg-white border border-slate-200 rounded-2xl p-5">
                   <h3 className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.25em] mb-4">Services</h3>
                   <ul className="space-y-2.5">
-                    {company.services.map((s) => (
+                    {services.map((s) => (
                       <li key={s} className="flex items-start gap-2 text-slate-600 text-sm">
                         <CheckCircle size={14} className="text-gold-500 mt-0.5 shrink-0" />
                         {s}
@@ -173,9 +177,9 @@ export default function CompanyDetail({ company, otherCompanies = [] }) {
               className="md:col-span-2 space-y-6"
             >
               {/* Gallery grid */}
-              {company.gallery_images?.length > 0 && (
+              {galleryImages.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {company.gallery_images.map((img, i) => (
+                  {galleryImages.map((img, i) => (
                     <div key={i} className="aspect-video rounded-xl overflow-hidden">
                       <img
                         src={img}
@@ -195,13 +199,13 @@ export default function CompanyDetail({ company, otherCompanies = [] }) {
               </div>
 
               {/* Export + Import items */}
-              {company.export_items?.length > 0 && company.import_items?.length > 0 ? (
+              {exportItems.length > 0 && importItems.length > 0 ? (
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
                     <h4 className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.25em] mb-3">Export Products</h4>
                     <div className="h-px bg-slate-200 mb-3" />
                     <ul className="space-y-2">
-                      {company.export_items.map((item) => (
+                      {exportItems.map((item) => (
                         <li key={item} className="flex items-start gap-2 text-slate-600 text-sm">
                           <CheckCircle size={13} className="text-gold-500 mt-0.5 shrink-0" />
                           {item}
@@ -213,7 +217,7 @@ export default function CompanyDetail({ company, otherCompanies = [] }) {
                     <h4 className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.25em] mb-3">Import Products</h4>
                     <div className="h-px bg-slate-200 mb-3" />
                     <ul className="space-y-2">
-                      {company.import_items.map((item) => (
+                      {importItems.map((item) => (
                         <li key={item} className="flex items-start gap-2 text-slate-600 text-sm">
                           <CheckCircle size={13} className="text-gold-500 mt-0.5 shrink-0" />
                           {item}
@@ -224,12 +228,12 @@ export default function CompanyDetail({ company, otherCompanies = [] }) {
                 </div>
               ) : (
                 <>
-                  {company.export_items?.length > 0 && (
+                  {exportItems.length > 0 && (
                     <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
                       <h4 className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.25em] mb-3">Export Products</h4>
                       <div className="h-px bg-slate-200 mb-3" />
                       <ul className="space-y-2">
-                        {company.export_items.map((item) => (
+                        {exportItems.map((item) => (
                           <li key={item} className="flex items-start gap-2 text-slate-600 text-sm">
                             <CheckCircle size={13} className="text-gold-500 mt-0.5 shrink-0" />
                             {item}
@@ -238,12 +242,12 @@ export default function CompanyDetail({ company, otherCompanies = [] }) {
                       </ul>
                     </div>
                   )}
-                  {company.import_items?.length > 0 && (
+                  {importItems.length > 0 && (
                     <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
                       <h4 className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.25em] mb-3">Import Products</h4>
                       <div className="h-px bg-slate-200 mb-3" />
                       <ul className="space-y-2">
-                        {company.import_items.map((item) => (
+                        {importItems.map((item) => (
                           <li key={item} className="flex items-start gap-2 text-slate-600 text-sm">
                             <CheckCircle size={13} className="text-gold-500 mt-0.5 shrink-0" />
                             {item}
