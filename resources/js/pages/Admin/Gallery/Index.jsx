@@ -3,7 +3,7 @@ import { Head, Link, router, usePage } from '@inertiajs/react'
 import { AdminLayout, SortableList, ConfirmModal, FormCard, Toggle } from '@/components/admin'
 import { PlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 
-const CAT_EMOJI = { fish: '🐟', cattle: '🐄', fruits: '🍌', farm: '🌊', team: '👥', videos: '🎬' }
+const CAT_EMOJI = { operations: '⚙️', products: '📦', facilities: '🏭' }
 
 export default function GalleryIndex() {
     const { media } = usePage().props
@@ -57,6 +57,17 @@ export default function GalleryIndex() {
                                         alt={item.title}
                                         className="w-14 h-10 object-cover rounded-lg shrink-0 bg-gray-100"
                                     />
+                                ) : item.thumbnail_src ? (
+                                    <div className="relative w-14 h-10 rounded-lg shrink-0 overflow-hidden">
+                                        <img
+                                            src={item.thumbnail_src}
+                                            alt={item.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                            <span className="text-xs">▶</span>
+                                        </div>
+                                    </div>
                                 ) : (
                                     <div className="w-14 h-10 rounded-lg shrink-0 bg-admin-navy/10 flex items-center justify-center text-xl">
                                         🎬

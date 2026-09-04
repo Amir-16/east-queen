@@ -180,7 +180,7 @@ export default function HeroSlideForm({ data, setData, errors, presets, onSubmit
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4">
                 <Link href="/admin/hero-slides" className="text-sm text-gray-500 hover:text-gray-700">
                     ← Back to Hero Slides
                 </Link>

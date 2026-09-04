@@ -11,13 +11,14 @@ class GalleryMediaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category'   => 'required|in:fish,cattle,fruits,farm,team,videos',
-            'type'        => 'required|in:image,video',
-            'src'         => 'required|string|max:512',
-            'title'       => 'nullable|string|max:150',
-            'caption'     => 'nullable|string',
-            'sort_order'  => 'nullable|integer',
-            'is_active'   => 'boolean',
+            'category'      => 'required|in:operations,products,facilities',
+            'type'          => 'required|in:image,video',
+            'src'           => 'required|string|max:512',
+            'thumbnail_src' => 'nullable|string|max:512',
+            'title'         => 'nullable|string|max:150',
+            'caption'       => 'nullable|string',
+            'sort_order'    => 'nullable|integer',
+            'is_active'     => 'boolean',
         ];
     }
 }

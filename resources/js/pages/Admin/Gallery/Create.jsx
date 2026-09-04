@@ -4,7 +4,7 @@ import GalleryMediaForm from './_GalleryMediaForm'
 
 export default function CreateGalleryMedia() {
     const { data, setData, post, processing, errors } = useForm({
-        category: 'farm', type: 'image', src: '', title: '', caption: '', sort_order: 0, is_active: true,
+        category: 'operations', type: 'image', src: '', thumbnail_src: '', title: '', caption: '', sort_order: 0, is_active: true,
     })
 
     return (

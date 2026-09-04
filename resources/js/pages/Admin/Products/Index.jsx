@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Head, Link, router, usePage } from '@inertiajs/react'
-import { AdminLayout, SortableList, ConfirmModal, FormCard } from '@/components/admin'
-import { PlusIcon, PencilSquareIcon, TrashIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { AdminLayout, SortableList, ConfirmModal, FormCard, Toggle } from '@/components/admin'
+import { PlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 export default function ProductsIndex() {
     const { products } = usePage().props
@@ -110,10 +110,6 @@ export default function ProductsIndex() {
                                         {product.category && (
                                             <span className="text-xs text-gray-500">{product.category}</span>
                                         )}
-                                        <span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded-full ${product.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                                            <span className={`w-1.5 h-1.5 rounded-full ${product.is_active ? 'bg-green-500' : 'bg-gray-400'}`} />
-                                            {product.is_active ? 'Active' : 'Hidden'}
-                                        </span>
                                     </div>
                                     {product.description && (
                                         <p className="text-xs text-gray-500 mt-0.5 truncate max-w-md">{product.description}</p>
@@ -121,18 +117,8 @@ export default function ProductsIndex() {
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleToggleActive(product)}
-                                        title={product.is_active ? 'Hide' : 'Show'}
-                                        className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-admin-navy transition-colors"
-                                    >
-                                        {product.is_active
-                                            ? <EyeIcon className="w-5 h-5" />
-                                            : <EyeSlashIcon className="w-5 h-5" />
-                                        }
-                                    </button>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                    <Toggle checked={product.is_active} onChange={() => handleToggleActive(product)} />
                                     <Link
                                         href={`/admin/products/${product.id}/edit`}
                                         className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-admin-navy transition-colors"

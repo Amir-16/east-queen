@@ -1,45 +1,23 @@
+import { usePage } from '@inertiajs/react'
 import { motion } from 'framer-motion'
-import { Shield, Target, Handshake, Lightbulb } from 'lucide-react'
+import { Shield, Target, Handshake, Lightbulb, Star, Heart, CheckCircle, Globe, Zap, Award, Users, TrendingUp } from 'lucide-react'
 import { pageTransition, staggerSlow, fadeDown, stagger } from '@/lib/motion'
 import PageHead from '@/components/public/ui/PageHead'
 import PageHero from '@/components/public/ui/PageHero'
 
-const values = [
-  {
-    icon:    Shield,
-    num:     '01',
-    title:   'Integrity',
-    tagline: 'We say what we mean. We do what we say.',
-    desc:    'Ethical practices and transparent dealings in every transaction. Our partners trust us because we have never compromised on honesty — not in good times, not in difficult ones.',
-    detail:  'Integrity is our most valuable asset. In an industry where relationships are everything, our word is our bond. Every contract, every negotiation, every delivery reflects this core commitment.',
-  },
-  {
-    icon:    Target,
-    num:     '02',
-    title:   'Quality',
-    tagline: 'International standards. No exceptions.',
-    desc:    'Strict adherence to international standards across all operations. We comply with ISO requirements, industry certifications, and regulatory frameworks in every market we serve.',
-    detail:  'Quality is not a checklist — it is a culture. From sourcing to delivery, every step is governed by documented processes and third-party verification that our partners can trust and audit.',
-  },
-  {
-    icon:    Handshake,
-    num:     '03',
-    title:   'Partnership',
-    tagline: 'Long-term relationships over short-term gains.',
-    desc:    "Long-term relationships built on trust and mutual success. We invest in understanding our partners' businesses and growing alongside them — not just transacting with them.",
-    detail:  'We measure our success not just in revenue, but in the longevity of our partnerships. Many of our most valued business relationships span more than a decade — a testament to this commitment.',
-  },
-  {
-    icon:    Lightbulb,
-    num:     '04',
-    title:   'Innovation',
-    tagline: 'Always improving. Always adapting.',
-    desc:    'Continuously improving processes to meet evolving market needs. We embrace change as an opportunity, investing in digital infrastructure and operational efficiency year after year.',
-    detail:  'Four decades in business requires constant reinvention. We have evolved from a local ship-breaking operation to a multi-continent trading conglomerate by embracing innovation at every stage of growth.',
-  },
-]
+const ICON_MAP = {
+  Shield, Target, Handshake, Lightbulb,
+  Star, Heart, CheckCircle, Globe,
+  Zap, Award, Users, TrendingUp,
+}
 
-export default function CoreValues() {
+function resolveIcon(name) {
+  return ICON_MAP[name] ?? Shield
+}
+
+export default function CoreValues({ values = [] }) {
+  const { chairman = {} } = usePage().props
+
   return (
     <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit">
       <PageHead title="Core Values" />
@@ -93,62 +71,68 @@ export default function CoreValues() {
       </section>
 
       {/* Values grid */}
-      <section className="section-padding bg-slate-50">
-        <div className="section-container">
-          <motion.div
-            className="grid md:grid-cols-2 gap-4 md:gap-6"
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
-          >
-            {values.map(({ icon: Icon, num, title, tagline, desc, detail }, i) => (
-              <motion.div
-                key={title}
-                variants={fadeDown}
-                transition={{ delay: i * 0.12 }}
-                whileHover={{ y: -8 }}
-                className="group relative bg-white rounded-2xl overflow-hidden shadow-sm-card
-                           border border-slate-100 hover:border-gold-200 hover:shadow-hover
-                           transition-all duration-300 cursor-default"
-              >
-                {/* Expanding top bar */}
-                <div className="h-[3px] bg-gold-500 w-14 group-hover:w-full
-                                transition-all duration-500 ease-out" />
+      {values.length > 0 && (
+        <section className="section-padding bg-slate-50">
+          <div className="section-container">
+            <motion.div
+              className="grid md:grid-cols-2 gap-4 md:gap-6"
+              variants={stagger}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-60px' }}
+            >
+              {values.map((val, i) => {
+                const Icon = resolveIcon(val.icon_name)
+                return (
+                  <motion.div
+                    key={val.id}
+                    variants={fadeDown}
+                    transition={{ delay: i * 0.12 }}
+                    whileHover={{ y: -8 }}
+                    className="group relative bg-white rounded-2xl overflow-hidden shadow-sm-card
+                               border border-slate-100 hover:border-gold-200 hover:shadow-hover
+                               transition-all duration-300 cursor-default"
+                  >
+                    <div className="h-[3px] bg-gold-500 w-14 group-hover:w-full
+                                    transition-all duration-500 ease-out" />
 
-                <div className="p-8 xl:p-10">
-                  <div className="flex items-start justify-between mb-7">
-                    <div className="w-14 h-14 rounded-2xl bg-gold-50 border border-gold-100
-                                    flex items-center justify-center
-                                    group-hover:bg-gold-500 group-hover:border-gold-500
-                                    transition-all duration-300">
-                      <Icon
-                        size={22}
-                        className="text-gold-500 group-hover:text-white transition-colors duration-300"
-                      />
+                    <div className="p-8 xl:p-10">
+                      <div className="flex items-start justify-between mb-7">
+                        <div className="w-14 h-14 rounded-2xl bg-gold-50 border border-gold-100
+                                        flex items-center justify-center
+                                        group-hover:bg-gold-500 group-hover:border-gold-500
+                                        transition-all duration-300">
+                          <Icon
+                            size={22}
+                            className="text-gold-500 group-hover:text-white transition-colors duration-300"
+                          />
+                        </div>
+                        <span className="font-mono font-black text-[4.5rem] leading-none text-slate-100
+                                         group-hover:text-gold-500/15 transition-colors duration-500 select-none">
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                      </div>
+
+                      <h3 className="font-playfair font-bold text-slate-900 text-2xl mb-1">{val.title}</h3>
+                      <p className="text-gold-500 text-sm font-semibold italic mb-5">"{val.tagline}"</p>
+                      <p className="text-slate-600 leading-relaxed">{val.description}</p>
+
+                      {val.detail && (
+                        <div className="overflow-hidden max-h-0 group-hover:max-h-48
+                                        transition-all duration-500 ease-out">
+                          <p className="text-slate-400 text-sm leading-relaxed pt-5 mt-4 border-t border-slate-100">
+                            {val.detail}
+                          </p>
+                        </div>
+                      )}
                     </div>
-                    <span className="font-mono font-black text-[4.5rem] leading-none text-slate-100
-                                     group-hover:text-gold-500/15 transition-colors duration-500 select-none">
-                      {num}
-                    </span>
-                  </div>
-
-                  <h3 className="font-playfair font-bold text-slate-900 text-2xl mb-1">{title}</h3>
-                  <p className="text-gold-500 text-sm font-semibold italic mb-5">"{tagline}"</p>
-                  <p className="text-slate-600 leading-relaxed">{desc}</p>
-
-                  <div className="overflow-hidden max-h-0 group-hover:max-h-48
-                                  transition-all duration-500 ease-out">
-                    <p className="text-slate-400 text-sm leading-relaxed pt-5 mt-4 border-t border-slate-100">
-                      {detail}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+                  </motion.div>
+                )
+              })}
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Chairman quote */}
       <section className="py-24 bg-navy-900 relative overflow-hidden">
@@ -180,10 +164,10 @@ export default function CoreValues() {
             <motion.div variants={fadeDown} className="flex flex-col items-center gap-2">
               <div className="gold-rule" />
               <p className="text-gold-500 text-sm font-semibold uppercase tracking-wider mt-3">
-                A K M Abu Taher BSc.
+                {chairman.name || 'A K M Abu Taher BSc.'}
               </p>
               <p className="text-white/40 text-xs uppercase tracking-widest">
-                Chairman, East Queen Group
+                {chairman.title || 'Chairman, East Queen Group'}
               </p>
             </motion.div>
           </motion.div>

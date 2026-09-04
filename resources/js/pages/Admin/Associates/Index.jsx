@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Head, Link, router, usePage } from '@inertiajs/react'
-import { AdminLayout, SortableList, ConfirmModal, FormCard } from '@/components/admin'
-import { PlusIcon, PencilSquareIcon, TrashIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { AdminLayout, SortableList, ConfirmModal, FormCard, Toggle } from '@/components/admin'
+import { PlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 export default function AssociatesIndex() {
     const { associates } = usePage().props
@@ -65,13 +65,7 @@ export default function AssociatesIndex() {
 
                                 {/* Info */}
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <p className="text-sm font-semibold text-admin-navy truncate">{associate.name}</p>
-                                        <span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded-full ${associate.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                                            <span className={`w-1.5 h-1.5 rounded-full ${associate.is_active ? 'bg-green-500' : 'bg-gray-400'}`} />
-                                            {associate.is_active ? 'Active' : 'Hidden'}
-                                        </span>
-                                    </div>
+                                    <p className="text-sm font-semibold text-admin-navy truncate">{associate.name}</p>
                                     <div className="flex items-center gap-3 mt-0.5">
                                         {associate.country && (
                                             <span className="text-xs text-gray-500">{associate.country}</span>
@@ -91,18 +85,8 @@ export default function AssociatesIndex() {
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleToggleActive(associate)}
-                                        title={associate.is_active ? 'Hide' : 'Show'}
-                                        className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-admin-navy transition-colors"
-                                    >
-                                        {associate.is_active
-                                            ? <EyeIcon className="w-5 h-5" />
-                                            : <EyeSlashIcon className="w-5 h-5" />
-                                        }
-                                    </button>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                    <Toggle checked={associate.is_active} onChange={() => handleToggleActive(associate)} />
                                     <Link
                                         href={`/admin/associates/${associate.id}/edit`}
                                         className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-admin-navy transition-colors"

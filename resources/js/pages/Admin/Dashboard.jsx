@@ -136,7 +136,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── KPI stat cards ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
         <StatCard icon={BuildingOffice2Icon} label="Companies"   value={stats?.companies}     subtext="group companies"   color="navy"  href="/admin/companies" />
         <StatCard icon={ChartBarSquareIcon}  label="Stats"       value={stats?.stats}         subtext="live metrics"      color="gold"  href="/admin/stats" />
         <StatCard icon={UserGroupIcon}       label="Associates"  value={stats?.associates}    subtext="active partners"   color="teal"  href="/admin/associates" />
@@ -148,8 +148,8 @@ export default function Dashboard() {
       </div>
 
       {/* ── Chart + Recent inquiries ────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="md:col-span-2">
           <FormCard title="Inquiry Trend" description="Incoming inquiries — last 30 days">
             <InquiryChart data={chartData ?? []} />
           </FormCard>

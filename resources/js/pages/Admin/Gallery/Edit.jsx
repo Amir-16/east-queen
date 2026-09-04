@@ -6,13 +6,14 @@ export default function EditGalleryMedia() {
     const { media } = usePage().props
 
     const { data, setData, put, processing, errors } = useForm({
-        category:   media.category   ?? 'farm',
-        type:       media.type       ?? 'image',
-        src:        media.src        ?? '',
-        title:      media.title      ?? '',
-        caption:    media.caption    ?? '',
-        sort_order: media.sort_order ?? 0,
-        is_active:  media.is_active  ?? true,
+        category:      media.category      ?? 'operations',
+        type:          media.type          ?? 'image',
+        src:           media.src           ?? '',
+        thumbnail_src: media.thumbnail_src ?? '',
+        title:         media.title         ?? '',
+        caption:       media.caption       ?? '',
+        sort_order:    media.sort_order    ?? 0,
+        is_active:     media.is_active     ?? true,
     })
 
     return (
