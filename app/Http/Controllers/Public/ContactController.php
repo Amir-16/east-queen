@@ -49,7 +49,7 @@ class ContactController extends Controller
         cache()->forget('contacts.unread');
 
         // Notify admin
-        Mail::to(config('mail.admin_to', config('mail.from.address')))
+        Mail::to(config('mail.admin_to'))
             ->send(new ContactInquiryMail($contact));
 
         // Auto-reply to sender

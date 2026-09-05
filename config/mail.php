@@ -41,7 +41,7 @@ return [
             'transport' => 'smtp',
             'scheme' => env('MAIL_SCHEME', 'smtps'),
             'url' => env('MAIL_URL'),
-            'host' => env('MAIL_HOST', 'mail.sffagro.com'),
+            'host' => env('MAIL_HOST', 'mail.eastqueengroup.com'),
             'port' => env('MAIL_PORT', 465),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
@@ -116,10 +116,10 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'info@sffagro.com'),
-        'name' => env('MAIL_FROM_NAME', 'SFF Agro'),
+        'address' => env('MAIL_FROM_ADDRESS', 'admin@eastqueengroup.com'),
+        'name'    => env('MAIL_FROM_NAME',    'East Queen Group'),
     ],
 
-    'admin_to' => env('MAIL_ADMIN_TO', 'info@sffagro.com'),
+    'admin_to' => env('MAIL_ADMIN_TO', 'admin@eastqueengroup.com'),
 
 ];
