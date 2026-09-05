@@ -149,14 +149,12 @@ class GalleryMediaSeeder extends Seeder
         $c = 'facilities';
         return [
             // Fisheries / Aquaculture
-            self::img('/images/gallery/fisheries/farm-1.jpeg',        $c, 'Aquaculture Farm',          'Integrated fish farming at Syedpur.',                 64),
-            self::img('/images/gallery/fisheries/pond-1.jpeg',        $c, 'Fish Ponds',                'Raised fish ponds managed by Syedpur Fisheries.',     65),
-            self::img('/images/gallery/fisheries/coastal-land.jpeg',  $c, 'Coastal Landholding',       'Extensive coastal land for aquaculture.',              66),
-            self::img('/images/gallery/fisheries/nets-field.jpeg',    $c, 'Fishing Nets',              'Traditional net drying on the foreshore.',             67),
-            self::img('/images/gallery/fisheries/livestock-1.jpeg',   $c, 'Livestock Operations',      'Integrated cattle rearing alongside aquaculture.',     68),
+            self::img('/images/gallery/fisheries/pond-1.jpeg',        $c, 'Fish Ponds',                'Raised fish ponds managed by Syedpur Fisheries.',     64),
+            self::img('/images/gallery/fisheries/coastal-land.jpeg',  $c, 'Coastal Landholding',       'Extensive coastal land for aquaculture.',              65),
+            self::img('/images/gallery/fisheries/nets-field.jpeg',    $c, 'Fishing Nets',              'Traditional net drying on the foreshore.',             66),
+            self::img('/images/gallery/fisheries/livestock-1.jpeg',   $c, 'Livestock Operations',      'Integrated cattle rearing alongside aquaculture.',     67),
             // Syedpur Farm
-            self::img('/images/companies/syedpur/farm-2.jpeg',        $c, 'Farm Grounds',              'Open farmland under cultivation.',                    69),
-            self::img('/images/companies/syedpur/coastal-sea.jpeg',   $c, 'Coastal Waters',            'Sea frontage of Syedpur holdings.',                   71),
+            self::img('/images/companies/syedpur/coastal-sea.jpeg',   $c, 'Coastal Waters',            'Sea frontage of Syedpur holdings.',                   68),
             self::img('/images/companies/syedpur/coastal-land.jpeg',  $c, 'Coastal Estate',            null,                                                  72),
             self::img('/images/companies/syedpur/nature-1.jpeg',      $c, 'Natural Landscape',         'Green fields surrounding the facility.',               73),
             self::img('/images/companies/syedpur/nature-2.jpeg',      $c, 'Green Fields',              null,                                                  74),
@@ -166,7 +164,7 @@ class GalleryMediaSeeder extends Seeder
             self::img('/images/operations/facility-5.jpeg',           $c, 'Cold Storage',              null,                                                  77),
             self::img('/images/operations/facility-6.jpeg',           $c, 'Logistics Centre',          'Distribution hub for inland and port delivery.',      78),
             // Videos
-            self::vid('/videos/fisheries/fisheries-1.mp4', '/images/gallery/fisheries/farm-1.jpeg',   $c, 'Fisheries Operations',   'Day-in-the-life at Syedpur Fisheries.',        79),
+            self::vid('/videos/fisheries/fisheries-1.mp4', '/images/gallery/fisheries/pond-1.jpeg',   $c, 'Fisheries Operations',   'Day-in-the-life at Syedpur Fisheries.',        79),
             self::vid('/videos/fisheries/fisheries-2.mp4', '/images/gallery/fisheries/pond-1.jpeg',   $c, 'Aquaculture Process',    'Pond management and fish harvesting.',         80),
             self::vid('/videos/operations/ops-3.mp4',      '/images/operations/facility-3.jpeg',      $c, 'Facility Walkthrough',   null,                                           81),
             self::vid('/videos/hero/hero-operations.mp4',  '/images/operations/facility-1.jpeg',      $c, 'Operations — Feature',   'Our facilities powering Bangladesh\'s trade.', 82),
