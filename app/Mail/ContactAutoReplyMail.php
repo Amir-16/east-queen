@@ -18,7 +18,7 @@ class ContactAutoReplyMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'We Received Your Enquiry — SFF Agro',
+            subject: 'We Received Your Enquiry — East Queen Group',
         );
     }
 
