@@ -155,8 +155,7 @@ class GalleryMediaSeeder extends Seeder
             self::img('/images/gallery/fisheries/nets-field.jpeg',    $c, 'Fishing Nets',              'Traditional net drying on the foreshore.',             67),
             self::img('/images/gallery/fisheries/livestock-1.jpeg',   $c, 'Livestock Operations',      'Integrated cattle rearing alongside aquaculture.',     68),
             // Syedpur Farm
-            self::img('/images/companies/syedpur/farm-1.jpeg',        $c, 'Syedpur Farm',              'Overview of the Syedpur agricultural complex.',       69),
-            self::img('/images/companies/syedpur/farm-2.jpeg',        $c, 'Farm Grounds',              'Open farmland under cultivation.',                    70),
+            self::img('/images/companies/syedpur/farm-2.jpeg',        $c, 'Farm Grounds',              'Open farmland under cultivation.',                    69),
             self::img('/images/companies/syedpur/coastal-sea.jpeg',   $c, 'Coastal Waters',            'Sea frontage of Syedpur holdings.',                   71),
             self::img('/images/companies/syedpur/coastal-land.jpeg',  $c, 'Coastal Estate',            null,                                                  72),
             self::img('/images/companies/syedpur/nature-1.jpeg',      $c, 'Natural Landscape',         'Green fields surrounding the facility.',               73),
