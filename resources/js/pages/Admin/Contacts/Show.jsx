@@ -29,7 +29,7 @@ export default function ShowContact() {
     const [changingStatus, setChangingStatus] = useState(false)
 
     const defaultSubject = `Re: Your enquiry about ${contact.service || 'our services'}`
-    const defaultBody = `Dear ${contact.name},\n\nThank you for reaching out to Sff Agro\n\n`
+    const defaultBody = `Dear ${contact.name},\n\nThank you for reaching out to East Queen Group. We have reviewed your enquiry and would like to respond as follows:\n\n`
 
     const [compose, setCompose] = useState(false)
     const [emailSubject, setEmailSubject] = useState(defaultSubject)
@@ -74,7 +74,7 @@ export default function ShowContact() {
     }
 
     const whatsappHref = contact.phone
-        ? `https://wa.me/${contact.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${contact.name}, thank you for reaching out to Jonith Bogdad.`)}`
+        ? `https://wa.me/${contact.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${contact.name}, thank you for reaching out to East Queen Group.`)}`
         : null
 
     return (
