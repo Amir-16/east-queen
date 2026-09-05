@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class GalleryMediaRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class GalleryMediaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category'      => 'required|in:operations,products,facilities',
+            'category'      => ['required', Rule::exists('gallery_categories', 'slug')->where('is_active', true)],
             'type'          => 'required|in:image,video',
             'src'           => 'required|string|max:512',
             'thumbnail_src' => 'nullable|string|max:512',

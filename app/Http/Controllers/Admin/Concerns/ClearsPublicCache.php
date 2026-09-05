@@ -44,9 +44,14 @@ trait ClearsPublicCache
         Cache::forget('public.gallery');
         Cache::forget('public.gallery.home');
         Cache::forget('api.gallery');
-        foreach (['operations', 'products', 'facilities'] as $cat) {
-            Cache::forget("api.gallery.{$cat}");
-        }
+    }
+
+    protected function clearGalleryCategoryCache(): void
+    {
+        Cache::forget('public.gallery_categories');
+        Cache::forget('api.gallery_categories');
+        // Also bust the gallery page itself — category visibility changes affect public filters
+        Cache::forget('public.gallery');
     }
 
     protected function clearMarqueeCache(): void

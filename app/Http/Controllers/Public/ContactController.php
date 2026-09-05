@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ContactAutoReplyMail;
+use App\Mail\ContactInquiryMail;
+use App\Models\Contact;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,9 +30,32 @@ class ContactController extends Controller
             'message' => ['required', 'string', 'max:2000'],
         ]);
 
-        // Phase A: log only — DB wire-up comes in Phase B
-        \Log::info('Contact form submission', $validated);
+        // Build message — prepend company if provided
+        $body = $validated['company']
+            ? "Company: {$validated['company']}\n\n{$validated['message']}"
+            : $validated['message'];
 
-        return back()->with('success', 'Message received.');
+        $contact = Contact::create([
+            'name'       => $validated['name'],
+            'email'      => $validated['email'],
+            'phone'      => $validated['phone'] ?? null,
+            'service'    => $validated['subject'],
+            'message'    => $body,
+            'ip_address' => $request->ip(),
+            'status'     => 'new',
+        ]);
+
+        // Bust the unread badge cache
+        cache()->forget('contacts.unread');
+
+        // Notify admin
+        Mail::to(config('mail.admin_to'))
+            ->send(new ContactInquiryMail($contact));
+
+        // Auto-reply to sender
+        Mail::to($contact->email, $contact->name)
+            ->send(new ContactAutoReplyMail($contact));
+
+        return back()->with('success', 'Your message has been sent. We will get back to you within one business day.');
     }
 }

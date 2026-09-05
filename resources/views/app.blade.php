@@ -9,6 +9,9 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/images/brand/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/brand/favicon.png" />
+    <meta name="theme-color" content="#1B5E20" />
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

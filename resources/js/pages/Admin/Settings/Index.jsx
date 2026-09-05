@@ -281,7 +281,7 @@ function ShipHeroForm({ defaults }) {
                     {isVideo ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Field label="Video URL" hint="Path relative to /public (e.g. /videos/ops.mp4)" error={errors.video_url}>
-                                <TextInput value={data.video_url} onChange={(v) => setData('video_url', v)} placeholder="/videos/operations/ops-2.mp4" mono />
+                                <TextInput value={data.video_url} onChange={(v) => setData('video_url', v)} placeholder="/videos/ship-breaking/ship-hero.mp4" mono />
                             </Field>
                             <Field label="Video Poster Image" hint="Shown while video loads" error={errors.video_poster}>
                                 <ImageField value={data.video_poster} onChange={(v) => setData('video_poster', v)} error={errors.video_poster} />

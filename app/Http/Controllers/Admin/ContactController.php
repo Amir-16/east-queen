@@ -20,6 +20,9 @@ class ContactController extends Controller
         $status  = $request->query('status',  'all');
         $service = $request->query('service', 'all');
         $search  = trim($request->query('search', ''));
+        $perPage = in_array((int) $request->query('per_page', 15), [10, 25, 50])
+            ? (int) $request->query('per_page', 15)
+            : 15;
 
         $query = Contact::orderByDesc('created_at');
 
@@ -41,7 +44,7 @@ class ContactController extends Controller
 
         return Inertia::render('Admin/Contacts/Index', [
             'contacts' => $query
-                ->paginate(10, ['id', 'name', 'email', 'phone', 'service', 'status', 'created_at'])
+                ->paginate($perPage, ['id', 'name', 'email', 'phone', 'service', 'status', 'created_at'])
                 ->withQueryString(),
             'counts'   => [
                 'all'     => Contact::count(),
@@ -54,9 +57,10 @@ class ContactController extends Controller
                 ->orderBy('service')
                 ->pluck('service'),
             'filters' => [
-                'status'  => $status,
-                'service' => $service,
-                'search'  => $search,
+                'status'   => $status,
+                'service'  => $service,
+                'search'   => $search,
+                'per_page' => $perPage,
             ],
         ]);
     }

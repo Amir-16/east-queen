@@ -163,7 +163,7 @@ class CompanySeeder extends Seeder
                     'Agri Outgrower Programme',
                 ],
                 'logo'             => '/images/brand/concerns/con-3.png',
-                'cover_image'      => '/images/companies/syedpur/farm-1.jpeg',
+                'cover_image'      => '/images/companies/syedpur/nature-1.jpeg',
                 'gallery_images'   => [
                     '/images/companies/syedpur/pond-1.jpeg',
                     '/images/companies/syedpur/coastal-land.jpeg',
