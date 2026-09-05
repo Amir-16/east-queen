@@ -166,17 +166,6 @@ export default function Contact() {
                   </div>
                 ))}
               </div>
-
-              {/* Staff Webmail */}
-              <div className="bg-slate-50 border border-slate-100 rounded-xl p-5 text-center">
-                <p className="text-slate-500 text-xs mb-2">Staff access</p>
-                <a
-                  href="mailto:contact@eastqueengroup.com"
-                  className="text-gold-500 hover:text-gold-600 text-sm font-semibold transition-colors"
-                >
-                  Staff Webmail Login →
-                </a>
-              </div>
             </motion.div>
           </div>
         </div>
