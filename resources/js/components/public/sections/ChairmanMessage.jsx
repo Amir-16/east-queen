@@ -38,7 +38,7 @@ export default function ChairmanMessage() {
 
   const name  = chairman.name      ?? ''
   const title = chairman.title     ?? ''
-  const quote = chairman.message   ?? ''
+  const quote = chairman.greeting_quote ?? ''
   const photo = chairman.photo_url ?? ''
 
   return (
