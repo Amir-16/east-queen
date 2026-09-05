@@ -1,7 +1,7 @@
-import { useRef, useEffect, useState, useCallback } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from '@inertiajs/react'
-import { ArrowRight, Phone, ChevronDown, Wind, VolumeX } from 'lucide-react'
+import { ArrowRight, Phone, ChevronDown, Volume2, VolumeX } from 'lucide-react'
 import { usePage } from '@inertiajs/react'
 import { ease } from '@/lib/motion'
 
@@ -93,70 +93,6 @@ function Sparks() {
   )
 }
 
-// ── Wind sound synth ─────────────────────────────────────────────────────────
-
-function useWindSound() {
-  const ctxRef     = useRef(null)
-  const masterRef  = useRef(null)
-  const startedRef = useRef(false)
-  const [playing, setPlaying] = useState(false)
-
-  const buildGraph = useCallback(() => {
-    if (ctxRef.current) return ctxRef.current
-    try {
-      const ctx = new AudioContext()
-      const sr  = ctx.sampleRate
-      const buf = ctx.createBuffer(2, sr * 6, sr)
-      for (let ch = 0; ch < 2; ch++) {
-        const d = buf.getChannelData(ch)
-        let last = 0
-        for (let i = 0; i < d.length; i++) {
-          const white = Math.random() * 2 - 1
-          d[i] = (last + 0.02 * white) / 1.02; last = d[i]; d[i] *= 3.8
-        }
-      }
-      const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true
-      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 720; lp.Q.value = 0.4
-      const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 340; bp.Q.value = 0.55
-      const windGain = ctx.createGain(); windGain.gain.value = 0.65
-      const lfo1 = ctx.createOscillator(); lfo1.type = 'sine'; lfo1.frequency.value = 0.07
-      const lg1  = ctx.createGain(); lg1.gain.value = 0.38; lfo1.connect(lg1); lg1.connect(windGain.gain)
-      const lfo2 = ctx.createOscillator(); lfo2.type = 'sine'; lfo2.frequency.value = 0.38
-      const lg2  = ctx.createGain(); lg2.gain.value = 0.14; lfo2.connect(lg2); lg2.connect(windGain.gain)
-      const comp = ctx.createDynamicsCompressor()
-      comp.threshold.value = -20; comp.knee.value = 28; comp.ratio.value = 7; comp.attack.value = 0.02; comp.release.value = 0.4
-      const master = ctx.createGain(); master.gain.value = 0
-      src.connect(lp); src.connect(bp); lp.connect(windGain); bp.connect(windGain)
-      windGain.connect(comp); comp.connect(master); master.connect(ctx.destination)
-      src.start(); lfo1.start(); lfo2.start()
-      ctxRef.current = ctx; masterRef.current = master
-      return ctx
-    } catch { return null }
-  }, [])
-
-  const toggle = useCallback(() => {
-    const ctx = buildGraph()
-    if (!ctx) return
-    ctx.resume().then(() => {
-      const master = masterRef.current
-      if (!startedRef.current) {
-        startedRef.current = true
-        master.gain.setTargetAtTime(0.85, ctx.currentTime, 1.8)
-        setPlaying(true)
-      } else {
-        setPlaying((prev) => {
-          const next = !prev
-          master.gain.setTargetAtTime(next ? 0.85 : 0, ctx.currentTime, next ? 1.8 : 0.8)
-          return next
-        })
-      }
-    }).catch(() => {})
-  }, [buildGraph])
-
-  useEffect(() => () => { ctxRef.current?.close() }, [])
-  return { playing, toggle }
-}
-
 // ── Motion variants ───────────────────────────────────────────────────────────
 
 const cont  = { hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.3 } } }
@@ -194,14 +130,14 @@ function AnimatedHeadline({ headline, accentWord }) {
 
 // ── Media background — video or image with Ken Burns ─────────────────────────
 
-function MediaBackground({ mediaType, videoUrl, videoPoster, imageUrl }) {
+function MediaBackground({ mediaType, videoUrl, videoPoster, imageUrl, videoRef }) {
   if (mediaType === 'image' && imageUrl) {
     return (
       <motion.div
         className="absolute inset-0 w-full h-full z-0 bg-center bg-cover"
         style={{
           backgroundImage:  `url(${imageUrl})`,
-          filter:           'brightness(1.12) contrast(1.18) saturate(1.30) sepia(0.06)',
+          filter:           'brightness(1.05) contrast(1.22) saturate(1.20) sepia(0.08)',
           transform:        'scale(1.08)',
           transformOrigin:  'center center',
         }}
@@ -214,12 +150,13 @@ function MediaBackground({ mediaType, videoUrl, videoPoster, imageUrl }) {
 
   return (
     <motion.video
-      src={videoUrl || '/videos/operations/ops-2.mp4'}
-      poster={videoPoster || '/images/operations/facility-1.jpeg'}
+      ref={videoRef}
+      src={videoUrl || '/videos/ship-breaking/ship-hero.mp4'}
+      poster={videoPoster || '/images/gallery/ship-breaking/yard-wide-1.jpeg'}
       autoPlay muted loop playsInline preload="metadata"
       className="absolute inset-0 w-full h-full object-cover z-0"
       style={{
-        filter:          'brightness(1.12) contrast(1.18) saturate(1.30) sepia(0.06)',
+        filter:          'brightness(1.05) contrast(1.22) saturate(1.20) sepia(0.08)',
         transform:       'scale(1.08)',
         transformOrigin: 'center center',
       }}
@@ -233,12 +170,14 @@ function MediaBackground({ mediaType, videoUrl, videoPoster, imageUrl }) {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function ShipHeroSection({ shipHero = {} }) {
-  const { playing, toggle } = useWindSound()
+  const videoRef   = useRef(null)
+  const [muted,    setMuted]    = useState(true)
+  const [progress, setProgress] = useState(0)
   const { company } = usePage().props
 
   const mediaType   = shipHero.media_type     || 'video'
-  const videoUrl    = shipHero.video_url      || '/videos/operations/ops-2.mp4'
-  const videoPoster = shipHero.video_poster   || '/images/operations/facility-1.jpeg'
+  const videoUrl    = shipHero.video_url      || '/videos/ship-breaking/ship-hero.mp4'
+  const videoPoster = shipHero.video_poster   || '/images/gallery/ship-breaking/yard-wide-1.jpeg'
   const imageUrl    = shipHero.image_url      || ''
   const eyebrow     = shipHero.eyebrow        || 'East Queen Group · Est. 1982 · Chittagong, Bangladesh'
   const headline    = shipHero.headline       || 'GATEWAY TO GLOBAL BUSINESS'
@@ -249,22 +188,47 @@ export default function ShipHeroSection({ shipHero = {} }) {
   const cta1Url     = shipHero.cta1_url       || '/export'
   const badgeText   = shipHero.badge_text     || 'Trusted Globally · Est. 1982'
 
+  // Track video playback progress for the bottom progress bar
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    const onTime = () => {
+      if (video.duration) setProgress((video.currentTime / video.duration) * 100)
+    }
+    video.addEventListener('timeupdate', onTime)
+    return () => video.removeEventListener('timeupdate', onTime)
+  }, [])
+
+  const toggleMute = () => {
+    const video = videoRef.current
+    if (!video) return
+    video.muted = !video.muted
+    setMuted(video.muted)
+  }
+
   return (
     <section
       className="relative min-h-screen overflow-hidden flex flex-col"
       aria-label={headline}
     >
-      <MediaBackground mediaType={mediaType} videoUrl={videoUrl} videoPoster={videoPoster} imageUrl={imageUrl} />
+      <MediaBackground
+        mediaType={mediaType}
+        videoUrl={videoUrl}
+        videoPoster={videoPoster}
+        imageUrl={imageUrl}
+        videoRef={videoRef}
+      />
 
       {/* Gradient overlays */}
       <div className="absolute inset-0 z-[1] pointer-events-none"
-        style={{ background: 'linear-gradient(180deg,rgba(4,10,24,.45) 0%,transparent 20%,transparent 58%,rgba(4,10,24,.92) 100%)' }} />
+        style={{ background: 'linear-gradient(180deg,rgba(4,10,24,.55) 0%,transparent 18%,transparent 52%,rgba(4,10,24,.96) 100%)' }} />
       <div className="absolute inset-0 z-[2] pointer-events-none"
-        style={{ background: 'linear-gradient(100deg,rgba(4,10,24,.90) 0%,rgba(4,10,24,.78) 26%,rgba(4,10,24,.44) 50%,rgba(4,10,24,.10) 66%,transparent 80%)' }} />
+        style={{ background: 'linear-gradient(105deg,rgba(4,10,24,.95) 0%,rgba(4,10,24,.82) 28%,rgba(4,10,24,.48) 52%,rgba(4,10,24,.12) 68%,transparent 82%)' }} />
       <div className="absolute inset-0 z-[3] pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse 85% 80% at 50% 50%,transparent 40%,rgba(0,0,0,.55) 100%)' }} />
+        style={{ background: 'radial-gradient(ellipse 90% 85% at 50% 50%,transparent 38%,rgba(0,0,0,.60) 100%)' }} />
+      {/* Cinematic scan lines */}
       <div className="absolute inset-0 z-[4] pointer-events-none" aria-hidden="true"
-        style={{ backgroundImage: 'repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px)', backgroundSize: '100% 4px' }} />
+        style={{ backgroundImage: 'repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px)', backgroundSize: '100% 4px' }} />
 
       <FilmGrain />
       <DustMotes />
@@ -319,41 +283,41 @@ export default function ShipHeroSection({ shipHero = {} }) {
         </motion.div>
       </div>
 
-      {/* Wind sound toggle */}
-      <motion.button
-        onClick={toggle}
-        initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.8, duration: 0.5 }}
-        whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.93 }}
-        className="absolute z-20 bottom-10 right-6 sm:right-10 flex items-center gap-2.5 px-4 py-2.5 rounded-full backdrop-blur-md border transition-colors duration-200 cursor-pointer select-none text-[11px] font-semibold tracking-wide"
-        style={{
-          borderColor: playing ? 'rgba(226,31,47,0.5)' : 'rgba(255,255,255,0.18)',
-          background:  playing ? 'rgba(226,31,47,0.12)' : 'rgba(0,0,0,0.35)',
-          color:       playing ? '#E21F2F' : 'rgba(255,255,255,0.72)',
-        }}
-        aria-label={playing ? 'Mute wind sound' : 'Play wind sound'}
-      >
-        {playing ? (
-          <>
-            <motion.div animate={{ rotate: [0, 8, -8, 0] }} transition={{ duration: 2, repeat: Infinity }}>
-              <Wind size={13} />
-            </motion.div>
-            <span className="hidden sm:inline">Wind On</span>
-            <span className="hidden sm:flex items-end gap-[2px] h-3">
-              {[1, 2, 3].map((i) => (
-                <motion.span key={i} className="w-[2px] rounded-full bg-current"
-                  animate={{ height: ['4px', '10px', '4px'] }}
-                  transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.15 }} />
-              ))}
-            </span>
-          </>
-        ) : (
-          <>
-            <VolumeX size={13} />
-            <span className="hidden sm:inline">Wind Sound</span>
-          </>
-        )}
-      </motion.button>
+      {/* Mute / unmute video audio */}
+      {mediaType === 'video' && (
+        <motion.button
+          onClick={toggleMute}
+          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.8, duration: 0.5 }}
+          whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.93 }}
+          className="absolute z-20 bottom-10 right-6 sm:right-10 flex items-center gap-2.5 px-4 py-2.5 rounded-full backdrop-blur-md border transition-colors duration-200 cursor-pointer select-none text-[11px] font-semibold tracking-wide"
+          style={{
+            borderColor: !muted ? 'rgba(245,197,24,0.5)' : 'rgba(255,255,255,0.18)',
+            background:  !muted ? 'rgba(245,197,24,0.10)' : 'rgba(0,0,0,0.35)',
+            color:       !muted ? '#f5c518' : 'rgba(255,255,255,0.72)',
+          }}
+          aria-label={muted ? 'Unmute video' : 'Mute video'}
+        >
+          {!muted ? (
+            <>
+              <Volume2 size={13} />
+              <span className="hidden sm:inline">Sound On</span>
+              <span className="hidden sm:flex items-end gap-[2px] h-3">
+                {[1, 2, 3].map((i) => (
+                  <motion.span key={i} className="w-[2px] rounded-full bg-current"
+                    animate={{ height: ['3px', '10px', '5px', '10px', '3px'] }}
+                    transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.18 }} />
+                ))}
+              </span>
+            </>
+          ) : (
+            <>
+              <VolumeX size={13} />
+              <span className="hidden sm:inline">Sound Off</span>
+            </>
+          )}
+        </motion.button>
+      )}
 
       {/* Trusted badge */}
       {badgeText && (
@@ -378,6 +342,16 @@ export default function ShipHeroSection({ shipHero = {} }) {
           <ChevronDown size={14} />
         </motion.div>
       </motion.div>
+
+      {/* Cinematic video progress bar */}
+      {mediaType === 'video' && (
+        <div className="absolute bottom-0 left-0 w-full h-[3px] bg-white/10 z-20" aria-hidden="true">
+          <div
+            className="h-full bg-gradient-to-r from-gold-600 via-gold-400 to-gold-300 transition-[width] duration-300 ease-linear"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
     </section>
   )
 }

@@ -70,8 +70,8 @@ class SettingSeeder extends Seeder {
 
             // Ship Hero Section (homepage top banner)
             ['group'=>'ship_hero','key'=>'media_type',    'value'=>'video',                                           'type'=>'text',    'label'=>'Media Type (image|video)',  'sort_order'=>1],
-            ['group'=>'ship_hero','key'=>'video_url',     'value'=>'/videos/operations/ops-2.mp4',                    'type'=>'text',    'label'=>'Video URL',                 'sort_order'=>2],
-            ['group'=>'ship_hero','key'=>'video_poster',  'value'=>'/images/operations/facility-1.jpeg',              'type'=>'text',    'label'=>'Video Poster Image',        'sort_order'=>3],
+            ['group'=>'ship_hero','key'=>'video_url',     'value'=>'/videos/ship-breaking/ship-hero.mp4',             'type'=>'text',    'label'=>'Video URL',                 'sort_order'=>2],
+            ['group'=>'ship_hero','key'=>'video_poster',  'value'=>'/images/gallery/ship-breaking/yard-wide-1.jpeg',  'type'=>'text',    'label'=>'Video Poster Image',        'sort_order'=>3],
             ['group'=>'ship_hero','key'=>'image_url',     'value'=>'',                                                'type'=>'text',    'label'=>'Background Image URL',      'sort_order'=>4],
             ['group'=>'ship_hero','key'=>'eyebrow',       'value'=>'East Queen Group · Est. 1982 · Chittagong, Bangladesh', 'type'=>'text', 'label'=>'Eyebrow Text',          'sort_order'=>5],
             ['group'=>'ship_hero','key'=>'headline',      'value'=>'GATEWAY TO GLOBAL BUSINESS',                      'type'=>'text',    'label'=>'Headline (full text)',      'sort_order'=>6],
