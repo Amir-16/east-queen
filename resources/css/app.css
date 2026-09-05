@@ -67,6 +67,6 @@
 
 .progress-fill {
   height: 100%;
-  background-color: #E21F2F;
-  animation: progress-grow 5s linear forwards;
+  background-color: #d4a017;   /* gold; individual consumers may override via inline style */
+  animation: progress-grow var(--progress-duration, 5s) linear forwards;
 }

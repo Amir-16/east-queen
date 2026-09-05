@@ -1,90 +1,216 @@
 import { useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from '@inertiajs/react'
-import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, EffectFade, Keyboard } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/effect-fade'
 
-const SLIDE_DELAY = 5000
+const SLIDE_DELAY = 6000        // ms — must match progress bar duration below
+const EASE_OUT    = [0.16, 1, 0.3, 1]
 
-const fadeUp = {
-  hidden:  { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0,  transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } },
+// ── Animation variants ─────────────────────────────────────────────────────────
+
+// Per-slide content fades out instantly, new content enters fresh
+const slideWrap = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.15 } },
+  exit:    { opacity: 0, transition: { duration: 0.15 } },
 }
-const wordAnim = {
-  hidden:  { opacity: 0, y: 32, skewY: 3 },
-  visible: { opacity: 1, y: 0,  skewY: 0, transition: { duration: 0.52, ease: [0.25, 0.1, 0.25, 1] } },
+
+// Category label — clip-path wipe left to right
+const labelAnim = {
+  hidden:  { opacity: 0, clipPath: 'inset(0 100% 0 0)' },
+  visible: { opacity: 1, clipPath: 'inset(0 0% 0 0)',
+    transition: { duration: 0.65, ease: EASE_OUT } },
 }
-const staggerL1 = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }
-const staggerL2 = { hidden: {}, visible: { transition: { staggerChildren: 0.08, delayChildren: 0.28 } } }
+
+// Title words — blur + rise, staggered
+const wCont = {
+  hidden:  {},
+  visible: { transition: { staggerChildren: 0.06, delayChildren: 0.12 } },
+}
+const wAnim = {
+  hidden:  { opacity: 0, y: 24, filter: 'blur(8px)' },
+  visible: { opacity: 1, y: 0,  filter: 'blur(0px)',
+    transition: { duration: 0.60, ease: EASE_OUT } },
+}
+
+// Subtitle — letter-spacing shrink + rise
+const subAnim = {
+  hidden:  { opacity: 0, letterSpacing: '0.42em', y: 6 },
+  visible: { opacity: 1, letterSpacing: '0.14em', y: 0,
+    transition: { duration: 0.75, ease: EASE_OUT, delay: 0.32 } },
+}
+
+// Description — simple fade + slide
+const descAnim = {
+  hidden:  { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0,
+    transition: { duration: 0.60, ease: EASE_OUT, delay: 0.48 } },
+}
+
+// CTA — spring pop
+const ctaAnim = {
+  hidden:  { opacity: 0, scale: 0.90, y: 10 },
+  visible: { opacity: 1, scale: 1,    y: 0,
+    transition: { type: 'spring', stiffness: 280, damping: 22, delay: 0.60 } },
+}
+
+// Thumbnails — stagger enter from right
+const thumbCont = {
+  hidden:  {},
+  visible: { transition: { staggerChildren: 0.10, delayChildren: 1.1 } },
+}
+const thumbAnim = {
+  hidden:  { opacity: 0, x: 20 },
+  visible: { opacity: 1, x: 0,
+    transition: { duration: 0.50, ease: EASE_OUT } },
+}
+
+// ── Slide content ──────────────────────────────────────────────────────────────
 
 function SlideContent({ slide, slideKey }) {
+  const words = (slide.title || '').trim().split(/\s+/)
+
   return (
     <AnimatePresence mode="wait">
-      <motion.div
-        key={slideKey}
-        initial="hidden"
-        animate="visible"
-        exit={{ opacity: 0, transition: { duration: 0.2 } }}
-      >
-        {/* Label */}
-        <motion.div variants={fadeUp} className="mb-4">
-          <span className="inline-flex items-center gap-2 text-white/55 text-[10px] font-semibold uppercase tracking-[0.28em]">
-            <span className="w-4 h-[1px] bg-gold-500 shrink-0" />
+      <motion.div key={slideKey} {...slideWrap}>
+
+        {/* Category label */}
+        <motion.div
+          variants={labelAnim} initial="hidden" animate="visible"
+          className="inline-flex items-center gap-2 mb-4"
+        >
+          <span className="w-4 h-[1.5px] bg-gold-400 shrink-0" />
+          <span className="text-gold-400 text-[9px] font-bold uppercase tracking-[0.38em]">
             {slide.label}
           </span>
         </motion.div>
 
-        {/* Headline */}
-        <h2
-          className="font-playfair font-bold leading-[1.05] mb-6"
-          style={{ fontSize: 'clamp(2.6rem, 5.5vw, 4.5rem)' }}
+        {/* Title — medium, word-by-word blur reveal */}
+        <motion.h2
+          className="font-playfair font-bold leading-[1.10] mb-3 text-white"
+          style={{ fontSize: 'clamp(1.65rem, 3vw, 2.7rem)' }}
+          variants={wCont} initial="hidden" animate="visible"
         >
-          <motion.span className="block text-white" variants={staggerL1}>
-            {slide.title.split(' ').map((word, i) => (
-              <motion.span key={i} variants={wordAnim} className="inline-block mr-[0.18em]">
-                {word}
-              </motion.span>
-            ))}
-          </motion.span>
-          <motion.span className="block" variants={staggerL2}>
-            {slide.subtitle.split(' ').map((word, i, arr) => (
-              <motion.span
-                key={i}
-                variants={wordAnim}
-                className={`inline-block mr-[0.18em] ${i === arr.length - 1 ? 'text-gold-400' : 'text-white'}`}
-              >
-                {word}
-              </motion.span>
-            ))}
-          </motion.span>
-        </h2>
+          {words.map((word, i) => (
+            <motion.span key={`${slideKey}-w-${i}`} variants={wAnim}
+              className="inline-block mr-[0.13em]">
+              {word}
+            </motion.span>
+          ))}
+        </motion.h2>
 
-        {/* Minimal text CTA */}
-        <motion.div variants={fadeUp}>
+        {/* Subtitle — company / division name in gold */}
+        <motion.p
+          variants={subAnim} initial="hidden" animate="visible"
+          className="text-gold-400 font-semibold uppercase mb-4"
+          style={{ fontSize: '0.7rem', letterSpacing: '0.14em' }}
+        >
+          {slide.subtitle}
+        </motion.p>
+
+        {/* Description */}
+        {slide.description && (
+          <motion.p
+            variants={descAnim} initial="hidden" animate="visible"
+            className="text-white/50 text-[13px] leading-relaxed mb-7 max-w-[340px]"
+          >
+            {slide.description}
+          </motion.p>
+        )}
+
+        {/* CTA */}
+        <motion.div variants={ctaAnim} initial="hidden" animate="visible">
           <Link
             href={slide.cta_url}
-            className="group inline-flex items-center gap-2.5 text-white/70 hover:text-gold-400 text-sm font-semibold tracking-wide transition-colors duration-200"
+            className="group inline-flex items-center gap-2 px-5 py-2.5 bg-gold-500 hover:bg-gold-400 text-white font-bold rounded-lg text-[13px] tracking-wide transition-all duration-200 hover:shadow-[0_0_20px_rgba(245,197,24,0.28)]"
           >
-            Explore
-            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
+            {slide.cta_text || 'Explore'}
+            <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform duration-200" />
           </Link>
         </motion.div>
+
       </motion.div>
     </AnimatePresence>
   )
 }
 
+// ── Thumbnail strip ────────────────────────────────────────────────────────────
+
+function ThumbnailStrip({ slides, activeIndex, onSelect }) {
+  return (
+    <motion.div
+      variants={thumbCont} initial="hidden" animate="visible"
+      className="flex flex-col gap-2.5"
+    >
+      {slides.map((slide, i) => {
+        const active = i === activeIndex
+        return (
+          <motion.button
+            key={i}
+            variants={thumbAnim}
+            onClick={() => onSelect(i)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.96 }}
+            aria-label={`Go to: ${slide.title}`}
+            className="relative overflow-hidden rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+            style={{
+              width: 68, height: 96,
+              transition: 'opacity 0.4s, filter 0.4s, box-shadow 0.4s',
+              opacity:    active ? 1 : 0.32,
+              filter:     active ? 'none' : 'grayscale(55%)',
+              boxShadow:  active ? '0 0 0 1.5px #d4a017, 0 0 14px rgba(212,160,23,0.22)' : '0 0 0 1px rgba(255,255,255,0.10)',
+            }}
+          >
+            <img
+              src={slide.image_path}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover object-center"
+              loading="lazy"
+              decoding="async"
+            />
+            {/* Label overlay on active thumbnail */}
+            <AnimatePresence>
+              {active && (
+                <motion.div
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute bottom-0 inset-x-0 px-1.5 py-1.5 bg-gradient-to-t from-black/85 to-transparent"
+                >
+                  <p className="text-[6.5px] text-gold-300 uppercase font-bold tracking-widest truncate leading-none">
+                    {slide.label}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        )
+      })}
+
+      {/* "SLIDES" label below thumbnails */}
+      <p className="text-white/20 text-[8px] uppercase tracking-[0.3em] text-center mt-0.5 select-none">
+        Slides
+      </p>
+    </motion.div>
+  )
+}
+
+// ── Main component ─────────────────────────────────────────────────────────────
+
 export default function HeroSection({ slides = [] }) {
   if (!slides.length) return null
+
   const [activeIndex, setActiveIndex] = useState(0)
   const [isPaused,    setIsPaused]    = useState(false)
   const swiperRef = useRef(null)
 
-  const goPrev = () => swiperRef.current?.slidePrev()
-  const goNext = () => swiperRef.current?.slideNext()
+  const goPrev    = () => swiperRef.current?.slidePrev()
+  const goNext    = () => swiperRef.current?.slideNext()
+  const goToSlide = (i) => swiperRef.current?.slideToLoop(i)
 
   return (
     <section
@@ -94,7 +220,8 @@ export default function HeroSection({ slides = [] }) {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Background image slider */}
+
+      {/* ── Background image slider ── */}
       <Swiper
         modules={[Autoplay, EffectFade, Keyboard]}
         effect="fade"
@@ -102,7 +229,7 @@ export default function HeroSection({ slides = [] }) {
         autoplay={{ delay: SLIDE_DELAY, disableOnInteraction: false, pauseOnMouseEnter: true }}
         keyboard={{ enabled: true, onlyInViewport: true }}
         loop
-        speed={1200}
+        speed={1400}
         className="!absolute inset-0 w-full h-full"
         onSwiper={(swiper) => { swiperRef.current = swiper }}
         onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
@@ -119,115 +246,135 @@ export default function HeroSection({ slides = [] }) {
                 decoding="async"
               />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/20" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
           </SwiperSlide>
         ))}
       </Swiper>
 
-      {/* Slide counter — animated, top-right */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1.2 }}
-        className="absolute top-24 right-6 sm:right-10 z-20 hidden sm:flex flex-col items-end gap-1"
-        aria-hidden="true"
-      >
-        <AnimatePresence mode="wait">
-          <motion.span
-            key={activeIndex}
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.3 }}
-            className="font-mono font-bold text-white text-2xl leading-none tabular-nums"
-          >
-            {String(activeIndex + 1).padStart(2, '0')}
-          </motion.span>
-        </AnimatePresence>
-        <div className="h-px w-6 bg-white/30 my-1" />
-        <span className="font-mono text-white/35 text-xs tabular-nums">
-          {String(slides.length).padStart(2, '0')}
-        </span>
-      </motion.div>
+      {/*
+        Gradient strategy: left column is dark (text lives here).
+        Center and right stay open so the image reads clearly,
+        creating an editorial "image + text" split without extra DOM elements.
+      */}
+      {/* Left panel darkener */}
+      <div className="absolute inset-0 z-[1] pointer-events-none"
+        style={{ background: 'linear-gradient(to right, rgba(4,10,24,0.93) 0%, rgba(4,10,24,0.78) 32%, rgba(4,10,24,0.30) 55%, transparent 70%)' }} />
+      {/* Bottom bar — dots + controls area */}
+      <div className="absolute inset-0 z-[1] pointer-events-none"
+        style={{ background: 'linear-gradient(to top, rgba(4,10,24,0.82) 0%, rgba(4,10,24,0.30) 16%, transparent 36%)' }} />
+      {/* Top fade — nav legibility */}
+      <div className="absolute inset-0 z-[1] pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, rgba(4,10,24,0.52) 0%, transparent 22%)' }} />
+      {/* Subtle corner vignette */}
+      <div className="absolute inset-0 z-[1] pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse 95% 88% at 50% 50%, transparent 46%, rgba(0,0,0,0.20) 100%)' }} />
 
-      {/* Prev / Next — bottom-right */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.4 }}
-        className="absolute bottom-24 right-6 sm:right-10 z-20 flex items-center gap-2"
-      >
-        <button
-          onClick={goPrev}
-          aria-label="Previous slide"
-          className="w-9 h-9 flex items-center justify-center rounded-full border border-white/25 bg-white/8 hover:bg-gold-500 hover:border-gold-500 transition-all duration-200 group"
-        >
-          <ChevronLeft size={16} className="text-white group-hover:scale-110 transition-transform" />
-        </button>
-        <button
-          onClick={goNext}
-          aria-label="Next slide"
-          className="w-9 h-9 flex items-center justify-center rounded-full border border-white/25 bg-white/8 hover:bg-gold-500 hover:border-gold-500 transition-all duration-200 group"
-        >
-          <ChevronRight size={16} className="text-white group-hover:scale-110 transition-transform" />
-        </button>
-      </motion.div>
+      {/* ── Content ── */}
+      <div className="relative z-10 flex-1 flex items-end lg:items-center max-w-7xl mx-auto w-full px-5 sm:px-8 lg:px-10 pt-24 pb-10">
+        <div className="w-full flex items-end lg:items-center justify-between gap-6">
 
-      {/* Main content — anchored bottom-left */}
-      <div className="relative z-10 flex flex-col flex-1 justify-end max-w-7xl mx-auto w-full px-6 sm:px-8 lg:px-10 pb-20">
-        <div aria-live="polite" aria-atomic="true">
-          <SlideContent slide={slides[activeIndex]} slideKey={activeIndex} />
-        </div>
+          {/* Left: slide text */}
+          <div className="flex-1 max-w-lg">
+            <div aria-live="polite" aria-atomic="true">
+              <SlideContent slide={slides[activeIndex]} slideKey={activeIndex} />
+            </div>
 
-        {/* Dot indicators */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.6 }}
-          className="flex items-center gap-2 mt-8"
-          role="tablist"
-          aria-label="Slide navigation"
-        >
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              role="tab"
-              aria-selected={i === activeIndex}
-              aria-label={`Go to slide ${i + 1}`}
-              onClick={() => swiperRef.current?.slideToLoop(i)}
-              className={`rounded-full transition-all duration-300 ${
-                i === activeIndex
-                  ? 'w-6 h-[3px] bg-gold-500'
-                  : 'w-[3px] h-[3px] bg-white/35 hover:bg-white/60'
-              }`}
+            {/* Controls row: dots + counter + arrows */}
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              transition={{ delay: 1.5 }}
+              className="flex items-center gap-3 mt-8"
+            >
+              {/* Dot indicators */}
+              <div className="flex items-center gap-1.5" role="tablist" aria-label="Slide navigation">
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    role="tab"
+                    aria-selected={i === activeIndex}
+                    aria-label={`Go to slide ${i + 1}`}
+                    onClick={() => goToSlide(i)}
+                    className={`rounded-full transition-all duration-300 ${
+                      i === activeIndex
+                        ? 'w-5 h-[3px] bg-gold-400'
+                        : 'w-[4px] h-[4px] bg-white/28 hover:bg-white/55'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Counter */}
+              <div className="flex items-center gap-1 text-[10px] font-mono tabular-nums text-white/28 ml-1">
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={activeIndex}
+                    initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 5 }} transition={{ duration: 0.22 }}
+                    className="inline-block"
+                  >
+                    {String(activeIndex + 1).padStart(2, '0')}
+                  </motion.span>
+                </AnimatePresence>
+                <span className="opacity-40">/</span>
+                <span>{String(slides.length).padStart(2, '0')}</span>
+              </div>
+
+              {/* Prev / Next arrows */}
+              <div className="flex items-center gap-1.5 ml-auto">
+                <button
+                  onClick={goPrev}
+                  aria-label="Previous slide"
+                  className="w-8 h-8 flex items-center justify-center rounded-full border border-white/18 bg-white/5 hover:bg-gold-500 hover:border-gold-500 transition-all duration-200 group"
+                >
+                  <ChevronLeft size={14} className="text-white/60 group-hover:text-white transition-colors" />
+                </button>
+                <button
+                  onClick={goNext}
+                  aria-label="Next slide"
+                  className="w-8 h-8 flex items-center justify-center rounded-full border border-white/18 bg-white/5 hover:bg-gold-500 hover:border-gold-500 transition-all duration-200 group"
+                >
+                  <ChevronRight size={14} className="text-white/60 group-hover:text-white transition-colors" />
+                </button>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Right: thumbnail strip — lg+ only */}
+          <div className="hidden lg:block shrink-0 pb-10">
+            <ThumbnailStrip
+              slides={slides}
+              activeIndex={activeIndex}
+              onSelect={goToSlide}
             />
-          ))}
-        </motion.div>
-      </div>
+          </div>
 
-      {/* CSS-driven progress bar — resets via key change */}
-      <div className="absolute bottom-0 left-0 w-full h-[2px] bg-white/10 z-20" aria-hidden="true">
-        <div
-          key={activeIndex}
-          className="progress-fill"
-          style={{ animationPlayState: isPaused ? 'paused' : 'running' }}
-        />
+        </div>
       </div>
 
       {/* Scroll cue */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-white/40 z-10"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.0 }}
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 text-white/28"
         aria-hidden="true"
       >
-        <span className="text-[9px] uppercase tracking-[0.3em]">Scroll</span>
-        <motion.div animate={{ y: [0, 5, 0] }} transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}>
-          <ChevronDown size={15} />
+        <span className="text-[8px] uppercase tracking-[0.42em]">Scroll</span>
+        <motion.div animate={{ y: [0, 5, 0] }} transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}>
+          <ChevronDown size={13} />
         </motion.div>
       </motion.div>
+
+      {/* Gold progress bar — duration synced to SLIDE_DELAY */}
+      <div className="absolute bottom-0 left-0 w-full h-[2px] bg-white/[0.07] z-20" aria-hidden="true">
+        <div
+          key={activeIndex}
+          className="progress-fill"
+          style={{
+            animationDuration: `${SLIDE_DELAY / 1000}s`,
+            animationPlayState: isPaused ? 'paused' : 'running',
+            backgroundColor: '#d4a017',
+          }}
+        />
+      </div>
+
     </section>
   )
 }
