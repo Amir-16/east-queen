@@ -77,9 +77,9 @@ class SettingSeeder extends Seeder {
             ['group'=>'ship_hero','key'=>'headline',      'value'=>'GATEWAY TO GLOBAL BUSINESS',                      'type'=>'text',    'label'=>'Headline (full text)',      'sort_order'=>6],
             ['group'=>'ship_hero','key'=>'headline_accent','value'=>'BUSINESS',                                        'type'=>'text',    'label'=>'Accented Word (gold)',      'sort_order'=>7],
             ['group'=>'ship_hero','key'=>'tagline',       'value'=>'Your Partner for Global Business & Sourcing',     'type'=>'text',    'label'=>'Tagline',                   'sort_order'=>8],
-            ['group'=>'ship_hero','key'=>'body',          'value'=>'From Chittagong to markets across four continents — East Queen Group delivers end-to-end export, import, and sourcing solutions across commodities, materials, and industrial goods since 1982.', 'type'=>'textarea','label'=>'Body Text','sort_order'=>9],
-            ['group'=>'ship_hero','key'=>'cta1_text',     'value'=>'Explore Our Services',                            'type'=>'text',    'label'=>'Primary CTA Text',          'sort_order'=>10],
-            ['group'=>'ship_hero','key'=>'cta1_url',      'value'=>'/export',                                         'type'=>'text',    'label'=>'Primary CTA URL',           'sort_order'=>11],
+            ['group'=>'ship_hero','key'=>'body',          'value'=>'',                                                        'type'=>'textarea','label'=>'Body Text','sort_order'=>9],
+            ['group'=>'ship_hero','key'=>'cta1_text',     'value'=>'Explore Our Companies',                           'type'=>'text',    'label'=>'Primary CTA Text',          'sort_order'=>10],
+            ['group'=>'ship_hero','key'=>'cta1_url',      'value'=>'/companies',                                      'type'=>'text',    'label'=>'Primary CTA URL',           'sort_order'=>11],
             ['group'=>'ship_hero','key'=>'badge_text',    'value'=>'Trusted Globally · Est. 1982',                    'type'=>'text',    'label'=>'Badge Text',                'sort_order'=>12],
         ];
 
