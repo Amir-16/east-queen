@@ -1,8 +1,154 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from '@inertiajs/react'
-import { ArrowRight, Phone, ChevronDown, Volume2, VolumeX } from 'lucide-react'
+import { ArrowRight, Phone, ChevronDown, Waves, VolumeX } from 'lucide-react'
 import { usePage } from '@inertiajs/react'
+
+// ── Sea-sound synthesiser ──────────────────────────────────────────────────────
+//
+// Synthesises realistic ocean ambience using Web Audio API:
+//   • Pink noise source  (Voss-McCartney algorithm — more natural than white)
+//   • Wave body          — low-pass filtered, shaped by a slow LFO (~0.07 Hz)
+//   • Secondary swell    — slightly faster LFO (~0.11 Hz) offset for irregularity
+//   • Surf / foam hiss   — band-pass filtered, rides a third LFO (~0.09 Hz)
+//   • Deep rumble        — very-low-pass (<140 Hz) for underwater body
+//   • Dynamics compressor — smooths random amplitude peaks
+//   • Master gain        — fades in/out over 3 s to avoid clicks
+//
+// The video stays permanently muted; this audio is completely separate.
+
+function useSeaSound() {
+  const acRef      = useRef(null)
+  const masterRef  = useRef(null)
+  const startedRef = useRef(false)
+  const [playing, setPlaying] = useState(false)
+
+  const buildGraph = useCallback(() => {
+    if (acRef.current) return acRef.current
+    try {
+      const ac = new AudioContext()
+      const sr = ac.sampleRate
+
+      // 10-second stereo pink-noise buffer (loops without seam)
+      const len = sr * 10
+      const buf = ac.createBuffer(2, len, sr)
+      for (let ch = 0; ch < 2; ch++) {
+        const d = buf.getChannelData(ch)
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0
+        for (let i = 0; i < len; i++) {
+          const w = Math.random() * 2 - 1
+          // Voss-McCartney pink noise coefficients
+          b0 = 0.99886 * b0 + w * 0.0555179
+          b1 = 0.99332 * b1 + w * 0.0750759
+          b2 = 0.96900 * b2 + w * 0.1538520
+          b3 = 0.86650 * b3 + w * 0.3104856
+          b4 = 0.55000 * b4 + w * 0.5329522
+          b5 = -0.7616 * b5 - w * 0.0168980
+          d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.09
+          b6 = w * 0.115926
+        }
+      }
+
+      const src = ac.createBufferSource()
+      src.buffer = buf
+      src.loop   = true
+
+      // ── Wave body: wide low-pass + slow swell LFO ──
+      const waveLP   = ac.createBiquadFilter()
+      waveLP.type    = 'lowpass'
+      waveLP.frequency.value = 640
+      waveLP.Q.value = 0.65
+
+      const waveGain = ac.createGain()
+      waveGain.gain.value = 0.62
+
+      const lfo1 = ac.createOscillator()
+      lfo1.type  = 'sine'
+      lfo1.frequency.value = 0.07         // one swell ~every 14 s
+      const lg1  = ac.createGain(); lg1.gain.value = 0.28
+      lfo1.connect(lg1); lg1.connect(waveGain.gain)
+
+      // ── Secondary swell: offset phase, slightly different frequency ──
+      const lfo2 = ac.createOscillator()
+      lfo2.type  = 'sine'
+      lfo2.frequency.value = 0.11
+      const lg2  = ac.createGain(); lg2.gain.value = 0.16
+      lfo2.connect(lg2); lg2.connect(waveGain.gain)
+
+      // ── Surf / foam hiss: band-pass ──
+      const surfBP = ac.createBiquadFilter()
+      surfBP.type  = 'bandpass'
+      surfBP.frequency.value = 1400
+      surfBP.Q.value = 0.45
+
+      const surfGain = ac.createGain()
+      surfGain.gain.value = 0.28
+
+      const lfo3 = ac.createOscillator()
+      lfo3.type  = 'sine'
+      lfo3.frequency.value = 0.09
+      const lg3  = ac.createGain(); lg3.gain.value = 0.20
+      lfo3.connect(lg3); lg3.connect(surfGain.gain)
+
+      // ── Deep body: very low-pass rumble ──
+      const deepLP   = ac.createBiquadFilter()
+      deepLP.type    = 'lowpass'
+      deepLP.frequency.value = 130
+      deepLP.Q.value = 0.5
+
+      const deepGain = ac.createGain()
+      deepGain.gain.value = 0.22
+
+      // ── Compressor: tames spikes from the LFO modulation ──
+      const comp = ac.createDynamicsCompressor()
+      comp.threshold.value = -20
+      comp.knee.value      = 28
+      comp.ratio.value     = 7
+      comp.attack.value    = 0.004
+      comp.release.value   = 0.55
+
+      // ── Master (starts silent, fades in on user gesture) ──
+      const master = ac.createGain()
+      master.gain.value = 0
+
+      // Routing
+      src.connect(waveLP);  waveLP.connect(waveGain); waveGain.connect(comp)
+      src.connect(surfBP);  surfBP.connect(surfGain); surfGain.connect(comp)
+      src.connect(deepLP);  deepLP.connect(deepGain); deepGain.connect(comp)
+      comp.connect(master)
+      master.connect(ac.destination)
+
+      src.start(); lfo1.start(); lfo2.start(); lfo3.start()
+
+      acRef.current     = ac
+      masterRef.current = master
+      return ac
+    } catch { return null }
+  }, [])
+
+  const toggle = useCallback(() => {
+    const ac = buildGraph()
+    if (!ac) return
+    ac.resume().then(() => {
+      const master = masterRef.current
+      if (!startedRef.current) {
+        startedRef.current = true
+        master.gain.setTargetAtTime(0.78, ac.currentTime, 3.0)   // 3 s fade-in
+        setPlaying(true)
+      } else {
+        setPlaying((prev) => {
+          const next = !prev
+          master.gain.setTargetAtTime(next ? 0.78 : 0, ac.currentTime, next ? 3.0 : 1.2)
+          return next
+        })
+      }
+    }).catch(() => {})
+  }, [buildGraph])
+
+  useEffect(() => () => { acRef.current?.close() }, [])
+
+  return { playing, toggle }
+}
 
 // ── Visual FX ─────────────────────────────────────────────────────────────────
 
@@ -85,8 +231,8 @@ function Sparks() {
         <motion.div key={s.id} className="absolute rounded-full"
           style={{ left: `${s.x}%`, bottom: '28%', width: s.size, height: s.size,
             background: 'radial-gradient(circle, #fff 0%, #fbbf24 50%, transparent 100%)' }}
-          animate={{ y: [0, -(70 + s.id * 10), -(120 + s.id * 7)], x: [0, s.drift, s.drift * 1.3],
-            opacity: [0, 1, 0], scale: [0.4, 1, 0.2] }}
+          animate={{ y: [0, -(70 + s.id * 10), -(120 + s.id * 7)],
+            x: [0, s.drift, s.drift * 1.3], opacity: [0, 1, 0], scale: [0.4, 1, 0.2] }}
           transition={{ duration: s.dur, delay: s.delay, repeat: Infinity, ease: 'easeOut' }}
         />
       ))}
@@ -96,24 +242,18 @@ function Sparks() {
 
 // ── Animation variants ─────────────────────────────────────────────────────────
 
-// Easing: fast-out slow-in for cinematic feel
-const EASE_OUT = [0.16, 1, 0.3, 1]
+const EASE_OUT    = [0.16, 1, 0.3, 1]
 const EASE_SPRING = { type: 'spring', stiffness: 260, damping: 22 }
 
-// Container stagger
 const cont = {
   hidden:  {},
   visible: { transition: { staggerChildren: 0.12, delayChildren: 0.25 } },
 }
-
-// Eyebrow — letter-spacing fade from wide to normal
 const eyebrowAnim = {
   hidden:  { opacity: 0, letterSpacing: '0.55em', y: 10 },
   visible: { opacity: 1, letterSpacing: '0.28em', y: 0,
     transition: { duration: 1.0, ease: EASE_OUT } },
 }
-
-// Headline words — blur + rise + micro-scale
 const wCont = {
   hidden:  {},
   visible: { transition: { staggerChildren: 0.07, delayChildren: 0.4 } },
@@ -123,21 +263,15 @@ const wAnim = {
   visible: { opacity: 1, y: 0,  filter: 'blur(0px)',  scale: 1,
     transition: { duration: 0.75, ease: EASE_OUT } },
 }
-
-// Tagline — clip-path wipe from left
 const taglineAnim = {
   hidden:  { opacity: 0, clipPath: 'inset(0 100% 0 0)' },
   visible: { opacity: 1, clipPath: 'inset(0 0% 0 0)',
     transition: { duration: 0.85, ease: EASE_OUT } },
 }
-
-// Body + generic item — fade + slide
 const item = {
   hidden:  { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE_OUT } },
 }
-
-// CTAs — spring pop
 const ctaAnim = {
   hidden:  { opacity: 0, y: 16, scale: 0.93 },
   visible: { opacity: 1, y: 0,  scale: 1, transition: EASE_SPRING },
@@ -179,10 +313,9 @@ function MediaBackground({ mediaType, videoUrl, videoPoster, imageUrl, videoRef 
       <motion.div
         className="absolute inset-0 w-full h-full z-0 bg-center bg-cover"
         style={{
-          backgroundImage:  `url(${imageUrl})`,
-          // Vivid, no sepia — full color rendering
-          filter:           'brightness(1.12) contrast(1.10) saturate(1.28)',
-          transformOrigin:  'center center',
+          backgroundImage: `url(${imageUrl})`,
+          filter:          'brightness(1.12) contrast(1.10) saturate(1.28)',
+          transformOrigin: 'center center',
         }}
         initial={{ scale: 1.04 }}
         animate={{ scale: [1.04, 1.08, 1.04] }}
@@ -193,7 +326,7 @@ function MediaBackground({ mediaType, videoUrl, videoPoster, imageUrl, videoRef 
   }
 
   return (
-    // Minimal scale range (1.0→1.04) keeps the video near native resolution for HD sharpness
+    // Video stays permanently muted — sea sound is synthesised separately
     <motion.video
       ref={videoRef}
       src={videoUrl || '/videos/ship-breaking/ship-hero.mp4'}
@@ -201,7 +334,6 @@ function MediaBackground({ mediaType, videoUrl, videoPoster, imageUrl, videoRef 
       autoPlay muted loop playsInline preload="metadata"
       className="absolute inset-0 w-full h-full object-cover z-0"
       style={{
-        // No sepia — saturate & contrast only, letting true colors through
         filter:          'brightness(1.12) contrast(1.10) saturate(1.30)',
         transformOrigin: 'center center',
       }}
@@ -216,8 +348,8 @@ function MediaBackground({ mediaType, videoUrl, videoPoster, imageUrl, videoRef 
 // ── Component ──────────────────────────────────────────────────────────────────
 
 export default function ShipHeroSection({ shipHero = {} }) {
-  const videoRef   = useRef(null)
-  const [muted,    setMuted]    = useState(true)
+  const videoRef             = useRef(null)
+  const { playing, toggle }  = useSeaSound()
   const [progress, setProgress] = useState(0)
   const { company } = usePage().props
 
@@ -244,13 +376,6 @@ export default function ShipHeroSection({ shipHero = {} }) {
     return () => video.removeEventListener('timeupdate', onTime)
   }, [])
 
-  const toggleMute = () => {
-    const video = videoRef.current
-    if (!video) return
-    video.muted = !video.muted
-    setMuted(video.muted)
-  }
-
   return (
     <section
       className="relative min-h-screen overflow-hidden flex flex-col"
@@ -264,24 +389,19 @@ export default function ShipHeroSection({ shipHero = {} }) {
         videoRef={videoRef}
       />
 
-      {/*
-        Gradient strategy: lighter overlays so the video breathes.
-        Bottom fade darkens for text legibility; left fade carves out the text column.
-        No more near-solid blacks killing the video.
-      */}
       {/* Bottom fade — text legibility */}
       <div className="absolute inset-0 z-[1] pointer-events-none"
         style={{ background: 'linear-gradient(to top, rgba(4,10,24,.90) 0%, rgba(4,10,24,.55) 22%, transparent 52%)' }} />
       {/* Top fade — nav legibility */}
       <div className="absolute inset-0 z-[1] pointer-events-none"
         style={{ background: 'linear-gradient(to bottom, rgba(4,10,24,.48) 0%, transparent 20%)' }} />
-      {/* Left column fade — text column only */}
+      {/* Left column fade — text area only */}
       <div className="absolute inset-0 z-[2] pointer-events-none"
         style={{ background: 'linear-gradient(to right, rgba(4,10,24,.88) 0%, rgba(4,10,24,.60) 30%, rgba(4,10,24,.20) 55%, transparent 72%)' }} />
-      {/* Subtle edge vignette */}
+      {/* Edge vignette */}
       <div className="absolute inset-0 z-[3] pointer-events-none"
         style={{ background: 'radial-gradient(ellipse 100% 90% at 50% 50%, transparent 50%, rgba(0,0,0,.28) 100%)' }} />
-      {/* Fine scan lines — cinematic texture */}
+      {/* Fine scan lines */}
       <div className="absolute inset-0 z-[4] pointer-events-none" aria-hidden="true"
         style={{ backgroundImage: 'repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.018) 3px, rgba(0,0,0,0.018) 4px)', backgroundSize: '100% 4px' }} />
 
@@ -289,7 +409,7 @@ export default function ShipHeroSection({ shipHero = {} }) {
       <DustMotes />
       <Sparks />
 
-      {/* Content — sits in vertical center, slightly bottom-weighted */}
+      {/* Content */}
       <div className="relative z-10 flex-1 flex items-center max-w-7xl mx-auto w-full px-5 sm:px-8 lg:px-10 pt-28 pb-32">
         <motion.div
           className="w-full sm:w-[82%] md:w-[66%] lg:w-[55%] xl:w-[48%]"
@@ -313,7 +433,7 @@ export default function ShipHeroSection({ shipHero = {} }) {
           {/* Headline */}
           <AnimatedHeadline headline={headline} accentWord={accentWord} />
 
-          {/* Divider line — grows in after headline */}
+          {/* Divider */}
           <motion.div
             className="h-[1px] bg-gradient-to-r from-gold-500/60 via-gold-400/30 to-transparent mb-5"
             initial={{ scaleX: 0, originX: 0 }}
@@ -363,43 +483,49 @@ export default function ShipHeroSection({ shipHero = {} }) {
         </motion.div>
       </div>
 
-      {/* Mute / unmute video audio */}
-      {mediaType === 'video' && (
-        <motion.button
-          onClick={toggleMute}
-          initial={{ opacity: 0, scale: 0.85 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 2.0, duration: 0.5, ease: EASE_OUT }}
-          whileHover={{ scale: 1.06 }}
-          whileTap={{ scale: 0.92 }}
-          className="absolute z-20 bottom-12 right-6 sm:right-10 flex items-center gap-2 px-3.5 py-2 rounded-full backdrop-blur-md border transition-all duration-300 cursor-pointer select-none text-[10px] font-semibold tracking-wider uppercase"
-          style={{
-            borderColor: !muted ? 'rgba(251,191,36,0.45)' : 'rgba(255,255,255,0.15)',
-            background:  !muted ? 'rgba(251,191,36,0.08)' : 'rgba(0,0,0,0.28)',
-            color:       !muted ? '#fbbf24' : 'rgba(255,255,255,0.55)',
-          }}
-          aria-label={muted ? 'Unmute video' : 'Mute video'}
-        >
-          {!muted ? (
-            <>
-              <Volume2 size={12} />
-              <span className="hidden sm:inline">Sound On</span>
-              <span className="hidden sm:flex items-end gap-[2px] h-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <motion.span key={i} className="w-[2px] rounded-full bg-current"
-                    animate={{ height: ['2px', '9px', '4px', '11px', '2px'] }}
-                    transition={{ duration: 1.0, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }} />
-                ))}
-              </span>
-            </>
-          ) : (
-            <>
-              <VolumeX size={12} />
-              <span className="hidden sm:inline">Sound Off</span>
-            </>
-          )}
-        </motion.button>
-      )}
+      {/* Sea-sound toggle */}
+      <motion.button
+        onClick={toggle}
+        initial={{ opacity: 0, scale: 0.85 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 2.0, duration: 0.5, ease: EASE_OUT }}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.92 }}
+        className="absolute z-20 bottom-12 right-6 sm:right-10 flex items-center gap-2 px-3.5 py-2 rounded-full backdrop-blur-md border transition-all duration-300 cursor-pointer select-none text-[10px] font-semibold tracking-wider uppercase"
+        style={{
+          borderColor: playing ? 'rgba(56,189,248,0.45)' : 'rgba(255,255,255,0.15)',
+          background:  playing ? 'rgba(56,189,248,0.08)' : 'rgba(0,0,0,0.28)',
+          color:       playing ? '#38bdf8' : 'rgba(255,255,255,0.55)',
+        }}
+        aria-label={playing ? 'Mute sea sound' : 'Play sea sound'}
+      >
+        {playing ? (
+          <>
+            <motion.div
+              animate={{ y: [0, -2, 0, -1, 0] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <Waves size={12} />
+            </motion.div>
+            <span className="hidden sm:inline">Sea Sound</span>
+            <span className="hidden sm:flex items-end gap-[2px] h-3">
+              {[1, 2, 3, 4].map((i) => (
+                <motion.span
+                  key={i}
+                  className="w-[2px] rounded-full bg-current"
+                  animate={{ height: ['2px', '10px', '5px', '8px', '2px'] }}
+                  transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.22, ease: 'easeInOut' }}
+                />
+              ))}
+            </span>
+          </>
+        ) : (
+          <>
+            <VolumeX size={12} />
+            <span className="hidden sm:inline">Sea Sound</span>
+          </>
+        )}
+      </motion.button>
 
       {/* Trusted badge */}
       {badgeText && (
