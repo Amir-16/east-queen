@@ -61,7 +61,9 @@ Route::get('gallery', GalleryController::class)->name('gallery');
 
 // Contact
 Route::get('contact-us',  [ContactController::class, 'index'])->name('contact.index');
-Route::post('contact-us', [ContactController::class, 'store'])->name('contact.store');
+Route::post('contact-us', [ContactController::class, 'store'])
+    ->middleware('throttle:contact')
+    ->name('contact.store');
 
 // Legal
 Route::get('privacy-policy',       [LegalController::class, 'privacy'])->name('privacy');
