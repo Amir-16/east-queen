@@ -1,6 +1,5 @@
 # ============================================================
-# Root .htaccess — public_html/ (full Laravel project here)
-# Forwards all traffic to public/ where index.php lives
+# Root .htaccess — public_html/
 # ============================================================
 
 # ── PHP Version (cPanel MultiPHP) ───────────────────────────────────────
@@ -17,9 +16,12 @@ AddHandler application/x-httpd-php82 .php
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # ── Serve real files/dirs from public/ (assets, images, etc.) ─────
-    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
-    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+    # ── Already rewritten — let Apache serve it directly ──────────────
+    RewriteCond %{REQUEST_URI} ^/public/
+    RewriteRule ^ - [L]
+
+    # ── Serve static files from public/ (css, js, images, fonts) ──────
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
     RewriteRule ^ public%{REQUEST_URI} [L]
 
     # ── Everything else → Laravel front controller ─────────────────────
