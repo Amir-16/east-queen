@@ -58,17 +58,6 @@ const ctaAnim = {
     transition: { type: 'spring', stiffness: 280, damping: 22, delay: 0.60 } },
 }
 
-// Thumbnails — stagger enter from right
-const thumbCont = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.10, delayChildren: 1.1 } },
-}
-const thumbAnim = {
-  hidden:  { opacity: 0, x: 20 },
-  visible: { opacity: 1, x: 0,
-    transition: { duration: 0.50, ease: EASE_OUT } },
-}
-
 // ── Slide content ──────────────────────────────────────────────────────────────
 
 function SlideContent({ slide, slideKey }) {
@@ -135,67 +124,6 @@ function SlideContent({ slide, slideKey }) {
 
       </motion.div>
     </AnimatePresence>
-  )
-}
-
-// ── Thumbnail strip ────────────────────────────────────────────────────────────
-
-function ThumbnailStrip({ slides, activeIndex, onSelect }) {
-  return (
-    <motion.div
-      variants={thumbCont} initial="hidden" animate="visible"
-      className="flex flex-col gap-2.5"
-    >
-      {slides.map((slide, i) => {
-        const active = i === activeIndex
-        return (
-          <motion.button
-            key={i}
-            variants={thumbAnim}
-            onClick={() => onSelect(i)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.96 }}
-            aria-label={`Go to: ${slide.title}`}
-            className="relative overflow-hidden rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
-            style={{
-              width: 68, height: 96,
-              transition: 'opacity 0.4s, filter 0.4s, box-shadow 0.4s',
-              opacity:    active ? 1 : 0.32,
-              filter:     active ? 'none' : 'grayscale(55%)',
-              boxShadow:  active ? '0 0 0 1.5px #d4a017, 0 0 14px rgba(212,160,23,0.22)' : '0 0 0 1px rgba(255,255,255,0.10)',
-            }}
-          >
-            <img
-              src={slide.image_path}
-              alt=""
-              aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover object-center"
-              loading="lazy"
-              decoding="async"
-            />
-            {/* Label overlay on active thumbnail */}
-            <AnimatePresence>
-              {active && (
-                <motion.div
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="absolute bottom-0 inset-x-0 px-1.5 py-1.5 bg-gradient-to-t from-black/85 to-transparent"
-                >
-                  <p className="text-[6.5px] text-gold-300 uppercase font-bold tracking-widest truncate leading-none">
-                    {slide.label}
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.button>
-        )
-      })}
-
-      {/* "SLIDES" label below thumbnails */}
-      <p className="text-white/20 text-[8px] uppercase tracking-[0.3em] text-center mt-0.5 select-none">
-        Slides
-      </p>
-    </motion.div>
   )
 }
 
@@ -336,15 +264,6 @@ export default function HeroSection({ slides = [] }) {
                 </button>
               </div>
             </motion.div>
-          </div>
-
-          {/* Right: thumbnail strip — lg+ only */}
-          <div className="hidden lg:block shrink-0 pb-10">
-            <ThumbnailStrip
-              slides={slides}
-              activeIndex={activeIndex}
-              onSelect={goToSlide}
-            />
           </div>
 
         </div>
