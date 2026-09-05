@@ -362,8 +362,8 @@ export default function ShipHeroSection({ shipHero = {} }) {
   const accentWord  = shipHero.headline_accent || 'BUSINESS'
   const tagline     = shipHero.tagline         || 'Your Partner for Global Business & Sourcing'
   const body        = shipHero.body            || ''
-  const cta1Text    = shipHero.cta1_text       || 'Explore Our Services'
-  const cta1Url     = shipHero.cta1_url        || '/export'
+  const cta1Text    = shipHero.cta1_text       || 'Explore Our Companies'
+  const cta1Url     = shipHero.cta1_url        || '/companies'
   const badgeText   = shipHero.badge_text      || 'Trusted Globally · Est. 1982'
 
   useEffect(() => {

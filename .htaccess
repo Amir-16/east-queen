@@ -1,0 +1,78 @@
+# ============================================================
+# Root .htaccess — public_html/
+# ============================================================
+
+# ── PHP Version (cPanel MultiPHP) ───────────────────────────────────────
+AddHandler application/x-httpd-php82 .php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # ── Block direct access to Laravel internals ───────────────────────
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor)(\/.*)?$ - [F,L]
+    RewriteRule ^(artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|\.env.*)$ - [F,L]
+
+    # ── Fix Authorization header (cPanel strips it) ────────────────────
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # ── Already rewritten — let Apache serve it directly ──────────────
+    RewriteCond %{REQUEST_URI} ^/public/
+    RewriteRule ^ - [L]
+
+    # ── Serve static files from public/ (css, js, images, fonts) ──────
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
+    RewriteRule ^ public%{REQUEST_URI} [L]
+
+    # ── Everything else → Laravel front controller ─────────────────────
+    RewriteRule ^ public/index.php [L]
+</IfModule>
+
+# ── PHP Runtime ─────────────────────────────────────────────────────────
+<IfModule mod_php.c>
+    php_flag  display_errors      Off
+    php_flag  log_errors          On
+    php_value upload_max_filesize 64M
+    php_value post_max_size       64M
+    php_value max_execution_time  120
+    php_value memory_limit        256M
+</IfModule>
+
+# ── Gzip Compression ────────────────────────────────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE image/svg+xml font/woff font/woff2
+</IfModule>
+
+# ── Browser Caching ─────────────────────────────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg             "access plus 1 year"
+    ExpiresByType image/png              "access plus 1 year"
+    ExpiresByType image/webp             "access plus 1 year"
+    ExpiresByType image/svg+xml          "access plus 1 year"
+    ExpiresByType image/x-icon           "access plus 1 year"
+    ExpiresByType font/woff2             "access plus 1 year"
+    ExpiresByType font/woff              "access plus 1 year"
+    ExpiresByType text/css               "access plus 6 months"
+    ExpiresByType application/javascript "access plus 6 months"
+</IfModule>
+
+# ── Security Headers ────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options        "SAMEORIGIN"
+    Header always set X-XSS-Protection       "1; mode=block"
+    Header always set Referrer-Policy        "strict-origin-when-cross-origin"
+    Header unset Server
+    Header unset X-Powered-By
+</IfModule>
+
+# ── Block sensitive file types ──────────────────────────────────────────
+<FilesMatch "\.(env|log|sh|sql|bak|htpasswd)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+Options -Indexes
