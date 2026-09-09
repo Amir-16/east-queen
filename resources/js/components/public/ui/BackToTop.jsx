@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUp, ArrowDown } from 'lucide-react'
+import { useLenis } from '@/lib/lenisContext'
 
 export default function BackToTop() {
   const [show, setShow] = useState(false)
   const [atBottom, setAtBottom] = useState(false)
+  const lenisRef = useLenis()
 
   const update = useCallback(() => {
     const scrollY = window.scrollY
@@ -18,8 +20,15 @@ export default function BackToTop() {
     return () => window.removeEventListener('scroll', update)
   }, [update])
 
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
-  const scrollToBottom = () => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })
+  const scrollToTop = () => {
+    if (lenisRef?.current) lenisRef.current.scrollTo(0, { duration: 1.2 })
+    else window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+  const scrollToBottom = () => {
+    const target = document.documentElement.scrollHeight
+    if (lenisRef?.current) lenisRef.current.scrollTo(target, { duration: 1.2 })
+    else window.scrollTo({ top: target, behavior: 'smooth' })
+  }
 
   return (
     <AnimatePresence>
