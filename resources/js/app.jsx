@@ -28,7 +28,7 @@ function LenisProvider({ children }) {
     }
     requestAnimationFrame(raf)
 
-    // Reset to top on every Inertia navigation (Lenis owns scroll, not window.scrollTo)
+    // Lenis owns scroll — reset to top on every Inertia navigation
     const off = router.on('navigate', () => {
       lenis.scrollTo(0, { immediate: true })
     })
@@ -44,6 +44,9 @@ function LenisProvider({ children }) {
   return <LenisContext.Provider value={lenisRef}>{children}</LenisContext.Provider>
 }
 
+// Stable reference so Inertia treats this as a persistent layout and never remounts LenisProvider
+const publicLayout = (p) => <LenisProvider><PublicLayout>{p}</PublicLayout></LenisProvider>
+
 createInertiaApp({
   title: (title) => title ? `${title} — East Queen Group` : 'East Queen Group',
 
@@ -53,7 +56,7 @@ createInertiaApp({
 
     if (!name.startsWith('Admin/')) {
       if (page.default.layout === undefined) {
-        page.default.layout = (p) => <LenisProvider><PublicLayout>{p}</PublicLayout></LenisProvider>
+        page.default.layout = publicLayout
       }
     }
     return page
