@@ -46,7 +46,7 @@ export default function PageLoader() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.28, ease: 'easeOut' }}
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center select-none"
-          style={{ backgroundColor: 'rgba(13,11,30,0.93)', backdropFilter: 'blur(14px)' }}
+          style={{ backgroundColor: 'rgba(253,252,248,0.97)', backdropFilter: 'blur(14px)' }}
         >
           {/* ── Spinner container — spring pop-in ─────────────────────────── */}
           <motion.div
@@ -63,7 +63,7 @@ export default function PageLoader() {
               className="absolute inset-0 rounded-full pointer-events-none"
               style={{
                 background:
-                  'radial-gradient(circle at center, rgba(226,31,47,0.14) 0%, rgba(77,72,144,0.07) 55%, transparent 80%)',
+                  'radial-gradient(circle at center, rgba(226,31,47,0.08) 0%, rgba(77,72,144,0.04) 55%, transparent 80%)',
               }}
             />
 
@@ -149,7 +149,7 @@ export default function PageLoader() {
             {/* ── Logo — centered breathe + red drop-shadow glow ────────────── */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <motion.img
-                src="/images/brand/logo-white.svg"
+                src="/images/brand/logo.svg"
                 alt=""
                 animate={{ scale: [1, 1.1, 1], opacity: [0.82, 1, 0.82] }}
                 transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
@@ -158,7 +158,7 @@ export default function PageLoader() {
                   height: 42,
                   objectFit: 'contain',
                   filter:
-                    'drop-shadow(0 0 8px rgba(226,31,47,0.7)) drop-shadow(0 0 22px rgba(226,31,47,0.3))',
+                    'drop-shadow(0 2px 8px rgba(226,31,47,0.25)) drop-shadow(0 1px 3px rgba(0,0,0,0.12))',
                 }}
               />
             </div>
@@ -181,7 +181,7 @@ export default function PageLoader() {
                 letterSpacing: '0.34em',
                 textTransform: 'uppercase',
                 fontWeight: 600,
-                color: 'rgba(255,255,255,0.5)',
+                color: 'rgba(22,20,62,0.45)',
               }}
             >
               East Queen Group
