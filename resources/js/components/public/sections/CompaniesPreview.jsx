@@ -40,7 +40,7 @@ export default function CompaniesPreview({ companiesData = [] }) {
           {/* Featured — spans 2 cols */}
           {companiesData[0] && (
             <motion.div
-              className="relative overflow-hidden rounded-2xl lg:col-span-2 h-[260px] md:h-[340px] lg:h-[420px] group cursor-pointer"
+              className="relative overflow-hidden rounded-2xl lg:col-span-2 h-[240px] sm:h-[290px] md:h-[340px] lg:h-[420px] group cursor-pointer"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -98,7 +98,7 @@ export default function CompaniesPreview({ companiesData = [] }) {
           {/* Tall right card */}
           {companiesData[1] && (
             <motion.div
-              className="relative overflow-hidden rounded-2xl h-[220px] md:h-[280px] lg:h-[420px] group cursor-pointer"
+              className="relative overflow-hidden rounded-2xl h-[200px] sm:h-[250px] md:h-[280px] lg:h-[420px] group cursor-pointer"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

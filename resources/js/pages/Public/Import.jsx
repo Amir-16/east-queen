@@ -40,7 +40,7 @@ export default function Import({ products = [], processSteps = [] }) {
             className="mb-12"
           />
 
-          <div className="grid md:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8">
             {/* Tab sidebar */}
             <motion.div
               variants={fadeLeft}

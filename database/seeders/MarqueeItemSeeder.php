@@ -3,10 +3,13 @@ namespace Database\Seeders;
 
 use App\Models\MarqueeItem;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class MarqueeItemSeeder extends Seeder {
     public function run(): void {
+        Schema::disableForeignKeyConstraints();
         MarqueeItem::truncate();
+        Schema::enableForeignKeyConstraints();
         MarqueeItem::insert([
             ['text'=>'Mill Scale Export','sort_order'=>1,'is_active'=>true,'created_at'=>now(),'updated_at'=>now()],
             ['text'=>'Zinc Ash / Zinc Oxide','sort_order'=>2,'is_active'=>true,'created_at'=>now(),'updated_at'=>now()],

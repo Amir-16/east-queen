@@ -4,12 +4,15 @@ namespace Database\Seeders;
 
 use App\Models\TimelineEntry;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class TimelineEntrySeeder extends Seeder
 {
     public function run(): void
     {
+        Schema::disableForeignKeyConstraints();
         TimelineEntry::truncate();
+        Schema::enableForeignKeyConstraints();
 
         TimelineEntry::insert([
             ['year' => '2010', 'title' => 'Foundation',               'desc' => 'Started with 2 ponds and a vision for sustainable aquaculture.',                              'done' => true,  'sort_order' => 1],

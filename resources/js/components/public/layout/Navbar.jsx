@@ -47,6 +47,15 @@ function TopBar() {
   )
 }
 
+const industryLabels = {
+  trading:      'International Trade',
+  shipping:     'Maritime / Ship Breaking',
+  energy:       'LPG Energy',
+  fisheries:    'Fisheries & Agri',
+  construction: 'Construction Materials',
+  food:         'Food Trading',
+}
+
 /* ─── Companies mega-menu ──────────────────────────────────────────────────── */
 function CompaniesMegaMenu({ open, onClose }) {
   const { navCompanies = [] } = usePage().props
@@ -54,90 +63,117 @@ function CompaniesMegaMenu({ open, onClose }) {
     <AnimatePresence>
       {open && (
         <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 6 }}
-          transition={{ duration: 0.18 }}
-          className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-[680px] max-w-[96vw]"
+          initial={{ opacity: 0, y: 10, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 8, scale: 0.97 }}
+          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-[720px] max-w-[96vw]"
         >
-          <div className="rounded-2xl overflow-hidden shadow-[0_24px_80px_rgba(13,11,30,0.18)] border border-slate-200">
-            <div className="grid grid-cols-[1fr_280px] h-[340px]">
+          <div className="rounded-2xl overflow-hidden shadow-[0_32px_80px_rgba(13,11,30,0.22)] border border-slate-200/80">
+            <div className="grid grid-cols-[1fr_260px]">
 
               {/* Left — company list */}
               <div className="bg-white flex flex-col py-5 px-5 relative">
-                <div className="absolute top-0 left-0 right-0 h-[3px] bg-gold-500" />
-                <p className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.3em] mb-3 px-2">
+                <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-gold-500 via-gold-400 to-gold-300" />
+                <p className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.3em] mb-4 px-1">
                   Our Portfolio
                 </p>
-                <div className="grid grid-cols-2 gap-0.5 flex-1">
+                <div className="grid grid-cols-2 gap-1">
                   {navCompanies.map((c, i) => (
                     <motion.div
                       key={c.id}
-                      initial={{ opacity: 0, y: 6 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.035 }}
+                      transition={{ delay: i * 0.045, ease: [0.16, 1, 0.3, 1] }}
                     >
                       <Link
                         href={`/companies/${c.slug}`}
                         onClick={onClose}
-                        className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl
-                                   hover:bg-slate-50 transition-colors duration-150"
+                        className="group flex items-center gap-3 px-3 py-2.5 rounded-xl
+                                   hover:bg-gold-50 border border-transparent hover:border-gold-100
+                                   transition-all duration-200"
                       >
-                        <div className="w-7 h-7 rounded-lg bg-navy-900 group-hover:bg-gold-500
-                                        flex items-center justify-center shrink-0
-                                        transition-colors duration-200">
-                          <span className="text-white font-bold text-[9px] font-mono">
-                            {c.name.slice(0, 2).toUpperCase()}
+                        {/* Logo / initials badge */}
+                        <div className="w-10 h-10 rounded-xl shrink-0 overflow-hidden
+                                        bg-navy-900 ring-1 ring-slate-200/80
+                                        group-hover:ring-gold-300 transition-all duration-200
+                                        flex items-center justify-center">
+                          {c.logo ? (
+                            <img
+                              src={c.logo}
+                              alt={c.name}
+                              className="w-full h-full object-contain p-1.5"
+                            />
+                          ) : (
+                            <span className="text-white font-bold text-[10px] font-mono tracking-wide">
+                              {c.name.slice(0, 2).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Name + industry label */}
+                        <div className="min-w-0">
+                          <span className="text-[12.5px] font-semibold text-slate-800
+                                           group-hover:text-navy-900 leading-tight block truncate
+                                           transition-colors duration-150">
+                            {c.name}
+                          </span>
+                          <span className="text-[10px] text-slate-400 group-hover:text-gold-500
+                                           transition-colors duration-200 block">
+                            {industryLabels[c.industry] ?? c.industry}
                           </span>
                         </div>
-                        <span className="text-[13px] font-medium text-slate-800
-                                         group-hover:text-slate-900 leading-tight">
-                          {c.name}
-                        </span>
                       </Link>
                     </motion.div>
                   ))}
                 </div>
-                <div className="pt-3 mt-2 border-t border-slate-100 px-2">
+
+                <div className="pt-3 mt-3 border-t border-slate-100 px-1">
                   <Link
                     href="/companies"
                     onClick={onClose}
-                    className="inline-flex items-center gap-1.5 text-[11px] font-bold
+                    className="group inline-flex items-center gap-2 text-[11px] font-bold
                                text-gold-500 hover:text-gold-600 uppercase tracking-[0.2em]
                                transition-colors duration-200"
                   >
-                    View All Companies <ArrowRight size={10} />
+                    View All Companies
+                    <ArrowRight size={10} className="group-hover:translate-x-1 transition-transform duration-200" />
                   </Link>
                 </div>
               </div>
 
               {/* Right — dark image panel */}
-              <div className="relative overflow-hidden bg-navy-900">
+              <div className="relative overflow-hidden bg-navy-950">
                 <img
                   src="/images/shipping/bbg-master-night.jpeg"
                   alt="East Queen Group"
-                  className="absolute inset-0 w-full h-full object-cover opacity-30"
+                  className="absolute inset-0 w-full h-full object-cover opacity-25"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-navy-950/60 to-navy-900/90" />
+                <div className="absolute inset-0 bg-gradient-to-br from-navy-950/80 via-navy-900/70 to-navy-950/95" />
                 <div className="relative h-full flex flex-col justify-between p-6">
-                  <div className="w-8 h-8 rounded-full bg-gold-500/20 border border-gold-500/30
-                                  flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-gold-400 animate-pulse" />
-                  </div>
+                  <motion.div
+                    className="w-9 h-9 rounded-full bg-gold-500/15 border border-gold-500/25
+                                flex items-center justify-center"
+                    animate={{ scale: [1, 1.12, 1] }}
+                    transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+                  >
+                    <div className="w-2.5 h-2.5 rounded-full bg-gold-400" />
+                  </motion.div>
                   <div>
-                    <p className="font-playfair font-bold text-white text-lg leading-snug mb-2">
+                    <p className="font-playfair font-bold text-white text-[17px] leading-snug mb-2">
                       Six companies.<br />One trusted group.
                     </p>
-                    <p className="text-white/40 text-xs leading-relaxed mb-4">
+                    <p className="text-white/40 text-[11px] leading-relaxed mb-5">
                       Ship breaking · LPG energy<br />Fisheries · International trade
                     </p>
                     <Link
                       href="/about-east-queen"
                       onClick={onClose}
-                      className="inline-flex items-center gap-1 text-gold-400 hover:text-gold-300
-                                 text-xs font-semibold tracking-wide transition-colors"
+                      className="group inline-flex items-center gap-1.5 text-gold-400 hover:text-gold-300
+                                 text-[11px] font-semibold tracking-wide transition-colors"
                     >
-                      Our Story <ArrowRight size={10} />
+                      Our Story
+                      <ArrowRight size={10} className="group-hover:translate-x-0.5 transition-transform duration-200" />
                     </Link>
                   </div>
                 </div>

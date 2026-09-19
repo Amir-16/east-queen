@@ -36,7 +36,7 @@ class HandleInertiaRequests extends Middleware
             'seo'      => fn () => cache()->remember('settings.seo', 3600, fn () => Setting::group('seo')),
 
             'navCompanies' => fn () => cache()->remember('public.nav_companies', 3600,
-                fn () => Company::active()->ordered()->get(['id', 'name', 'slug', 'industry'])),
+                fn () => Company::active()->ordered()->get(['id', 'name', 'slug', 'industry', 'logo'])),
 
             'adminUser' => fn () => $request->user()?->only(['id', 'name', 'email']),
 

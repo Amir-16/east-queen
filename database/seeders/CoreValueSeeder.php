@@ -4,12 +4,15 @@ namespace Database\Seeders;
 
 use App\Models\CoreValue;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class CoreValueSeeder extends Seeder
 {
     public function run(): void
     {
+        Schema::disableForeignKeyConstraints();
         CoreValue::truncate();
+        Schema::enableForeignKeyConstraints();
         CoreValue::insert([
             [
                 'icon_name'   => 'Shield',

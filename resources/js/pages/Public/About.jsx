@@ -115,7 +115,7 @@ export default function About({ about = {}, timeline = [], stats = [], different
       {/* ── Company Overview ─────────────────────────────────────────────── */}
       <section className="section-padding bg-white relative overflow-hidden">
         <div className="absolute inset-0 bg-light-grid pointer-events-none opacity-40" />
-        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full
+        <div className="absolute -top-16 -right-16 w-[280px] sm:w-[380px] md:w-[500px] h-[280px] sm:h-[380px] md:h-[500px] rounded-full
                         bg-gold-500/[0.04] pointer-events-none" />
 
         <div className="section-container relative">
