@@ -3,10 +3,13 @@ namespace Database\Seeders;
 
 use App\Models\TimelineEntry;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class TimelineSeeder extends Seeder {
     public function run(): void {
+        Schema::disableForeignKeyConstraints();
         TimelineEntry::truncate();
+        Schema::enableForeignKeyConstraints();
         TimelineEntry::insert([
             ['year'=>'1982','title'=>'Laying the Foundation','desc'=>'East Queen Group was established in Chittagong, Bangladesh. Beginning with ship-breaking and industrial raw material trading.','done'=>true,'sort_order'=>1],
             ['year'=>'2003','title'=>'Energy Sector Entry','desc'=>'Bay Gas LTD. was founded, entering Bangladesh\'s LPG distribution sector with licensed cylinder filling and distribution operations.','done'=>true,'sort_order'=>2],

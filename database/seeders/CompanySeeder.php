@@ -4,12 +4,15 @@ namespace Database\Seeders;
 
 use App\Models\Company;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class CompanySeeder extends Seeder
 {
     public function run(): void
     {
+        Schema::disableForeignKeyConstraints();
         Company::truncate();
+        Schema::enableForeignKeyConstraints();
 
         $companies = [
             [

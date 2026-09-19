@@ -3,10 +3,13 @@ namespace Database\Seeders;
 
 use App\Models\ProcessStep;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class ProcessStepSeeder extends Seeder {
     public function run(): void {
+        Schema::disableForeignKeyConstraints();
         ProcessStep::truncate();
+        Schema::enableForeignKeyConstraints();
         ProcessStep::insert([
             ['step_number'=>1,'title'=>'Source & Procure','description'=>'We identify and source materials directly from certified mills, manufacturers, and recyclers across Bangladesh and internationally.','icon'=>'MagnifyingGlassIcon','sort_order'=>1,'created_at'=>now(),'updated_at'=>now()],
             ['step_number'=>2,'title'=>'Inspect & Certify','description'=>'Every consignment undergoes independent third-party inspection and laboratory testing before shipment or delivery.','icon'=>'ClipboardDocumentCheckIcon','sort_order'=>2,'created_at'=>now(),'updated_at'=>now()],

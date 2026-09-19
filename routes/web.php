@@ -29,6 +29,9 @@ Route::redirect('about/core-values',     'our-core-values',        301);
 Route::redirect('mission-vision',        'mission-vision-purpose', 301);
 Route::redirect('core-values',           'our-core-values',        301);
 
+// Backward-compat 301 redirect for renamed company slug
+Route::redirect('companies/marinona-foodstaff', '/companies/marinova-foodstuff', 301);
+
 // Companies
 Route::prefix('companies')->name('companies.')->group(function () {
     Route::get('/',      [CompanyController::class, 'index'])->name('index');

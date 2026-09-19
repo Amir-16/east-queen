@@ -4,12 +4,15 @@ namespace Database\Seeders;
 
 use App\Models\Differentiator;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class DifferentiatorSeeder extends Seeder
 {
     public function run(): void
     {
+        Schema::disableForeignKeyConstraints();
         Differentiator::truncate();
+        Schema::enableForeignKeyConstraints();
         Differentiator::insert([
             [
                 'title'      => '40+ Years Proven Track Record',

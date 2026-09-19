@@ -4,12 +4,15 @@ namespace Database\Seeders;
 
 use App\Models\GalleryMedia;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class GalleryMediaSeeder extends Seeder
 {
     public function run(): void
     {
+        Schema::disableForeignKeyConstraints();
         GalleryMedia::truncate();
+        Schema::enableForeignKeyConstraints();
 
         $rows = array_merge(
             self::operations(),

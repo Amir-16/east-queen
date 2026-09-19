@@ -3,10 +3,13 @@ namespace Database\Seeders;
 
 use App\Models\Stat;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class StatSeeder extends Seeder {
     public function run(): void {
+        Schema::disableForeignKeyConstraints();
         Stat::truncate();
+        Schema::enableForeignKeyConstraints();
         Stat::insert([
             ['label'=>'Year Founded',          'value'=>1982, 'suffix'=>'',    'icon'=>'calendar',          'color'=>'gold',  'count_start'=>1974, 'sort_order'=>1],
             ['label'=>'Years of Excellence',   'value'=>42,   'suffix'=>'+',   'icon'=>'clock',             'color'=>'gold',  'count_start'=>0,    'sort_order'=>2],

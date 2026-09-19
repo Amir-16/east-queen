@@ -3,10 +3,14 @@ namespace Database\Seeders;
 
 use App\Models\HeroSlide;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class HeroSlideSeeder extends Seeder {
     public function run(): void {
+        Schema::disableForeignKeyConstraints();
         HeroSlide::truncate();
+        Schema::enableForeignKeyConstraints();
+
         HeroSlide::insert([
             [
                 'image_path'       => '/images/shipping/bbg-master-night.jpeg',
@@ -22,6 +26,8 @@ class HeroSlideSeeder extends Seeder {
                 'video_url'        => null,
                 'is_active'        => true,
                 'sort_order'       => 1,
+                'created_at'       => now(),
+                'updated_at'       => now(),
             ],
             [
                 'image_path'       => '/images/shipping/ship-port-1.jpeg',
@@ -37,6 +43,8 @@ class HeroSlideSeeder extends Seeder {
                 'video_url'        => null,
                 'is_active'        => true,
                 'sort_order'       => 2,
+                'created_at'       => now(),
+                'updated_at'       => now(),
             ],
             [
                 'image_path'       => '/images/shipping/tristar-prosperity.jpeg',
@@ -52,6 +60,8 @@ class HeroSlideSeeder extends Seeder {
                 'video_url'        => null,
                 'is_active'        => true,
                 'sort_order'       => 3,
+                'created_at'       => now(),
+                'updated_at'       => now(),
             ],
         ]);
     }

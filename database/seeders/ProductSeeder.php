@@ -3,10 +3,13 @@ namespace Database\Seeders;
 
 use App\Models\Product;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class ProductSeeder extends Seeder {
     public function run(): void {
+        Schema::disableForeignKeyConstraints();
         Product::truncate();
+        Schema::enableForeignKeyConstraints();
         // Pass raw PHP arrays — Eloquent's 'array' cast handles json_encode() automatically.
         // Never pre-encode with json_encode() here; doing so causes double-encoding.
         $products = [
