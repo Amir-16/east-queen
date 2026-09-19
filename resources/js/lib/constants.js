@@ -10,7 +10,7 @@ export const NAV_ITEMS = [
       { label: 'Bay Gas Ltd.',               href: '/companies/bay-gas',               desc: 'LPG Energy Distribution'          },
       { label: 'Syedpur Fisheries & Farms',  href: '/companies/syedpur-fisheries',     desc: 'Fisheries & Agriculture'          },
       { label: 'BSC Limited',               href: '/companies/bsc-limited',           desc: 'Construction Materials'           },
-      { label: 'Marinona Foodstaff Trading', href: '/companies/marinona-foodstaff',    desc: 'Food & Commodity Trading'         },
+      { label: 'Marinova Foodstuff Trading', href: '/companies/marinova-foodstuff',    desc: 'Food & Commodity Trading'         },
     ],
   },
   {
