@@ -82,7 +82,7 @@ export default function ProductDetail({ product }) {
       {/* Sticky sidebar layout */}
       <section className="bg-slate-50 section-padding">
         <div className="section-container">
-          <div className="grid lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Sidebar */}
             <motion.aside
               variants={fadeLeft}

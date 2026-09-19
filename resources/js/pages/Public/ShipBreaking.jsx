@@ -350,7 +350,7 @@ function Lightbox({ images, index, dir, onNav, onJump, onClose }) {
       </motion.div>
 
       <div
-        className="relative flex-1 flex items-center justify-center overflow-hidden px-16 md:px-24"
+        className="relative flex-1 flex items-center justify-center overflow-hidden px-3 sm:px-10 md:px-20"
         onClick={e => e.stopPropagation()}
       >
         <motion.button
@@ -924,7 +924,7 @@ export default function ShipBreaking() {
             </motion.div>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 auto-rows-[180px] md:auto-rows-[200px]">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 auto-rows-[140px] sm:auto-rows-[160px] md:auto-rows-[200px]">
             {galleryImages.map((img, i) => (
               <GalleryCard
                 key={img.src}

@@ -40,11 +40,11 @@ export default function MapVisual() {
       {/* Background textures */}
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.12] pointer-events-none" />
       <div
-        className="absolute -top-48 right-[-10%] w-[700px] h-[700px] rounded-full pointer-events-none"
+        className="absolute -top-24 right-[-5%] w-[300px] sm:w-[500px] md:w-[700px] h-[300px] sm:h-[500px] md:h-[700px] rounded-full pointer-events-none"
         style={{ background: 'radial-gradient(ellipse, rgba(6,182,212,0.07) 0%, transparent 65%)' }}
       />
       <div
-        className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full pointer-events-none"
+        className="absolute bottom-0 left-0 w-[240px] sm:w-[360px] md:w-[500px] h-[240px] sm:h-[360px] md:h-[500px] rounded-full pointer-events-none"
         style={{ background: 'radial-gradient(ellipse, rgba(226,31,47,0.05) 0%, transparent 65%)' }}
       />
 

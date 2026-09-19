@@ -51,7 +51,7 @@ export default function Contact() {
       <div className="bg-navy-900 py-12">
         <div className="section-container">
           <motion.div
-            className="grid grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
             variants={stagger}
             initial="hidden"
             whileInView="visible"
@@ -140,13 +140,13 @@ export default function Contact() {
               viewport={{ once: true }}
             >
               {company?.map_embed_url && (
-                <div className="bg-navy-900 rounded-2xl overflow-hidden h-56 relative">
+                <div className="bg-navy-900 rounded-2xl overflow-hidden relative aspect-video sm:h-64 sm:aspect-auto">
                   <iframe
                     title="East Queen Group Location"
                     src={company.map_embed_url}
                     width="100%"
                     height="100%"
-                    style={{ border: 0 }}
+                    style={{ border: 0, position: 'absolute', inset: 0 }}
                     loading="lazy"
                   />
                 </div>

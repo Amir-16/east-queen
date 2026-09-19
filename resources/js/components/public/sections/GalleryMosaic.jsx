@@ -61,7 +61,7 @@ export default function GalleryMosaic({ gallery = [] }) {
 
         {/* Mosaic grid */}
         <div
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 auto-rows-[120px] sm:auto-rows-[150px] md:auto-rows-[180px] gap-2 sm:gap-3"
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 auto-rows-[140px] sm:auto-rows-[155px] md:auto-rows-[180px] gap-2 sm:gap-3"
         >
           {gallery.map((item, i) => (
             <motion.div

@@ -56,7 +56,7 @@ export default function AboutSnippet() {
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 min-h-[640px]">
 
         {/* Left: image mosaic */}
-        <div className="grid grid-cols-2 grid-rows-[150px_150px] sm:grid-rows-[220px_220px] gap-1.5 p-1.5">
+        <div className="grid grid-cols-2 grid-rows-[130px_130px] sm:grid-rows-[180px_180px] md:grid-rows-[220px_220px] gap-1.5 p-1.5">
           {imageGrid.map(({ src, alt, span }, i) => (
             <MosaicImg key={src} src={src} alt={alt} span={span} delay={i * 0.1} />
           ))}
@@ -65,7 +65,7 @@ export default function AboutSnippet() {
         {/* Right: story text */}
         <div className="flex flex-col justify-center px-5 sm:px-8 lg:px-10 py-10 sm:py-16 lg:py-20 relative">
           {/* Watermark year */}
-          <span className="absolute -right-4 bottom-8 font-playfair font-black text-[140px] leading-none select-none pointer-events-none text-white/[0.03] z-0">
+          <span className="absolute right-0 sm:-right-2 bottom-8 font-playfair font-black text-[80px] sm:text-[110px] md:text-[140px] leading-none select-none pointer-events-none text-white/[0.03] z-0 overflow-hidden">
             1982
           </span>
 

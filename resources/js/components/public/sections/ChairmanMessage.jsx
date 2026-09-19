@@ -62,7 +62,7 @@ export default function ChairmanMessage() {
             className="relative"
           >
             {/* Corner accent top-left */}
-            <div className="absolute -top-5 -left-5 w-20 h-20 border-t-2 border-l-2 border-gold-500/40 rounded-tl-xl pointer-events-none" />
+            <div className="absolute -top-3 -left-3 sm:-top-5 sm:-left-5 w-16 h-16 sm:w-20 sm:h-20 border-t-2 border-l-2 border-gold-500/40 rounded-tl-xl pointer-events-none" />
 
             <div className="relative overflow-hidden rounded-2xl aspect-[3/4] max-w-[380px] mx-auto lg:mx-0 shadow-deep">
               <img
@@ -76,7 +76,7 @@ export default function ChairmanMessage() {
             </div>
 
             {/* Corner accent bottom-right */}
-            <div className="absolute -bottom-5 -right-5 w-20 h-20 border-b-2 border-r-2 border-gold-500/40 rounded-br-xl pointer-events-none" />
+            <div className="absolute -bottom-3 -right-3 sm:-bottom-5 sm:-right-5 w-16 h-16 sm:w-20 sm:h-20 border-b-2 border-r-2 border-gold-500/40 rounded-br-xl pointer-events-none" />
 
             {/* Years badge */}
             <motion.div

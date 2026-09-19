@@ -40,7 +40,7 @@ export default function StatsSection({ stats = [] }) {
 
         <div
           ref={ref}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-0 divide-x divide-white/10"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-0 divide-y-2 lg:divide-y-0 divide-x-0 lg:divide-x divide-white/10"
         >
           {stats.map((stat, i) => (
             <motion.div

@@ -1085,13 +1085,13 @@ export default function Gallery({ gallery = [], categories = [] }) {
                  }} />
 
             {/* Warm ambient glow — left */}
-            <div className="absolute top-1/4 -left-32 w-[480px] h-[480px] rounded-full pointer-events-none"
+            <div className="absolute top-1/4 -left-24 w-[240px] sm:w-[360px] md:w-[480px] h-[240px] sm:h-[360px] md:h-[480px] rounded-full pointer-events-none"
                  style={{ background: 'radial-gradient(circle, rgba(226,31,47,0.06) 0%, transparent 65%)' }} />
             {/* Warm ambient glow — right */}
-            <div className="absolute bottom-1/3 -right-32 w-[480px] h-[480px] rounded-full pointer-events-none"
+            <div className="absolute bottom-1/3 -right-24 w-[240px] sm:w-[360px] md:w-[480px] h-[240px] sm:h-[360px] md:h-[480px] rounded-full pointer-events-none"
                  style={{ background: 'radial-gradient(circle, rgba(180,80,30,0.05) 0%, transparent 65%)' }} />
             {/* Soft top wash */}
-            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-[800px] h-48 pointer-events-none"
+            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-full max-w-[800px] h-48 pointer-events-none"
                  style={{ background: 'radial-gradient(ellipse, rgba(255,220,180,0.35) 0%, transparent 70%)' }} />
 
             {/* top red accent line */}
