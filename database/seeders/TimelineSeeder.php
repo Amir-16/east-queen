@@ -14,7 +14,7 @@ class TimelineSeeder extends Seeder {
             ['year'=>'2009','title'=>'International Trading','desc'=>'Ariko International was incorporated, establishing the group\'s flagship commodity trading operations across 20+ countries.','done'=>true,'sort_order'=>4],
             ['year'=>'2012','title'=>'Construction Materials','desc'=>'BSC Limited was formed to supply aggregate, limestone, and construction materials to Bangladesh\'s infrastructure sector.','done'=>true,'sort_order'=>5],
             ['year'=>'2013','title'=>'Expanding Horizons','desc'=>'Three decades of growth laid the groundwork for bold diversification across energy, agribusiness, and international trade.','done'=>true,'sort_order'=>6],
-            ['year'=>'2017','title'=>'Diversifying Strengths','desc'=>'Marinona Foodstaff Trading LLC was incorporated, entering international halal food commodity trading.','done'=>true,'sort_order'=>7],
+            ['year'=>'2017','title'=>'Diversifying Strengths','desc'=>'Marinova Foodstuff Trading LLC was incorporated, entering international halal food commodity trading.','done'=>true,'sort_order'=>7],
             ['year'=>'2023','title'=>'Digital Transformation','desc'=>'East Queen Group embraced digital infrastructure upgrades and began transformation of its web and communication platforms.','done'=>true,'sort_order'=>8],
         ]);
     }
