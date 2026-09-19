@@ -304,7 +304,7 @@ export default function MapVisual() {
             variants={stagger}
             initial="hidden"
             animate={inView ? 'visible' : 'hidden'}
-            className="flex flex-wrap gap-2.5"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5"
           >
             {PARTNERS.map(({ label, sub, flag }) => (
               <motion.div
