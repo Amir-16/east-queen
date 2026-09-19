@@ -3,16 +3,16 @@ import { motion, useInView } from 'framer-motion'
 import { ease, stagger, fadeUp } from '@/lib/motion'
 
 const PARTNERS = [
-  { label: 'China',        sub: 'Steel & Mill Scale',    angle: 20,  flag: '🇨🇳' },
-  { label: 'South Korea',  sub: 'Maritime Trade',         angle: 55,  flag: '🇰🇷' },
-  { label: 'Japan',        sub: 'Equipment Imports',      angle: 90,  flag: '🇯🇵' },
-  { label: 'Oman',         sub: 'Aggregate & Limestone',  angle: 125, flag: '🇴🇲' },
-  { label: 'UAE',          sub: 'Food & Seafood',         angle: 158, flag: '🇦🇪' },
-  { label: 'India',        sub: 'Commodity Trade',        angle: 202, flag: '🇮🇳' },
-  { label: 'Malaysia',     sub: 'Raw Materials',          angle: 238, flag: '🇲🇾' },
-  { label: 'Indonesia',    sub: 'Coal Imports',           angle: 272, flag: '🇮🇩' },
-  { label: 'South Africa', sub: 'Coal & Scrap',           angle: 308, flag: '🇿🇦' },
-  { label: 'Germany',      sub: 'HMS Steel Scrap',        angle: 345, flag: '🇩🇪' },
+  { label: 'China',        sub: 'Steel & Mill Scale',    angle: 20,  code: 'cn' },
+  { label: 'South Korea',  sub: 'Maritime Trade',         angle: 55,  code: 'kr' },
+  { label: 'Japan',        sub: 'Equipment Imports',      angle: 90,  code: 'jp' },
+  { label: 'Oman',         sub: 'Aggregate & Limestone',  angle: 125, code: 'om' },
+  { label: 'UAE',          sub: 'Food & Seafood',         angle: 158, code: 'ae' },
+  { label: 'India',        sub: 'Commodity Trade',        angle: 202, code: 'in' },
+  { label: 'Malaysia',     sub: 'Raw Materials',          angle: 238, code: 'my' },
+  { label: 'Indonesia',    sub: 'Coal Imports',           angle: 272, code: 'id' },
+  { label: 'South Africa', sub: 'Coal & Scrap',           angle: 308, code: 'za' },
+  { label: 'Germany',      sub: 'HMS Steel Scrap',        angle: 345, code: 'de' },
 ]
 
 const STATS = [
@@ -304,19 +304,29 @@ export default function MapVisual() {
             variants={stagger}
             initial="hidden"
             animate={inView ? 'visible' : 'hidden'}
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
           >
-            {PARTNERS.map(({ label, sub, flag }) => (
+            {PARTNERS.map(({ label, sub, code }) => (
               <motion.div
                 key={label}
                 variants={fadeUp}
-                whileHover={{ y: -3, scale: 1.04, transition: { duration: 0.18 } }}
-                className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border border-white/[0.08] bg-white/[0.04] hover:border-amber-400/30 hover:bg-amber-400/[0.06] cursor-default transition-colors duration-200"
+                whileHover={{ y: -3, scale: 1.03, transition: { duration: 0.18 } }}
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-white/[0.08] bg-white/[0.04] hover:border-amber-400/30 hover:bg-amber-400/[0.05] cursor-default transition-colors duration-200"
               >
-                <span className="text-xl leading-none shrink-0">{flag}</span>
-                <div>
-                  <p className="text-white/80 text-sm font-semibold leading-none">{label}</p>
-                  <p className="text-white/30 text-[10px] mt-0.5">{sub}</p>
+                {/* Flag image */}
+                <div className="shrink-0 w-10 h-7 rounded-md overflow-hidden shadow-md border border-white/10">
+                  <img
+                    src={`https://flagcdn.com/w80/${code}.png`}
+                    alt={label}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {/* Text */}
+                <div className="min-w-0">
+                  <p className="text-white/85 text-sm font-semibold leading-tight truncate">{label}</p>
+                  <p className="text-white/35 text-[10px] mt-0.5 truncate">{sub}</p>
                 </div>
               </motion.div>
             ))}
