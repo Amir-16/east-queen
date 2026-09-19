@@ -77,9 +77,10 @@ function VideoThumbnail({ src }) {
   const encoded = encodeVideoSrc(src)
 
   return (
-    <div ref={ref} className="absolute inset-0 bg-zinc-900">
-      <div className={`absolute inset-0 bg-zinc-800 animate-pulse transition-opacity duration-300
-                       ${ready ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} />
+    <div ref={ref} className="absolute inset-0 bg-[#1a0a0e]">
+      <div className={`absolute inset-0 animate-pulse transition-opacity duration-300
+                       ${ready ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+           style={{ background: 'radial-gradient(circle at 50% 50%, #2a0f14 0%, #0d0406 100%)' }} />
       {inView && (
         <video
           src={`${encoded}#t=2`}
@@ -169,7 +170,7 @@ const ImageCard = memo(function ImageCard({ item, idx, onClick }) {
   )
 })
 
-/* ── VideoCard ── */
+/* ── VideoCard (circular design) ── */
 const VideoCard = memo(function VideoCard({ item, idx, onClick, categoryMeta }) {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-40px' })
@@ -177,60 +178,137 @@ const VideoCard = memo(function VideoCard({ item, idx, onClick, categoryMeta }) 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40, scale: 0.91 }}
-      animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
-      transition={{ delay: Math.min(idx * 0.065, 0.45), duration: 0.55, ease: ease.smooth }}
+      initial={{ opacity: 0, scale: 0.55, y: 40 }}
+      animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
+      transition={{
+        delay: Math.min(idx * 0.08, 0.5),
+        duration: 0.7,
+        type: 'spring',
+        stiffness: 175,
+        damping: 20,
+      }}
+      className="flex flex-col items-center gap-5 group/card"
     >
+      {/* ── Outer wrapper (positions ring + circle) ── */}
       <motion.div
-        whileHover={{ y: -8, scale: 1.018, transition: { duration: 0.22 } }}
-        whileTap={{ scale: 0.97 }}
+        className="relative cursor-pointer w-full"
+        style={{ maxWidth: 190, aspectRatio: '1/1' }}
+        whileTap={{ scale: 0.87 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 22 }}
         onClick={onClick}
-        className="group relative aspect-video rounded-2xl overflow-hidden cursor-pointer
-                   shadow-[0_4px_24px_rgba(0,0,0,0.45)] hover:shadow-[0_20px_56px_rgba(0,0,0,0.65)]
-                   transition-shadow duration-300 bg-zinc-900"
       >
-        <VideoThumbnail src={item.src} />
+        {/* Far aura pulse */}
+        <motion.div
+          animate={{ scale: [1, 1.42, 1], opacity: [0.18, 0, 0.18] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
+          className="absolute -inset-5 rounded-full pointer-events-none"
+          style={{ border: '1px solid rgba(226,31,47,0.22)' }}
+        />
+        {/* Near aura pulse */}
+        <motion.div
+          animate={{ scale: [1, 1.22, 1], opacity: [0.38, 0, 0.38] }}
+          transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -inset-2.5 rounded-full pointer-events-none"
+          style={{ border: '1px solid rgba(226,31,47,0.45)' }}
+        />
 
-        <div className="absolute inset-0 bg-gradient-to-t
-                        from-black/90 via-black/28 to-black/5
-                        group-hover:from-black/95 group-hover:via-black/50
-                        transition-all duration-350" />
+        {/* Spinning conic-gradient ring (sits behind the inset video circle) */}
+        <motion.div
+          className="absolute inset-0 rounded-full pointer-events-none"
+          style={{
+            background:
+              'conic-gradient(from 0deg, #E21F2F 0%, #FF5566 22%, rgba(255,255,255,0.07) 48%, #FF5566 72%, #E21F2F 100%)',
+          }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'linear' }}
+        />
 
-        {/* play button */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="relative">
+        {/* Video circle — inset 3 px so the spinning ring shows as a border */}
+        <div
+          className="absolute inset-[3px] rounded-full overflow-hidden
+                     shadow-[0_10px_50px_rgba(0,0,0,0.85)]
+                     group-hover/card:shadow-[0_16px_60px_rgba(226,31,47,0.28),0_8px_30px_rgba(0,0,0,0.8)]
+                     transition-shadow duration-500"
+          style={{ background: '#1a0a0e' }}
+        >
+          <VideoThumbnail src={item.src} />
+
+          {/* Overlay gradient */}
+          <div
+            className="absolute inset-0 transition-opacity duration-400"
+            style={{
+              background:
+                'linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.04) 40%, rgba(0,0,0,0.78) 100%)',
+            }}
+          />
+          {/* Hover darken */}
+          <div className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-400"
+               style={{ background: 'rgba(10,4,6,0.18)' }} />
+
+          {/* ── Play button ── */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            {/* Ripple 1 */}
             <motion.div
-              animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0, 0.4] }}
-              transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute inset-0 rounded-full border-2 border-white/35"
+              animate={{ scale: [1, 2.6, 1], opacity: [0.38, 0, 0.38] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut', delay: 0.45 }}
+              className="absolute w-[52px] h-[52px] rounded-full"
+              style={{ background: 'rgba(226,31,47,0.22)' }}
             />
-            <div className="relative w-16 h-16 rounded-full
-                           bg-gold-500/85 backdrop-blur-sm border-2 border-gold-400/50
-                           flex items-center justify-center
-                           group-hover:bg-gold-500 group-hover:scale-110
-                           transition-all duration-250 shadow-gold-glow">
-              <Play size={22} fill="white" className="text-white ml-1" />
+            {/* Ripple 2 */}
+            <motion.div
+              animate={{ scale: [1, 1.95, 1], opacity: [0.45, 0, 0.45] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut' }}
+              className="absolute w-[52px] h-[52px] rounded-full"
+              style={{ background: 'rgba(255,255,255,0.18)' }}
+            />
+            {/* Button */}
+            <div
+              className="relative w-[52px] h-[52px] rounded-full flex items-center justify-center
+                         transition-all duration-300
+                         group-hover/card:scale-110"
+              style={{
+                background: 'rgba(255,255,255,0.14)',
+                backdropFilter: 'blur(10px)',
+                border: '2px solid rgba(255,255,255,0.55)',
+                boxShadow: '0 0 28px rgba(255,255,255,0.15)',
+              }}
+            >
+              {/* inner red fill on hover */}
+              <div className="absolute inset-0 rounded-full opacity-0 group-hover/card:opacity-100
+                              transition-opacity duration-300"
+                   style={{ background: 'rgba(226,31,47,0.88)' }} />
+              <Play size={19} fill="white" className="text-white ml-0.5 relative z-10" />
             </div>
           </div>
         </div>
 
-        {/* category badge */}
-        <div className="absolute top-3 left-3">
-          <span className="flex items-center gap-1.5 px-2.5 py-1 bg-gold-500 rounded-lg
-                           text-white text-[10px] font-bold uppercase tracking-widest shadow-gold-glow">
-            <Film size={9} />
+        {/* Category badge — floats below circle */}
+        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+          <motion.span
+            initial={{ opacity: 0, y: 6 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: Math.min(idx * 0.08, 0.5) + 0.18 }}
+            className="flex items-center gap-1 px-2.5 py-[3px] rounded-full whitespace-nowrap
+                       text-white text-[9px] font-bold uppercase tracking-wider shadow-gold-glow"
+            style={{ background: 'linear-gradient(90deg,#c41729,#E21F2F)' }}
+          >
+            <Film size={7} />
             {categoryMeta[item.category]?.label ?? item.category}
-          </span>
+          </motion.span>
         </div>
-
-        {/* caption */}
-        {item.caption && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 opacity-0
-                          group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-            <p className="text-white/85 text-xs leading-snug line-clamp-2">{item.caption}</p>
-          </div>
-        )}
       </motion.div>
+
+      {/* Caption below the circle */}
+      {item.caption && (
+        <motion.p
+          initial={{ opacity: 0, y: 6 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: Math.min(idx * 0.08, 0.5) + 0.32 }}
+          className="text-white/40 text-[11px] text-center leading-snug line-clamp-2 max-w-[155px] mt-1"
+        >
+          {item.caption}
+        </motion.p>
+      )}
     </motion.div>
   )
 })
@@ -475,14 +553,20 @@ function ImageLightbox({ images, index, dir, onNav, onJump, onClose, categoryMet
 
 /* ── VideoModal ── */
 function VideoModal({ videos, index, onClose, onNavigate }) {
-  const current  = videos[index]
-  const videoRef = useRef(null)
+  const current    = videos[index]
+  const videoRef   = useRef(null)
   const touchStart = useRef(null)
+  const [playing, setPlaying] = useState(false)
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
   }, [])
+
+  useEffect(() => {
+    setPlaying(false)
+    videoRef.current?.play().then(() => setPlaying(true)).catch(() => {})
+  }, [current?.src])
 
   const handleKey = useCallback((e) => {
     if (e.key === 'Escape') onClose()
@@ -505,8 +589,12 @@ function VideoModal({ videos, index, onClose, onNavigate }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-[300] flex flex-col bg-black/98 backdrop-blur-xl"
+      transition={{ duration: 0.25 }}
+      className="fixed inset-0 z-[300] flex flex-col"
+      style={{
+        background: 'radial-gradient(ellipse at 50% 0%, rgba(226,31,47,0.12) 0%, rgba(7,3,12,0.99) 55%)',
+        backdropFilter: 'blur(20px)',
+      }}
       onClick={onClose}
       onTouchStart={e => { touchStart.current = e.touches[0].clientX }}
       onTouchEnd={e => {
@@ -519,29 +607,43 @@ function VideoModal({ videos, index, onClose, onNavigate }) {
         touchStart.current = null
       }}
     >
-      {/* top-left meta */}
+      {/* Ambient glow behind the video */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="w-[900px] h-[500px] rounded-full opacity-40"
+             style={{ background: 'radial-gradient(ellipse, rgba(226,31,47,0.14) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+      </div>
+
+      {/* ── top-left meta ── */}
       <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.12, duration: 0.35 }}
+        initial={{ opacity: 0, x: -20, y: -6 }}
+        animate={{ opacity: 1, x: 0, y: 0 }}
+        transition={{ delay: 0.14, duration: 0.38 }}
         className="absolute top-5 left-5 z-20 flex items-center gap-2.5 pointer-events-none select-none"
       >
-        <span className="flex items-center gap-1.5 px-3 py-1 bg-gold-500 rounded-lg
-                         text-white text-[10px] font-bold uppercase tracking-widest">
-          <Film size={9} /> Video
+        <span className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-white text-[10px] font-bold uppercase tracking-widest shadow-gold-glow"
+              style={{ background: 'linear-gradient(90deg,#c41729,#E21F2F)' }}>
+          <Film size={9} /> Now Playing
         </span>
         <span className="w-px h-3 bg-white/20" />
         <span className="font-mono text-sm">
-          <span className="text-white/75 font-bold">{index + 1}</span>
-          <span className="text-white/30"> / {videos.length}</span>
+          <span className="text-white/80 font-bold">{index + 1}</span>
+          <span className="text-white/28"> / {videos.length}</span>
         </span>
       </motion.div>
 
-      {/* close */}
+      {/* ── close button ── */}
       <motion.div
         className="absolute top-4 right-4 z-20 flex items-center gap-3"
         onClick={e => e.stopPropagation()}
       >
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.65 }}
+          className="hidden sm:block text-white/22 text-[10px] font-mono tracking-[0.25em] uppercase select-none"
+        >
+          esc
+        </motion.span>
         <motion.button
           initial={{ scale: 0, rotate: -90 }}
           animate={{ scale: 1, rotate: 0 }}
@@ -550,38 +652,57 @@ function VideoModal({ videos, index, onClose, onNavigate }) {
           whileTap={{ scale: 0.85 }}
           onClick={onClose}
           aria-label="Close (Escape)"
-          className="w-[52px] h-[52px] rounded-full bg-white/8 border-2 border-white/20 backdrop-blur-md
+          className="w-[52px] h-[52px] rounded-full backdrop-blur-md
                      flex items-center justify-center text-white
-                     hover:bg-gold-500 hover:border-gold-500/60
-                     transition-colors duration-200"
+                     hover:border-gold-500/60 transition-all duration-200 shadow-2xl"
+          style={{
+            background: 'rgba(255,255,255,0.07)',
+            border: '2px solid rgba(255,255,255,0.18)',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(226,31,47,0.85)'; e.currentTarget.style.border = '2px solid rgba(226,31,47,0.5)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.border = '2px solid rgba(255,255,255,0.18)' }}
         >
           <X size={22} strokeWidth={2.5} />
         </motion.button>
       </motion.div>
 
+      {/* ── Nav + Video ── */}
       <div className="flex-1 flex items-center justify-center px-4 py-2 min-h-0">
+        {/* Prev */}
         <motion.button
-          whileHover={{ scale: 1.1, x: -4, transition: { type: 'spring', stiffness: 500 } }}
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: index === 0 ? 0.2 : 1, x: 0 }}
+          whileHover={{ scale: 1.12, x: -4, transition: { type: 'spring', stiffness: 500 } }}
           whileTap={{ scale: 0.88 }}
           onClick={e => { e.stopPropagation(); if (index > 0) onNavigate(index - 1) }}
-          className={`flex-shrink-0 w-12 h-12 rounded-full border border-white/20 bg-white/6
+          disabled={index === 0}
+          className="flex-shrink-0 w-12 h-12 rounded-full border border-white/18
                      flex items-center justify-center text-white/65
-                     hover:text-white hover:bg-white/12 transition-colors mr-4
-                     ${index === 0 ? 'opacity-25 pointer-events-none' : ''}`}
+                     hover:text-white hover:bg-white/10 transition-colors mr-4"
+          style={{ background: 'rgba(255,255,255,0.05)' }}
         >
           <ChevronLeft size={22} />
         </motion.button>
 
+        {/* Video player */}
         <AnimatePresence mode="wait">
           <motion.div
             key={current.src}
-            initial={{ scale: 0.88, opacity: 0, filter: 'blur(6px)' }}
-            animate={{ scale: 1,    opacity: 1, filter: 'blur(0px)' }}
-            exit={{    scale: 0.9,  opacity: 0, filter: 'blur(4px)' }}
-            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+            initial={{ scale: 0.84, opacity: 0, y: 24, filter: 'blur(8px)' }}
+            animate={{ scale: 1,    opacity: 1, y: 0,  filter: 'blur(0px)' }}
+            exit={{    scale: 0.92, opacity: 0, y: -12, filter: 'blur(4px)' }}
+            transition={{ type: 'spring', stiffness: 320, damping: 28 }}
             className="relative w-full max-w-5xl"
             onClick={e => e.stopPropagation()}
           >
+            {/* Glow ring around video */}
+            <div className="absolute -inset-[2px] rounded-3xl pointer-events-none"
+                 style={{
+                   background: 'conic-gradient(from 0deg, #E21F2F, rgba(226,31,47,0.2), #E21F2F)',
+                   filter: 'blur(8px)',
+                   opacity: 0.45,
+                 }} />
+
             <video
               ref={videoRef}
               key={current.src}
@@ -589,58 +710,83 @@ function VideoModal({ videos, index, onClose, onNavigate }) {
               controls
               autoPlay
               playsInline
-              className="w-full rounded-2xl bg-black shadow-2xl"
-              style={{ maxHeight: 'calc(100vh - 200px)' }}
+              onPlay={() => setPlaying(true)}
+              onPause={() => setPlaying(false)}
+              className="relative w-full rounded-2xl shadow-2xl"
+              style={{
+                maxHeight: 'calc(100vh - 210px)',
+                background: '#07030c',
+                boxShadow: '0 32px 80px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.06)',
+              }}
             />
+
             {current.caption && (
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.28 }}
+                transition={{ delay: 0.3 }}
                 className="mt-4 flex items-start gap-3"
               >
-                <div className="w-0.5 self-stretch bg-gold-500 rounded-full flex-shrink-0" />
-                <p className="text-white/50 text-sm leading-relaxed">{current.caption}</p>
+                <div className="w-0.5 self-stretch rounded-full flex-shrink-0"
+                     style={{ background: 'linear-gradient(to bottom, #E21F2F, rgba(226,31,47,0.2))' }} />
+                <p className="text-white/45 text-sm leading-relaxed">{current.caption}</p>
               </motion.div>
             )}
           </motion.div>
         </AnimatePresence>
 
+        {/* Next */}
         <motion.button
-          whileHover={{ scale: 1.1, x: 4, transition: { type: 'spring', stiffness: 500 } }}
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: index === videos.length - 1 ? 0.2 : 1, x: 0 }}
+          whileHover={{ scale: 1.12, x: 4, transition: { type: 'spring', stiffness: 500 } }}
           whileTap={{ scale: 0.88 }}
           onClick={e => { e.stopPropagation(); if (index < videos.length - 1) onNavigate(index + 1) }}
-          className={`flex-shrink-0 w-12 h-12 rounded-full border border-white/20 bg-white/6
+          disabled={index === videos.length - 1}
+          className="flex-shrink-0 w-12 h-12 rounded-full border border-white/18
                      flex items-center justify-center text-white/65
-                     hover:text-white hover:bg-white/12 transition-colors ml-4
-                     ${index === videos.length - 1 ? 'opacity-25 pointer-events-none' : ''}`}
+                     hover:text-white hover:bg-white/10 transition-colors ml-4"
+          style={{ background: 'rgba(255,255,255,0.05)' }}
         >
           <ChevronRight size={22} />
         </motion.button>
       </div>
 
+      {/* ── Circular thumbnail strip ── */}
       {videos.length > 1 && (
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="flex-shrink-0 pb-5 px-6 flex gap-2 overflow-x-auto justify-center"
+          transition={{ delay: 0.18 }}
+          className="flex-shrink-0 pb-6 px-6 flex gap-3 overflow-x-auto justify-center items-center"
+          style={{ scrollbarWidth: 'none' }}
         >
           {videos.map((v, i) => (
             <motion.button
               key={v.id}
               onClick={e => { e.stopPropagation(); onNavigate(i) }}
-              whileHover={{ scale: 1.1, y: -3 }}
-              className={[
-                'relative flex-shrink-0 w-20 h-12 rounded-lg overflow-hidden border-2 transition-all duration-200',
-                i === index
-                  ? 'border-gold-400 opacity-100'
-                  : 'border-transparent opacity-30 hover:opacity-60',
-              ].join(' ')}
+              whileHover={{ scale: 1.15, y: -3 }}
+              whileTap={{ scale: 0.9 }}
+              className="relative flex-shrink-0 overflow-hidden transition-all duration-250"
+              style={{
+                width: 48, height: 48,
+                borderRadius: '50%',
+                border: i === index ? '2.5px solid #E21F2F' : '2px solid rgba(255,255,255,0.14)',
+                boxShadow: i === index ? '0 0 16px rgba(226,31,47,0.5)' : 'none',
+                opacity: i === index ? 1 : 0.35,
+              }}
             >
-              <video src={`${encodeVideoSrc(v.src)}#t=2`} preload="metadata" muted playsInline
-                className="w-full h-full object-cover" />
-              {i === index && <div className="absolute inset-0 bg-gold-500/20" />}
+              <video
+                src={`${encodeVideoSrc(v.src)}#t=2`}
+                preload="metadata"
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              />
+              {i === index && (
+                <div className="absolute inset-0 rounded-full"
+                     style={{ background: 'rgba(226,31,47,0.18)' }} />
+              )}
             </motion.button>
           ))}
         </motion.div>
@@ -901,22 +1047,32 @@ export default function Gallery({ gallery = [], categories = [] }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
             className="section-padding relative overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, #0F0F0F 0%, #141414 50%, #111111 100%)' }}
+            style={{ background: 'linear-gradient(160deg, #07050d 0%, #0d0510 28%, #12050a 60%, #09030b 100%)' }}
           >
             {/* subtle dot-grid texture */}
             <div className="absolute inset-0 pointer-events-none"
                  style={{
-                   backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)',
+                   backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px)',
                    backgroundSize: '28px 28px',
                  }} />
 
-            {/* top gold line */}
-            <div className="absolute top-0 left-0 right-0 h-px
-                            bg-gradient-to-r from-transparent via-gold-500/50 to-transparent" />
+            {/* Ambient glow — brand red left */}
+            <div className="absolute top-1/4 -left-40 w-[500px] h-[500px] rounded-full pointer-events-none"
+                 style={{ background: 'radial-gradient(circle, rgba(226,31,47,0.07) 0%, transparent 65%)' }} />
+            {/* Ambient glow — brand red right */}
+            <div className="absolute bottom-1/3 -right-40 w-[500px] h-[500px] rounded-full pointer-events-none"
+                 style={{ background: 'radial-gradient(circle, rgba(226,31,47,0.055) 0%, transparent 65%)' }} />
+            {/* Top center glow */}
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-72 pointer-events-none"
+                 style={{ background: 'radial-gradient(ellipse, rgba(226,31,47,0.045) 0%, transparent 70%)' }} />
 
-            {/* bottom gold line */}
+            {/* top red accent line */}
+            <div className="absolute top-0 left-0 right-0 h-px"
+                 style={{ background: 'linear-gradient(to right, transparent, rgba(226,31,47,0.55), transparent)' }} />
+
+            {/* bottom line */}
             <div className="absolute bottom-0 left-0 right-0 h-px
-                            bg-gradient-to-r from-transparent via-white/8 to-transparent" />
+                            bg-gradient-to-r from-transparent via-white/6 to-transparent" />
 
             <div className="relative section-container">
               <SectionHeader
@@ -943,7 +1099,7 @@ export default function Gallery({ gallery = [], categories = [] }) {
                       const remaining  = items.length - INITIAL_VIDEO_COUNT
                       return (
                         <>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 gap-y-14 place-items-center">
                             {visible.map((item, idx) => {
                               const globalIdx = filteredVideos.indexOf(item)
                               return (
