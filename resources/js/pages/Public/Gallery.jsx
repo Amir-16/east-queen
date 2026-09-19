@@ -170,145 +170,173 @@ const ImageCard = memo(function ImageCard({ item, idx, onClick }) {
   )
 })
 
-/* ── VideoCard (circular design) ── */
+/* ── VideoCard (premium circular design) ── */
+const CIRCLE_SIZE = 220
+
 const VideoCard = memo(function VideoCard({ item, idx, onClick, categoryMeta }) {
   const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-40px' })
+  const inView = useInView(ref, { once: true, margin: '-30px' })
+  const [hovered, setHovered] = useState(false)
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, scale: 0.55, y: 40 }}
-      animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
+      initial={{ opacity: 0, y: 56, scale: 0.72 }}
+      animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
       transition={{
-        delay: Math.min(idx * 0.08, 0.5),
-        duration: 0.7,
+        delay: Math.min(idx * 0.07, 0.42),
         type: 'spring',
-        stiffness: 175,
-        damping: 20,
+        stiffness: 160,
+        damping: 18,
       }}
-      className="flex flex-col items-center gap-5 group/card"
+      className="flex flex-col items-center gap-4"
     >
-      {/* ── Outer wrapper (positions ring + circle) ── */}
+      {/* ── Circle hit-area ── */}
       <motion.div
-        className="relative cursor-pointer w-full"
-        style={{ maxWidth: 190, aspectRatio: '1/1' }}
-        whileTap={{ scale: 0.87 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+        style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE, position: 'relative', flexShrink: 0 }}
+        onHoverStart={() => setHovered(true)}
+        onHoverEnd={() => setHovered(false)}
+        whileHover={{ scale: 1.07 }}
+        whileTap={{ scale: 0.91 }}
+        transition={{ type: 'spring', stiffness: 280, damping: 20 }}
         onClick={onClick}
+        className="cursor-pointer"
       >
-        {/* Far aura pulse */}
+        {/* Outer glow — animates in on hover */}
         <motion.div
-          animate={{ scale: [1, 1.42, 1], opacity: [0.18, 0, 0.18] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
-          className="absolute -inset-5 rounded-full pointer-events-none"
-          style={{ border: '1px solid rgba(226,31,47,0.22)' }}
-        />
-        {/* Near aura pulse */}
-        <motion.div
-          animate={{ scale: [1, 1.22, 1], opacity: [0.38, 0, 0.38] }}
-          transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -inset-2.5 rounded-full pointer-events-none"
-          style={{ border: '1px solid rgba(226,31,47,0.45)' }}
-        />
-
-        {/* Spinning conic-gradient ring (sits behind the inset video circle) */}
-        <motion.div
-          className="absolute inset-0 rounded-full pointer-events-none"
-          style={{
-            background:
-              'conic-gradient(from 0deg, #E21F2F 0%, #FF5566 22%, rgba(255,255,255,0.07) 48%, #FF5566 72%, #E21F2F 100%)',
+          animate={{
+            opacity: hovered ? 1 : 0,
+            scale:   hovered ? 1.14 : 0.95,
           }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'linear' }}
+          transition={{ duration: 0.35 }}
+          style={{
+            position: 'absolute',
+            inset: -12,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(226,31,47,0.28) 0%, transparent 68%)',
+            pointerEvents: 'none',
+          }}
         />
 
-        {/* Video circle — inset 3 px so the spinning ring shows as a border */}
-        <div
-          className="absolute inset-[3px] rounded-full overflow-hidden
-                     shadow-[0_10px_50px_rgba(0,0,0,0.85)]
-                     group-hover/card:shadow-[0_16px_60px_rgba(226,31,47,0.28),0_8px_30px_rgba(0,0,0,0.8)]
-                     transition-shadow duration-500"
-          style={{ background: '#1a0a0e' }}
-        >
+        {/* Static border ring — pulses subtly */}
+        <motion.div
+          animate={{ scale: [1, 1.04, 1], opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            position: 'absolute',
+            inset: -4,
+            borderRadius: '50%',
+            border: hovered ? '2px solid rgba(226,31,47,0.6)' : '2px solid rgba(226,31,47,0.22)',
+            transition: 'border-color 0.35s ease',
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* Inner ring (always visible) */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          borderRadius: '50%',
+          border: `3px solid ${hovered ? 'rgba(226,31,47,0.75)' : 'rgba(226,31,47,0.3)'}`,
+          transition: 'border-color 0.3s ease',
+          zIndex: 3,
+          pointerEvents: 'none',
+          boxShadow: hovered
+            ? 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 0 24px rgba(226,31,47,0.3)'
+            : 'inset 0 0 0 1px rgba(255,255,255,0.04)',
+        }} />
+
+        {/* Video clipped to circle */}
+        <div style={{
+          position: 'absolute',
+          inset: 4,
+          borderRadius: '50%',
+          overflow: 'hidden',
+          background: '#130608',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.55)',
+        }}>
           <VideoThumbnail src={item.src} />
 
-          {/* Overlay gradient */}
-          <div
-            className="absolute inset-0 transition-opacity duration-400"
+          {/* Gradient overlay */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(160deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.04) 45%, rgba(0,0,0,0.68) 100%)',
+            transition: 'opacity 0.35s',
+          }} />
+
+          {/* Hover vignette */}
+          <motion.div
+            animate={{ opacity: hovered ? 1 : 0 }}
+            transition={{ duration: 0.3 }}
             style={{
-              background:
-                'linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.04) 40%, rgba(0,0,0,0.78) 100%)',
+              position: 'absolute', inset: 0,
+              background: 'radial-gradient(circle at 50% 55%, rgba(226,31,47,0.12) 0%, rgba(0,0,0,0.32) 80%)',
             }}
           />
-          {/* Hover darken */}
-          <div className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-400"
-               style={{ background: 'rgba(10,4,6,0.18)' }} />
 
-          {/* ── Play button ── */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            {/* Ripple 1 */}
+          {/* ── Centered play button ── */}
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+            {/* Ripple A */}
             <motion.div
-              animate={{ scale: [1, 2.6, 1], opacity: [0.38, 0, 0.38] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut', delay: 0.45 }}
-              className="absolute w-[52px] h-[52px] rounded-full"
-              style={{ background: 'rgba(226,31,47,0.22)' }}
+              animate={{ scale: [1, 2.2, 1], opacity: [0.42, 0, 0.42] }}
+              transition={{ duration: 2.3, repeat: Infinity, ease: 'easeOut' }}
+              style={{ position: 'absolute', width: 62, height: 62, borderRadius: '50%', background: 'rgba(255,255,255,0.18)' }}
             />
-            {/* Ripple 2 */}
+            {/* Ripple B — offset phase */}
             <motion.div
-              animate={{ scale: [1, 1.95, 1], opacity: [0.45, 0, 0.45] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut' }}
-              className="absolute w-[52px] h-[52px] rounded-full"
-              style={{ background: 'rgba(255,255,255,0.18)' }}
+              animate={{ scale: [1, 2.8, 1], opacity: [0.22, 0, 0.22] }}
+              transition={{ duration: 2.3, repeat: Infinity, ease: 'easeOut', delay: 0.5 }}
+              style={{ position: 'absolute', width: 62, height: 62, borderRadius: '50%', background: 'rgba(226,31,47,0.18)' }}
             />
-            {/* Button */}
-            <div
-              className="relative w-[52px] h-[52px] rounded-full flex items-center justify-center
-                         transition-all duration-300
-                         group-hover/card:scale-110"
+
+            {/* The button disc */}
+            <motion.div
+              animate={{
+                scale:       hovered ? 1.18 : 1,
+                background:  hovered ? 'rgba(226,31,47,0.92)' : 'rgba(255,255,255,0.16)',
+                borderColor: hovered ? 'rgba(226,31,47,0.55)' : 'rgba(255,255,255,0.7)',
+                boxShadow:   hovered
+                  ? '0 0 0 6px rgba(226,31,47,0.14), 0 8px 28px rgba(0,0,0,0.45)'
+                  : '0 0 0 3px rgba(255,255,255,0.08), 0 6px 20px rgba(0,0,0,0.4)',
+              }}
+              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
               style={{
-                background: 'rgba(255,255,255,0.14)',
-                backdropFilter: 'blur(10px)',
-                border: '2px solid rgba(255,255,255,0.55)',
-                boxShadow: '0 0 28px rgba(255,255,255,0.15)',
+                position: 'relative',
+                width: 62, height: 62, borderRadius: '50%',
+                backdropFilter: 'blur(14px)',
+                border: '2px solid rgba(255,255,255,0.7)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
             >
-              {/* inner red fill on hover */}
-              <div className="absolute inset-0 rounded-full opacity-0 group-hover/card:opacity-100
-                              transition-opacity duration-300"
-                   style={{ background: 'rgba(226,31,47,0.88)' }} />
-              <Play size={19} fill="white" className="text-white ml-0.5 relative z-10" />
-            </div>
+              <Play size={22} fill="white" color="white" style={{ marginLeft: 3 }} />
+            </motion.div>
           </div>
-        </div>
-
-        {/* Category badge — floats below circle */}
-        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-          <motion.span
-            initial={{ opacity: 0, y: 6 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: Math.min(idx * 0.08, 0.5) + 0.18 }}
-            className="flex items-center gap-1 px-2.5 py-[3px] rounded-full whitespace-nowrap
-                       text-white text-[9px] font-bold uppercase tracking-wider shadow-gold-glow"
-            style={{ background: 'linear-gradient(90deg,#c41729,#E21F2F)' }}
-          >
-            <Film size={7} />
-            {categoryMeta[item.category]?.label ?? item.category}
-          </motion.span>
         </div>
       </motion.div>
 
-      {/* Caption below the circle */}
-      {item.caption && (
-        <motion.p
-          initial={{ opacity: 0, y: 6 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: Math.min(idx * 0.08, 0.5) + 0.32 }}
-          className="text-white/40 text-[11px] text-center leading-snug line-clamp-2 max-w-[155px] mt-1"
+      {/* ── Label + caption ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: Math.min(idx * 0.07, 0.42) + 0.22 }}
+        className="text-center space-y-1.5 px-3"
+        style={{ maxWidth: CIRCLE_SIZE + 20 }}
+      >
+        <span
+          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full
+                     text-white text-[9px] font-bold uppercase tracking-wider"
+          style={{ background: 'linear-gradient(90deg,#b01422,#E21F2F)', boxShadow: '0 2px 10px rgba(226,31,47,0.28)' }}
         >
-          {item.caption}
-        </motion.p>
-      )}
+          <Film size={7} />
+          {categoryMeta[item.category]?.label ?? item.category}
+        </span>
+
+        {item.caption && (
+          <p className="text-slate-500 text-[11px] leading-snug line-clamp-2">
+            {item.caption}
+          </p>
+        )}
+      </motion.div>
     </motion.div>
   )
 })
@@ -1047,39 +1075,38 @@ export default function Gallery({ gallery = [], categories = [] }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
             className="section-padding relative overflow-hidden"
-            style={{ background: 'linear-gradient(160deg, #07050d 0%, #0d0510 28%, #12050a 60%, #09030b 100%)' }}
+            style={{ background: 'linear-gradient(180deg, #FFF8EE 0%, #FEF3E2 40%, #FFF6EC 100%)' }}
           >
-            {/* subtle dot-grid texture */}
+            {/* subtle warm dot-grid texture */}
             <div className="absolute inset-0 pointer-events-none"
                  style={{
-                   backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px)',
+                   backgroundImage: 'radial-gradient(circle, rgba(180,100,40,0.06) 1px, transparent 1px)',
                    backgroundSize: '28px 28px',
                  }} />
 
-            {/* Ambient glow — brand red left */}
-            <div className="absolute top-1/4 -left-40 w-[500px] h-[500px] rounded-full pointer-events-none"
-                 style={{ background: 'radial-gradient(circle, rgba(226,31,47,0.07) 0%, transparent 65%)' }} />
-            {/* Ambient glow — brand red right */}
-            <div className="absolute bottom-1/3 -right-40 w-[500px] h-[500px] rounded-full pointer-events-none"
-                 style={{ background: 'radial-gradient(circle, rgba(226,31,47,0.055) 0%, transparent 65%)' }} />
-            {/* Top center glow */}
-            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-72 pointer-events-none"
-                 style={{ background: 'radial-gradient(ellipse, rgba(226,31,47,0.045) 0%, transparent 70%)' }} />
+            {/* Warm ambient glow — left */}
+            <div className="absolute top-1/4 -left-32 w-[480px] h-[480px] rounded-full pointer-events-none"
+                 style={{ background: 'radial-gradient(circle, rgba(226,31,47,0.06) 0%, transparent 65%)' }} />
+            {/* Warm ambient glow — right */}
+            <div className="absolute bottom-1/3 -right-32 w-[480px] h-[480px] rounded-full pointer-events-none"
+                 style={{ background: 'radial-gradient(circle, rgba(180,80,30,0.05) 0%, transparent 65%)' }} />
+            {/* Soft top wash */}
+            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-[800px] h-48 pointer-events-none"
+                 style={{ background: 'radial-gradient(ellipse, rgba(255,220,180,0.35) 0%, transparent 70%)' }} />
 
             {/* top red accent line */}
             <div className="absolute top-0 left-0 right-0 h-px"
-                 style={{ background: 'linear-gradient(to right, transparent, rgba(226,31,47,0.55), transparent)' }} />
+                 style={{ background: 'linear-gradient(to right, transparent, rgba(226,31,47,0.45), transparent)' }} />
 
-            {/* bottom line */}
-            <div className="absolute bottom-0 left-0 right-0 h-px
-                            bg-gradient-to-r from-transparent via-white/6 to-transparent" />
+            {/* bottom divider */}
+            <div className="absolute bottom-0 left-0 right-0 h-px"
+                 style={{ background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.08), transparent)' }} />
 
             <div className="relative section-container">
               <SectionHeader
                 eyebrow="Live Footage"
                 title="Videos"
                 count={filteredVideos.length}
-                dark
               />
 
               <div className="space-y-12">
@@ -1090,7 +1117,6 @@ export default function Gallery({ gallery = [], categories = [] }) {
                       label={categoryMeta[cat]?.label ?? cat}
                       count={items.length}
                       delay={gi * 0.06}
-                      dark
                     />
 
                     {(() => {
@@ -1099,7 +1125,7 @@ export default function Gallery({ gallery = [], categories = [] }) {
                       const remaining  = items.length - INITIAL_VIDEO_COUNT
                       return (
                         <>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 gap-y-14 place-items-center">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 place-items-center">
                             {visible.map((item, idx) => {
                               const globalIdx = filteredVideos.indexOf(item)
                               return (
