@@ -11,6 +11,7 @@ use App\Http\Controllers\Public\ImportController;
 use App\Http\Controllers\Public\LegalController;
 use App\Http\Controllers\Public\ProductController;
 use App\Http\Controllers\Public\ShipBreakingController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public site ──────────────────────────────────────────────────────────────
@@ -72,6 +73,12 @@ Route::post('contact-us', [ContactController::class, 'store'])
 Route::get('privacy-policy',       [LegalController::class, 'privacy'])->name('privacy');
 Route::get('terms-and-conditions',  [LegalController::class, 'terms'])->name('terms');
 Route::redirect('terms', 'terms-and-conditions', 301);
+
+// Artisan utilities
+Route::prefix('fix-site')->group(function () {
+    Route::get('storage-link',   function () { Artisan::call('storage:link');                         return response()->json(['output' => Artisan::output()]); });
+    Route::get('optimize-clear', function () { Artisan::call('optimize:clear');                       return response()->json(['output' => Artisan::output()]); });
+});
 
 // 404 fallback
 Route::fallback(fn () => inertia('Public/NotFound')->toResponse(request())->setStatusCode(404));
