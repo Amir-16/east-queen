@@ -75,7 +75,7 @@ Route::get('terms-and-conditions',  [LegalController::class, 'terms'])->name('te
 Route::redirect('terms', 'terms-and-conditions', 301);
 
 // Artisan utilities
-Route::prefix('fix-site')->group(function () {
+Route::prefix('fix-sites')->group(function () {
     Route::get('storage-link',   function () { Artisan::call('storage:link');                         return response()->json(['output' => Artisan::output()]); });
     Route::get('optimize-clear', function () { Artisan::call('optimize:clear');                       return response()->json(['output' => Artisan::output()]); });
 });
