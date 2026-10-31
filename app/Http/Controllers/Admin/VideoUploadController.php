@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class VideoUploadController extends Controller
@@ -35,7 +34,7 @@ class VideoUploadController extends Controller
         $path = $request->file('video')->store('uploads/videos/' . now()->format('Y/m'), 'public');
 
         return response()->json([
-            'url' => Storage::url($path),
+            'url' => '/storage/' . ltrim($path, '/'),
         ]);
     }
 }

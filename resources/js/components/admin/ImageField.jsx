@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { LinkIcon, PhotoIcon } from '@heroicons/react/24/outline'
 
 // Uses window.axios (configured in bootstrap.js) which automatically reads the
@@ -20,10 +20,16 @@ async function uploadFile(file) {
     }
 }
 
+// Older rows may hold an absolute own-site URL (wrong APP_URL, or a "//storage" double slash).
+// Reduce those to the canonical relative /storage/... path so they resolve on any domain.
+const normalizeStorageUrl = (val) =>
+    typeof val === 'string' ? val.replace(/^https?:\/\/[^/]+\/+(?=storage\/)/i, '/').replace(/^\/{2,}(?=storage\/)/, '/') : ''
+
 // Uploaded files come back as /storage/... paths; external URLs start with http
 const isStoragePath = (val) => Boolean(val) && (val.startsWith('/storage/') || val.startsWith('/uploads/'))
 
-export default function ImageField({ value = '', onChange, label = 'Image', error }) {
+export default function ImageField({ value: rawValue = '', onChange, label = 'Image', error }) {
+    const value = normalizeStorageUrl(rawValue) || (rawValue ?? '')
     // Auto-detect mode from initial value so editing an uploaded slide starts in upload mode
     const initialIsUpload = isStoragePath(value)
 
@@ -32,9 +38,19 @@ export default function ImageField({ value = '', onChange, label = 'Image', erro
     const [uploadedUrl, setUploadedUrl] = useState(initialIsUpload ? value : '')
     const [uploading,  setUploading]  = useState(false)
     const [uploadErr,  setUploadErr]  = useState('')
+    const [previewFailed, setPreviewFailed] = useState(false)
     const fileRef = useRef(null)
 
+    // Persist the cleaned-up path so the next save stores it
+    useEffect(() => {
+        if (value !== rawValue) onChange(value)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
     const preview = mode === 'url' ? urlInput : uploadedUrl
+
+    // A new source gets a fresh chance to load
+    useEffect(() => { setPreviewFailed(false) }, [preview])
 
     const handleModeSwitch = (newMode) => {
         if (newMode === mode) return
@@ -134,13 +150,13 @@ export default function ImageField({ value = '', onChange, label = 'Image', erro
                         <>
                             <PhotoIcon className="w-7 h-7 text-gray-400" />
                             <span className="text-xs text-gray-600">Click to choose an image</span>
-                            <span className="text-xs text-gray-400">JPEG, PNG, WebP — max 5 MB</span>
+                            <span className="text-xs text-gray-400">JPEG, PNG, WebP, GIF, SVG — max 5 MB</span>
                         </>
                     )}
                     <input
                         ref={fileRef}
                         type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,.svg"
                         disabled={uploading}
                         onChange={handleFileChange}
                         className="sr-only"
@@ -161,7 +177,7 @@ export default function ImageField({ value = '', onChange, label = 'Image', erro
                     <input
                         ref={fileRef}
                         type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,.svg"
                         disabled={uploading}
                         onChange={handleFileChange}
                         className="sr-only"
@@ -174,14 +190,17 @@ export default function ImageField({ value = '', onChange, label = 'Image', erro
             {/* Preview thumbnail */}
             {preview && (
                 <div className="flex items-end gap-3">
-                    <div className="relative w-32 h-24 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group flex-shrink-0">
-                        <img
-                            src={preview}
-                            alt="Preview"
-                            className="w-full h-full object-cover"
-                            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.opacity = '0.3' }}
-                        />
-                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="relative w-32 h-24 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center flex-shrink-0">
+                        {previewFailed ? (
+                            <PhotoIcon className="w-8 h-8 text-gray-300" aria-hidden="true" />
+                        ) : (
+                            <img
+                                src={preview}
+                                alt="Preview"
+                                className="w-full h-full object-contain"
+                                onError={() => setPreviewFailed(true)}
+                            />
+                        )}
                     </div>
                     <button
                         type="button"
@@ -191,6 +210,13 @@ export default function ImageField({ value = '', onChange, label = 'Image', erro
                         Remove
                     </button>
                 </div>
+            )}
+            {preview && previewFailed && (
+                <p className="text-xs text-amber-600" role="alert">
+                    {mode === 'url'
+                        ? "This URL isn't a direct image link — use the image file address (ending in .jpg, .png, .webp…)."
+                        : "The file was saved but can't be loaded. Check that the storage link exists on the server (php artisan storage:link)."}
+                </p>
             )}
 
             {error && <p className="text-xs text-red-600">{error}</p>}
