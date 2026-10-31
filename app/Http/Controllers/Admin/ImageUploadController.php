@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class ImageUploadController extends Controller
@@ -26,8 +25,9 @@ class ImageUploadController extends Controller
 
         $path = $request->file('image')->store('uploads/' . now()->format('Y/m'), 'public');
 
+        // Relative path: independent of APP_URL (avoids localhost / double-slash URLs on live).
         return response()->json([
-            'url' => Storage::url($path),
+            'url' => '/storage/' . ltrim($path, '/'),
         ]);
     }
 }
