@@ -78,10 +78,36 @@ Route::redirect('terms', 'terms-and-conditions', 301);
 Route::get('fix-sites', function () {
     $output = [];
 
+    // `storage:link` refuses to touch an existing link, even a stale one (e.g. copied from another
+    // machine). Remove it only if it is a symlink that doesn't point at this app's public disk.
+    $link = public_path('storage');
+    if (is_link($link) && realpath($link) !== realpath(storage_path('app/public'))) {
+        $target = readlink($link);
+        $output['stale-link'] = @unlink($link) ? "removed (pointed to {$target})" : 'could not remove';
+    } elseif (file_exists($link) && ! is_link($link)) {
+        $output['stale-link'] = 'public/storage is a real file/folder, not a symlink — remove it manually';
+    }
+
     foreach (['storage:link', 'optimize:clear'] as $command) {
         Artisan::call($command);
         $output[$command] = trim(Artisan::output());
     }
+
+    $logo = optional(\App\Models\Associate::whereNotNull('logo')->latest('id')->first())->logo;
+    $logoFile = $logo ? storage_path('app/public/' . preg_replace('#^/?storage/#', '', $logo)) : null;
+
+    $output['diagnostics'] = [
+        'public_path'        => public_path(),
+        'document_root'      => $_SERVER['DOCUMENT_ROOT'] ?? null,
+        'link_exists'        => is_link($link),
+        'link_target'        => is_link($link) ? readlink($link) : null,
+        'link_resolves_to'   => realpath($link) ?: null,
+        'expected_target'    => realpath(storage_path('app/public')),
+        'latest_logo_value'  => $logo,
+        'logo_file_on_disk'  => $logoFile ? file_exists($logoFile) : null,
+        'logo_via_public'    => $logo ? file_exists(public_path(ltrim($logo, '/'))) : null,
+        'app_url'            => config('app.url'),
+    ];
 
     return response()->json($output);
 });
