@@ -150,13 +150,13 @@ export default function ImageField({ value: rawValue = '', onChange, label = 'Im
                         <>
                             <PhotoIcon className="w-7 h-7 text-gray-400" />
                             <span className="text-xs text-gray-600">Click to choose an image</span>
-                            <span className="text-xs text-gray-400">JPEG, PNG, WebP — max 5 MB</span>
+                            <span className="text-xs text-gray-400">JPEG, PNG, WebP, GIF, SVG — max 5 MB</span>
                         </>
                     )}
                     <input
                         ref={fileRef}
                         type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,.svg"
                         disabled={uploading}
                         onChange={handleFileChange}
                         className="sr-only"
@@ -177,7 +177,7 @@ export default function ImageField({ value: rawValue = '', onChange, label = 'Im
                     <input
                         ref={fileRef}
                         type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,.svg"
                         disabled={uploading}
                         onChange={handleFileChange}
                         className="sr-only"
